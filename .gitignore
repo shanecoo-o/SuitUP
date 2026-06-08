@@ -2,6 +2,7 @@
 .gradle/
 build/
 **/build/
+.kotlin/
 
 # Android Studio / IntelliJ
 .idea/
@@ -19,6 +20,9 @@ Thumbs.db
 build-log.txt
 install-log.txt
 logcat-suitup.txt
+
+# Gradle problem reports
+**/reports/problems/
 
 # APK outputs
 *.apk
