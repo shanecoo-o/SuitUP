@@ -1,0 +1,67 @@
+package com.suitup.app.ui.screens.cart
+
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
+import com.suitup.app.data.mock.MockData
+import com.suitup.app.domain.model.ItemCarrinho
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+data class CarrinhoUiState(
+    val itens: List<ItemCarrinho> = emptyList(),
+    val taxaEntrega: Int = 0,
+    val carregando: Boolean = false,
+) {
+    val subtotal: Int get() = itens.sumOf { it.precoUnitarioMt * it.quantidade }
+    val total: Int get() = subtotal + taxaEntrega
+    val contadorCarrinho: Int get() = itens.sumOf { it.quantidade }
+    val carrinhoVazio: Boolean get() = itens.isEmpty()
+}
+
+sealed class CarrinhoUiEvent {
+    data class QuantidadeAlterada(val itemId: String, val quantidade: Int) : CarrinhoUiEvent()
+    data class RemoverItem(val itemId: String) : CarrinhoUiEvent()
+    data object FinalizarPedidoClicado : CarrinhoUiEvent()
+}
+
+class CarrinhoScreenModel : ScreenModel {
+
+    private val _state = MutableStateFlow(CarrinhoUiState())
+    val state: StateFlow<CarrinhoUiState> = _state.asStateFlow()
+
+    init {
+        screenModelScope.launch {
+            _state.update {
+                it.copy(
+                    itens = MockData.itensCarrinho,
+                    taxaEntrega = MockData.taxaEntregaMt,
+                )
+            }
+        }
+    }
+
+    fun onEvent(event: CarrinhoUiEvent) {
+        when (event) {
+            is CarrinhoUiEvent.QuantidadeAlterada -> {
+                _state.update { s ->
+                    s.copy(
+                        itens = s.itens.map { item ->
+                            if (item.id == event.itemId) item.copy(quantidade = event.quantidade) else item
+                        }
+                    )
+                }
+            }
+            is CarrinhoUiEvent.RemoverItem -> {
+                _state.update { s ->
+                    s.copy(itens = s.itens.filter { it.id != event.itemId })
+                }
+            }
+            is CarrinhoUiEvent.FinalizarPedidoClicado -> {
+                // Step 4: persistir carrinho antes de navegar.
+            }
+        }
+    }
+}
