@@ -1,4 +1,4 @@
-# Gradle
+# Gradle / build
 .gradle/
 build/
 **/build/
@@ -11,18 +11,16 @@ build/
 # Local machine config
 local.properties
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# Logs
+# Reports / logs
 *.log
 build-log.txt
 install-log.txt
 logcat-suitup.txt
-
-# Gradle problem reports
 **/reports/problems/
 
 # APK outputs
 *.apk
+
+# OS files
+.DS_Store
+Thumbs.db
