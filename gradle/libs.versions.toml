@@ -12,7 +12,7 @@ kotlinx-serialization = "1.7.3"
 coil = "3.0.0-rc02"
 ktor = "3.0.0"
 voyager = "1.1.0-beta02"
-filament = "1.51.4"
+filament = "1.71.4"
 
 [libraries]
 # AndroidX
