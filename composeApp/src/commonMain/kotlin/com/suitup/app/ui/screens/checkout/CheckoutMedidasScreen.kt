@@ -214,7 +214,7 @@ fun CheckoutMedidasScreen(
                 Text(
                     text = erro,
                     style = SuitTextStyles.bodySmall,
-                    color = SuitColors.statusError,
+                    color = SuitColors.PaleRedInk,
                 )
             }
 

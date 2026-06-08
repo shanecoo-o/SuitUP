@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 data class EditorPartesUiState(
     val partes: PartesFato = PartesFato(),
-    val parteSeleccionada: EditorPart = EditorPart.Lapel,
+    val parteSeleccionada: EditorPart = EditorPart.Lapela,
     val corFato: Color = SuitColors.Ink,
     val contadorCarrinho: Int = 0,
 )
@@ -64,7 +64,7 @@ class EditorPartesScreenModel(private val modeloId: String) : ScreenModel {
 // ─── Editor 2D Cores ─────────────────────────────────────────────────────────
 
 data class EditorCoresUiState(
-    val parteSeleccionada: EditorPart = EditorPart.Sleeves,
+    val parteSeleccionada: EditorPart = EditorPart.Mangas,
     val coresFato: List<CorFato> = emptyList(),
     val tecidos: List<Tecido> = emptyList(),
     val corSeleccionada: CorFato? = null,

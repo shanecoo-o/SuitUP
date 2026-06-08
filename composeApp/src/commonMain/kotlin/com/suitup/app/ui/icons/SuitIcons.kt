@@ -1,4 +1,4 @@
-package com.suitup.app.ui.components
+package com.suitup.app.ui.icons
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
