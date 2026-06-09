@@ -173,7 +173,7 @@ private fun OrderRow(order: Pedido, onClick: () -> Unit) {
         ) {
             SuitGarmentMini(
                 size = 56.dp,
-                garmentColor = order.designsFato.firstOrNull()?.color?.hex?.toComposeColorOrNull() ?: SuitColors.Ink,
+                garmentColor = order.designsFato.firstOrNull()?.cor?.hex?.toComposeColorOrNull() ?: SuitColors.Ink,
                 background = SuitColors.Pearl,
             )
 

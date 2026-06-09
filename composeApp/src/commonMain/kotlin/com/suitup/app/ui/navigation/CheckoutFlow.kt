@@ -191,7 +191,7 @@ class PaymentVoyagerScreen : Screen {
         }
 
         PaymentScreen(
-            mpesaNumber = state.numeroMpesa,
+            numeroMpesa = state.numeroMpesa,
             mpesaTitleHolder = state.titularMpesa,
             uploadedFileName = state.nomeFicheiroCarregado,
             cartItemCount = state.contadorCarrinho,
