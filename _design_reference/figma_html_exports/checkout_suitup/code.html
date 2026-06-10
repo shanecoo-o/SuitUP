@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SuitUP - Checkout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#d0c5af",
+                      "on-secondary": "#472a06",
+                      "on-primary-fixed-variant": "#574500",
+                      "secondary": "#eebd8e",
+                      "on-tertiary": "#313030",
+                      "on-surface": "#e5e2e1",
+                      "surface-container-high": "#2a2a2a",
+                      "on-tertiary-container": "#454544",
+                      "on-secondary-container": "#dfaf81",
+                      "surface-container-low": "#1c1b1b",
+                      "primary-container": "#d4af37",
+                      "surface": "#131313",
+                      "secondary-container": "#64421d",
+                      "tertiary-container": "#b4b2b2",
+                      "on-tertiary-fixed-variant": "#474746",
+                      "surface-container-lowest": "#0e0e0e",
+                      "secondary-fixed": "#ffdcbd",
+                      "primary-fixed": "#ffe088",
+                      "error-container": "#93000a",
+                      "on-background": "#e5e2e1",
+                      "outline-variant": "#4d4635",
+                      "primary-fixed-dim": "#e9c349",
+                      "on-secondary-fixed": "#2c1600",
+                      "surface-bright": "#393939",
+                      "surface-dim": "#131313",
+                      "on-primary": "#3c2f00",
+                      "error": "#ffb4ab",
+                      "surface-container-highest": "#353534",
+                      "outline": "#99907c",
+                      "background": "#131313",
+                      "secondary-fixed-dim": "#eebd8e",
+                      "on-primary-container": "#554300",
+                      "inverse-on-surface": "#313030",
+                      "tertiary": "#d0cdcd",
+                      "inverse-surface": "#e5e2e1",
+                      "tertiary-fixed": "#e5e2e1",
+                      "surface-container": "#201f1f",
+                      "on-tertiary-fixed": "#1c1b1b",
+                      "on-secondary-fixed-variant": "#61401b",
+                      "tertiary-fixed-dim": "#c8c6c5",
+                      "on-error-container": "#ffdad6",
+                      "primary": "#f2ca50",
+                      "on-primary-fixed": "#241a00",
+                      "surface-tint": "#e9c349",
+                      "on-error": "#690005",
+                      "surface-variant": "#353534",
+                      "inverse-primary": "#735c00"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "48px",
+                      "lg": "32px",
+                      "sm": "16px",
+                      "margin-desktop": "64px",
+                      "xs": "8px",
+                      "md": "24px",
+                      "gutter": "16px",
+                      "margin-mobile": "20px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Playfair Display"
+                      ],
+                      "headline-md": [
+                              "Playfair Display"
+                      ],
+                      "label-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-lg": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+      </script>
+<style>
+        .glow-button {
+            box-shadow: 0 4px 24px rgba(212, 175, 55, 0.1);
+        }
+        .input-underline {
+            border-bottom-width: 1px;
+            border-bottom-color: #4d4635; /* outline-variant */
+            transition: border-color 0.3s ease;
+        }
+        .input-underline:focus-within {
+            border-bottom-color: #f2ca50; /* primary */
+        }
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px #1E1E1E inset !important;
+            -webkit-text-fill-color: #e5e2e1 !important;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 flex items-center justify-between px-margin-mobile h-16">
+<button class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors scale-95 active:opacity-80 transition-all">
+<span class="material-symbols-outlined font-light">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-on-surface tracking-wide">Checkout</h1>
+<div class="w-6 h-6"></div> <!-- Spacer for centering -->
+</header>
+<main class="pt-24 px-margin-mobile max-w-md mx-auto space-y-lg">
+<!-- Progress Rail -->
+<div class="flex items-center justify-center space-x-4 mb-lg">
+<div class="flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm mr-1">check_circle</span>
+<span class="font-label-sm text-label-sm uppercase">Style</span>
+</div>
+<div class="h-px w-8 bg-outline-variant/50"></div>
+<div class="flex items-center text-primary">
+<span class="material-symbols-outlined text-sm mr-1" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+<span class="font-label-sm text-label-sm uppercase font-bold">Delivery</span>
+</div>
+</div>
+<!-- Order Summary Card -->
+<section class="bg-[#1E1E1E] rounded-lg border border-outline-variant/20 p-md flex items-center space-x-md">
+<div class="w-20 h-24 bg-surface-container rounded overflow-hidden flex-shrink-0 relative border border-outline-variant/10">
+<img alt="Bespoke Suit Preview" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLs_zDJIrSzgZe7m9BL7i3NdEd813jyMtEXh-7Qj5oc6wUcQrSg7X7qGHrFar7CGA47S06nS4cVAU8KzSiClnoEQnvMjBVjKLhF0blobj20GxgMNKvE-9fE0pzoFezTU8PdkqiixiF8cPCa9T7xIS7mPhMdu5n8a7rPSRCuEQCfGP_UmicTvtqE_eVJdSmxRMjjnJUhfIY4JB5kwpnJSzxNp206opjeFIIiI1wdmbKKWecZY3rosqt8BHFMM"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+</div>
+<div class="flex-1">
+<h2 class="font-headline-md text-[18px] text-on-surface mb-1">Bespoke Two-Piece</h2>
+<p class="font-body-md text-[14px] text-on-surface-variant mb-2">Midnight Navy • Italian Wool • Slim Fit</p>
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Custom Measurements</span>
+<span class="font-headline-md text-[18px] text-primary">$1,250</span>
+</div>
+</div>
+</section>
+<!-- Delivery Method -->
+<section class="space-y-sm">
+<h3 class="font-label-lg text-label-lg uppercase tracking-wider text-on-surface-variant mb-xs">Delivery Method</h3>
+<div class="flex space-x-4">
+<button class="flex-1 border border-primary bg-primary/5 rounded-lg p-sm flex items-center justify-center space-x-2 transition-all" id="btn-home-delivery" onclick="selectDeliveryMethod('home')">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm uppercase text-primary font-bold">Home Delivery</span>
+</button>
+<button class="flex-1 border border-outline-variant/50 bg-[#1E1E1E] rounded-lg p-sm flex items-center justify-center space-x-2 transition-all opacity-70" id="btn-store-pickup" onclick="selectDeliveryMethod('store')">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">storefront</span>
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Store Pickup</span>
+</button>
+</div>
+</section>
+<!-- Delivery Address Form -->
+<section class="space-y-md transition-opacity duration-300" id="address-section">
+<div class="flex justify-between items-end mb-sm">
+<h3 class="font-label-lg text-label-lg uppercase tracking-wider text-on-surface-variant">Shipping Address</h3>
+<button class="font-label-sm text-label-sm text-primary uppercase tracking-wider flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1">location_on</span>
+                     Use Current
+                 </button>
+</div>
+<div class="space-y-6">
+<!-- Input Field -->
+<div class="relative bg-[#1E1E1E] pt-4 pb-2 px-sm input-underline rounded-t">
+<label class="absolute top-2 left-sm font-label-sm text-[10px] uppercase tracking-wider text-on-surface-variant">Full Name</label>
+<input class="w-full bg-transparent border-none p-0 font-body-md text-on-surface focus:ring-0 focus:outline-none" placeholder="Enter your full name" type="text" value="Alexander Sterling"/>
+</div>
+<div class="relative bg-[#1E1E1E] pt-4 pb-2 px-sm input-underline rounded-t">
+<label class="absolute top-2 left-sm font-label-sm text-[10px] uppercase tracking-wider text-on-surface-variant">Street Address</label>
+<input class="w-full bg-transparent border-none p-0 font-body-md text-on-surface focus:ring-0 focus:outline-none" placeholder="Street address" type="text" value="450 Park Avenue"/>
+</div>
+<div class="flex space-x-4">
+<div class="relative bg-[#1E1E1E] pt-4 pb-2 px-sm input-underline rounded-t flex-1">
+<label class="absolute top-2 left-sm font-label-sm text-[10px] uppercase tracking-wider text-on-surface-variant">City</label>
+<input class="w-full bg-transparent border-none p-0 font-body-md text-on-surface focus:ring-0 focus:outline-none" placeholder="City" type="text" value="New York"/>
+</div>
+<div class="relative bg-[#1E1E1E] pt-4 pb-2 px-sm input-underline rounded-t flex-1">
+<label class="absolute top-2 left-sm font-label-sm text-[10px] uppercase tracking-wider text-on-surface-variant">ZIP Code</label>
+<input class="w-full bg-transparent border-none p-0 font-body-md text-on-surface focus:ring-0 focus:outline-none" placeholder="ZIP" type="text" value="10022"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Store Pickup Section (Hidden by default) -->
+<section class="hidden space-y-md opacity-0 transition-opacity duration-300" id="store-section">
+<h3 class="font-label-lg text-label-lg uppercase tracking-wider text-on-surface-variant mb-xs">Select Atelier</h3>
+<div class="bg-[#1E1E1E] rounded-lg border border-primary/30 p-sm flex items-center justify-between cursor-pointer">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[20px]">store</span>
+</div>
+<div>
+<p class="font-label-lg text-on-surface">Fifth Ave Atelier</p>
+<p class="font-label-sm text-on-surface-variant">1.2 miles away</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary">check_circle</span>
+</div>
+<div class="bg-surface-container rounded-lg border border-outline-variant/10 p-sm flex items-center justify-between cursor-pointer opacity-70">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant/30">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">store</span>
+</div>
+<div>
+<p class="font-label-lg text-on-surface">SoHo Showroom</p>
+<p class="font-label-sm text-on-surface-variant">3.5 miles away</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Fixed Bottom Action -->
+<div class="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-2xl border-t border-outline-variant/20 p-margin-mobile pb-safe z-40">
+<div class="max-w-md mx-auto">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-lg text-on-surface-variant">Total</span>
+<span class="font-headline-md text-primary">$1,250</span>
+</div>
+<button class="w-full bg-primary text-[#121212] font-label-lg text-label-lg uppercase tracking-widest py-4 rounded-sm flex items-center justify-center glow-button transition-transform active:scale-95">
+                Confirm Order
+                <span class="material-symbols-outlined ml-2 text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<script>
+        function selectDeliveryMethod(method) {
+            const homeBtn = document.getElementById('btn-home-delivery');
+            const storeBtn = document.getElementById('btn-store-pickup');
+            const addressSec = document.getElementById('address-section');
+            const storeSec = document.getElementById('store-section');
+
+            if (method === 'home') {
+                // Style Home Button
+                homeBtn.className = "flex-1 border border-primary bg-primary/5 rounded-lg p-sm flex items-center justify-center space-x-2 transition-all";
+                homeBtn.querySelector('span:last-child').className = "font-label-sm text-label-sm uppercase text-primary font-bold";
+                homeBtn.querySelector('span:first-child').className = "material-symbols-outlined text-primary text-[20px]";
+                homeBtn.querySelector('span:first-child').style.fontVariationSettings = "'FILL' 1";
+
+                // Unstyle Store Button
+                storeBtn.className = "flex-1 border border-outline-variant/50 bg-[#1E1E1E] rounded-lg p-sm flex items-center justify-center space-x-2 transition-all opacity-70";
+                storeBtn.querySelector('span:last-child').className = "font-label-sm text-label-sm uppercase text-on-surface-variant";
+                storeBtn.querySelector('span:first-child').className = "material-symbols-outlined text-on-surface-variant text-[20px]";
+                storeBtn.querySelector('span:first-child').style.fontVariationSettings = "'FILL' 0";
+
+                // Toggle Sections
+                addressSec.classList.remove('hidden');
+                setTimeout(() => addressSec.classList.remove('opacity-0'), 10);
+                
+                storeSec.classList.add('opacity-0');
+                setTimeout(() => storeSec.classList.add('hidden'), 300);
+
+            } else {
+                // Style Store Button
+                storeBtn.className = "flex-1 border border-primary bg-primary/5 rounded-lg p-sm flex items-center justify-center space-x-2 transition-all";
+                storeBtn.querySelector('span:last-child').className = "font-label-sm text-label-sm uppercase text-primary font-bold";
+                storeBtn.querySelector('span:first-child').className = "material-symbols-outlined text-primary text-[20px]";
+                storeBtn.querySelector('span:first-child').style.fontVariationSettings = "'FILL' 1";
+
+                // Unstyle Home Button
+                homeBtn.className = "flex-1 border border-outline-variant/50 bg-[#1E1E1E] rounded-lg p-sm flex items-center justify-center space-x-2 transition-all opacity-70";
+                homeBtn.querySelector('span:last-child').className = "font-label-sm text-label-sm uppercase text-on-surface-variant";
+                homeBtn.querySelector('span:first-child').className = "material-symbols-outlined text-on-surface-variant text-[20px]";
+                homeBtn.querySelector('span:first-child').style.fontVariationSettings = "'FILL' 0";
+
+                // Toggle Sections
+                storeSec.classList.remove('hidden');
+                setTimeout(() => storeSec.classList.remove('opacity-0'), 10);
+                
+                addressSec.classList.add('opacity-0');
+                setTimeout(() => addressSec.classList.add('hidden'), 300);
+            }
+        }
+    </script>
+</body></html>

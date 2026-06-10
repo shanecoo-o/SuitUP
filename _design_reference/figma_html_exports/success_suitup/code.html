@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order Success - BESPOKE ATELIER</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#d0c5af",
+                        "on-secondary": "#472a06",
+                        "on-primary-fixed-variant": "#574500",
+                        "secondary": "#eebd8e",
+                        "on-tertiary": "#313030",
+                        "on-surface": "#e5e2e1",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-container": "#454544",
+                        "on-secondary-container": "#dfaf81",
+                        "surface-container-low": "#1c1b1b",
+                        "primary-container": "#d4af37",
+                        "surface": "#131313",
+                        "secondary-container": "#64421d",
+                        "tertiary-container": "#b4b2b2",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "surface-container-lowest": "#0e0e0e",
+                        "secondary-fixed": "#ffdcbd",
+                        "primary-fixed": "#ffe088",
+                        "error-container": "#93000a",
+                        "on-background": "#e5e2e1",
+                        "outline-variant": "#4d4635",
+                        "primary-fixed-dim": "#e9c349",
+                        "on-secondary-fixed": "#2c1600",
+                        "surface-bright": "#393939",
+                        "surface-dim": "#131313",
+                        "on-primary": "#3c2f00",
+                        "error": "#ffb4ab",
+                        "surface-container-highest": "#353534",
+                        "outline": "#99907c",
+                        "background": "#131313",
+                        "secondary-fixed-dim": "#eebd8e",
+                        "on-primary-container": "#554300",
+                        "inverse-on-surface": "#313030",
+                        "tertiary": "#d0cdcd",
+                        "inverse-surface": "#e5e2e1",
+                        "tertiary-fixed": "#e5e2e1",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "on-secondary-fixed-variant": "#61401b",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#f2ca50",
+                        "on-primary-fixed": "#241a00",
+                        "surface-tint": "#e9c349",
+                        "on-error": "#690005",
+                        "surface-variant": "#353534",
+                        "inverse-primary": "#735c00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "lg": "32px",
+                        "sm": "16px",
+                        "margin-desktop": "64px",
+                        "xs": "8px",
+                        "md": "24px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Playfair Display"],
+                        "headline-md": ["Playfair Display"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glow-effect {
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.15);
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.1); }
+            50% { box-shadow: 0 0 60px rgba(212, 175, 55, 0.25); }
+            100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.1); }
+        }
+        .animate-glow {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+        @keyframes drawCheck {
+            0% { stroke-dashoffset: 100; opacity: 0; }
+            10% { opacity: 1; }
+            100% { stroke-dashoffset: 0; opacity: 1; }
+        }
+        .check-anim {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 1.5s ease-out forwards;
+            animation-delay: 0.2s;
+        }
+        
+        .confetti-piece {
+            position: absolute;
+            width: 8px;
+            height: 16px;
+            background: #d4af37;
+            top: -20px;
+            opacity: 0;
+        }
+        @keyframes fall {
+            0% { top: -20px; transform: rotate(0deg) scale(1); opacity: 1; }
+            100% { top: 100vh; transform: rotate(360deg) scale(0.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+<!-- Decorative background element -->
+<div class="absolute inset-0 z-0 pointer-events-none opacity-20" style="background-image: url('https://lh3.googleusercontent.com/aida/AP1WRLvjm1LXPwo7b4jBw3-sWeBxyST7UsIUWynZpy81538CNVew1tvklwhMCL54sK8bET0ffuQIBitUWKB-Pm5qcZaR6aOEDK1Eh9d6UXfYX6g7mrEv-lbCJCjYwy8u5nV9bTXnnghKMRskxyUga7FQlbBkWjhrqO7ioP2Es5cOcOUMywda_-SUBL0_5DgOqJvpvgAFotBeqW7AOvOpmEJuSiHJJWBfBUigA9g3rLccIp8_Xa-tEKMZzeBPkq5Z'); background-size: cover; background-position: center; filter: blur(20px);"></div>
+<div class="absolute inset-0 bg-gradient-to-b from-surface/80 to-surface z-0 pointer-events-none"></div>
+<div class="absolute inset-0 pointer-events-none z-10 overflow-hidden" id="confetti-container"></div>
+<main class="relative z-20 flex flex-col items-center justify-center w-full max-w-md px-margin-mobile text-center h-full">
+<!-- Success Icon Container -->
+<div class="w-32 h-32 rounded-full bg-surface-container-high border border-outline-variant/30 flex items-center justify-center mb-10 animate-glow relative">
+<div class="absolute inset-0 rounded-full border border-primary/20 scale-110"></div>
+<svg class="w-16 h-16 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24">
+<path class="check-anim" d="M20 6L9 17l-5-5"></path>
+</svg>
+</div>
+<!-- Typography -->
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-xs">
+            Order Placed Successfully!
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mb-xl max-w-xs mx-auto">
+            Your bespoke suit is now in our master tailor's queue. We are validating your payment and will update you shortly.
+        </p>
+<!-- Order Summary Card -->
+<div class="w-full bg-surface-container-high/50 backdrop-blur-md rounded-lg border border-outline-variant/20 p-md mb-xl text-left">
+<div class="flex justify-between items-center mb-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Order Number</span>
+<span class="font-body-md text-body-md text-primary">#BA-8492</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Estimated Delivery</span>
+<span class="font-body-md text-body-md text-on-surface">Oct 12 - 15</span>
+</div>
+</div>
+<!-- Actions -->
+<div class="w-full flex flex-col gap-sm">
+<button class="w-full bg-primary-container text-on-primary-container font-label-lg text-label-lg py-4 rounded-DEFAULT hover:bg-primary-fixed-dim transition-colors glow-effect flex items-center justify-center gap-2">
+                Track My Order
+                <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+</button>
+<button class="w-full bg-transparent border border-outline-variant text-primary font-label-lg text-label-lg py-4 rounded-DEFAULT hover:bg-surface-container-high transition-colors">
+                Back to Home
+            </button>
+</div>
+</main>
+<script>
+        // Simple confetti effect
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#d4af37', '#eebd8e', '#dfaf81', '#393939'];
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti-piece');
+                
+                // Randomize properties
+                const left = Math.random() * 100;
+                const width = Math.random() * 6 + 4;
+                const height = Math.random() * 12 + 8;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const animationDuration = Math.random() * 3 + 2;
+                const animationDelay = Math.random() * 2;
+                
+                confetti.style.left = `${left}%`;
+                confetti.style.width = `${width}px`;
+                confetti.style.height = `${height}px`;
+                confetti.style.backgroundColor = color;
+                confetti.style.animation = `fall ${animationDuration}s linear ${animationDelay}s forwards`;
+                
+                container.appendChild(confetti);
+            }
+        });
+    </script>
+</body></html>

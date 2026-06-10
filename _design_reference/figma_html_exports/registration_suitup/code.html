@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SuitUP - User Registration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#d0c5af",
+                        "on-secondary": "#472a06",
+                        "on-primary-fixed-variant": "#574500",
+                        "secondary": "#eebd8e",
+                        "on-tertiary": "#313030",
+                        "on-surface": "#e5e2e1",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-container": "#454544",
+                        "on-secondary-container": "#dfaf81",
+                        "surface-container-low": "#1c1b1b",
+                        "primary-container": "#d4af37",
+                        "surface": "#131313",
+                        "secondary-container": "#64421d",
+                        "tertiary-container": "#b4b2b2",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "surface-container-lowest": "#0e0e0e",
+                        "secondary-fixed": "#ffdcbd",
+                        "primary-fixed": "#ffe088",
+                        "error-container": "#93000a",
+                        "on-background": "#e5e2e1",
+                        "outline-variant": "#4d4635",
+                        "primary-fixed-dim": "#e9c349",
+                        "on-secondary-fixed": "#2c1600",
+                        "surface-bright": "#393939",
+                        "surface-dim": "#131313",
+                        "on-primary": "#3c2f00",
+                        "error": "#ffb4ab",
+                        "surface-container-highest": "#353534",
+                        "outline": "#99907c",
+                        "background": "#131313",
+                        "secondary-fixed-dim": "#eebd8e",
+                        "on-primary-container": "#554300",
+                        "inverse-on-surface": "#313030",
+                        "tertiary": "#d0cdcd",
+                        "inverse-surface": "#e5e2e1",
+                        "tertiary-fixed": "#e5e2e1",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "on-secondary-fixed-variant": "#61401b",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#f2ca50",
+                        "on-primary-fixed": "#241a00",
+                        "surface-tint": "#e9c349",
+                        "on-error": "#690005",
+                        "surface-variant": "#353534",
+                        "inverse-primary": "#735c00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "lg": "32px",
+                        "sm": "16px",
+                        "margin-desktop": "64px",
+                        "xs": "8px",
+                        "md": "24px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Playfair Display"],
+                        "headline-md": ["Playfair Display"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .input-border {
+            border-bottom-width: 1px;
+            border-bottom-color: #4d4635; /* outline-variant */
+            transition: border-bottom-color 0.3s ease;
+        }
+        .input-border:focus-within {
+            border-bottom-color: #d4af37; /* primary-container */
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+        .delay-500 { animation-delay: 500ms; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col items-center justify-center relative overflow-hidden antialiased">
+<!-- Background Texture/Gradient -->
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface-container-high/40 via-surface to-background z-0 pointer-events-none"></div>
+<main class="relative z-10 w-full max-w-md px-margin-mobile flex flex-col">
+<!-- Header -->
+<header class="text-center mb-12 animate-fade-in-up">
+<h1 class="font-display-lg text-display-lg tracking-widest text-primary uppercase mb-2">SuitUP</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Join the bespoke atelier experience.</p>
+</header>
+<!-- Registration Form -->
+<form class="flex flex-col gap-8 w-full">
+<!-- Full Name Input -->
+<div class="relative bg-surface-container-low px-4 pt-5 pb-2 rounded-t-DEFAULT input-border animate-fade-in-up delay-100 group">
+<label class="absolute top-2 left-4 font-label-sm text-label-sm text-on-surface-variant group-focus-within:text-primary transition-colors" for="fullName">Full Name</label>
+<input class="w-full bg-transparent border-none focus:ring-0 text-on-surface font-body-md text-body-md p-0 placeholder-transparent" id="fullName" placeholder="Full Name" required="" type="text"/>
+</div>
+<!-- Email Input -->
+<div class="relative bg-surface-container-low px-4 pt-5 pb-2 rounded-t-DEFAULT input-border animate-fade-in-up delay-200 group">
+<label class="absolute top-2 left-4 font-label-sm text-label-sm text-on-surface-variant group-focus-within:text-primary transition-colors" for="email">Email Address</label>
+<input class="w-full bg-transparent border-none focus:ring-0 text-on-surface font-body-md text-body-md p-0 placeholder-transparent" id="email" placeholder="Email Address" required="" type="email"/>
+</div>
+<!-- Phone Number Input -->
+<div class="relative bg-surface-container-low px-4 pt-5 pb-2 rounded-t-DEFAULT input-border animate-fade-in-up delay-300 group">
+<label class="absolute top-2 left-4 font-label-sm text-label-sm text-on-surface-variant group-focus-within:text-primary transition-colors" for="phone">Phone Number</label>
+<input class="w-full bg-transparent border-none focus:ring-0 text-on-surface font-body-md text-body-md p-0 placeholder-transparent" id="phone" placeholder="Phone Number" required="" type="tel"/>
+</div>
+<!-- Password Input -->
+<div class="relative bg-surface-container-low px-4 pt-5 pb-2 rounded-t-DEFAULT input-border animate-fade-in-up delay-400 group">
+<label class="absolute top-2 left-4 font-label-sm text-label-sm text-on-surface-variant group-focus-within:text-primary transition-colors" for="password">Password</label>
+<input class="w-full bg-transparent border-none focus:ring-0 text-on-surface font-body-md text-body-md p-0 placeholder-transparent" id="password" placeholder="Password" required="" type="password"/>
+<button class="absolute right-4 bottom-2 text-on-surface-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility_off</span>
+</button>
+</div>
+<!-- Terms Checkbox -->
+<div class="flex items-start gap-3 mt-2 animate-fade-in-up delay-500">
+<div class="flex items-center h-5">
+<input class="h-4 w-4 rounded border-outline-variant bg-surface-container-low text-primary focus:ring-primary focus:ring-offset-surface cursor-pointer" id="terms" name="terms" required="" type="checkbox"/>
+</div>
+<div class="text-sm">
+<label class="font-body-md text-body-md text-on-surface-variant cursor-pointer" for="terms">
+                        I agree to the <a class="text-primary hover:underline underline-offset-2" href="#">Terms and Conditions</a> and <a class="text-primary hover:underline underline-offset-2" href="#">Privacy Policy</a>.
+                    </label>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="mt-4 w-full bg-primary-container text-on-primary font-label-lg text-label-lg uppercase tracking-wider py-4 rounded-DEFAULT transition-all duration-300 hover:bg-primary-fixed-dim hover:shadow-[0_0_15px_rgba(212,175,55,0.2)] active:scale-[0.98] animate-fade-in-up delay-500" type="submit">
+                Sign Up
+            </button>
+<!-- Login Link -->
+<div class="text-center mt-6 animate-fade-in-up delay-500">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    Already have an account? <a class="text-primary font-label-lg text-label-lg hover:underline underline-offset-4 ml-1" href="#">Log In</a>
+</p>
+</div>
+</form>
+</main>
+<!-- Visual Reference Overlay (Hidden in production, used to fulfill requirement) -->
+<div class="hidden">
+<img alt="SuitUP User Registration visual reference" src="https://lh3.googleusercontent.com/aida/AP1WRLsFj3P87iuezD0BWmsao7qyK9swI0aoUPv8BKwI7wUY6SbCKVEh1F4nZYe74bA1mACzSZIVPkGEKOlWHliZ2UaGgBMCjSRbIeSYCGuuc-eW90ZRXcOQK0tVy7EsynNDG9NHeMgBYOz-hLwAiWHW5x3-SkoD6a1AwOtza7g2PMgdhkdgsTCXFh9wRmqIfeC0tuRvuBaweIm0pd5HWIQfDlVYVVwmZQO-omSOPUB-GN_SA5JrQlSpA39iJGY"/>
+</div>
+</body></html>

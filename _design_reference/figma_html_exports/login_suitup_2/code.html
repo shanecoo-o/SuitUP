@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SuitUP - Entrar</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#e5e2e1",
+                    "on-error": "#690005",
+                    "on-secondary": "#472a06",
+                    "on-error-container": "#ffdad6",
+                    "primary": "#f2ca50",
+                    "tertiary-fixed-dim": "#c8c6c5",
+                    "surface-bright": "#393939",
+                    "on-secondary-container": "#dfaf81",
+                    "secondary-container": "#64421d",
+                    "tertiary": "#d0cdcd",
+                    "error-container": "#93000a",
+                    "primary-fixed": "#ffe088",
+                    "background": "#131313",
+                    "on-surface": "#e5e2e1",
+                    "on-tertiary-container": "#454544",
+                    "inverse-surface": "#e5e2e1",
+                    "outline-variant": "#4d4635",
+                    "surface-dim": "#131313",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-container-low": "#1c1b1b",
+                    "secondary-fixed-dim": "#eebd8e",
+                    "on-surface-variant": "#d0c5af",
+                    "secondary-fixed": "#ffdcbd",
+                    "on-secondary-fixed": "#2c1600",
+                    "on-primary-container": "#554300",
+                    "on-secondary-fixed-variant": "#61401b",
+                    "surface-container-high": "#2a2a2a",
+                    "on-primary": "#3c2f00",
+                    "primary-container": "#d4af37",
+                    "outline": "#99907c",
+                    "surface-tint": "#e9c349",
+                    "on-primary-fixed": "#241a00",
+                    "on-primary-fixed-variant": "#574500",
+                    "surface-variant": "#353534",
+                    "surface-container-highest": "#353534",
+                    "error": "#ffb4ab",
+                    "primary-fixed-dim": "#e9c349",
+                    "on-background": "#e5e2e1",
+                    "inverse-primary": "#735c00",
+                    "on-tertiary": "#313030",
+                    "secondary": "#eebd8e",
+                    "inverse-on-surface": "#313030",
+                    "tertiary-container": "#b4b2b2",
+                    "surface": "#131313",
+                    "on-tertiary-fixed": "#1c1b1b",
+                    "on-tertiary-fixed-variant": "#474746",
+                    "surface-container": "#201f1f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "16px",
+                    "base": "4px",
+                    "xs": "8px",
+                    "lg": "32px",
+                    "md": "24px",
+                    "margin-desktop": "64px",
+                    "xl": "48px",
+                    "gutter": "16px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Playfair Display"],
+                    "display-lg": ["Playfair Display"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-md": ["Playfair Display"],
+                    "label-lg": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "body-md": ["Hanken Grotesk"],
+                    "label-sm": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .backdrop-blur-login {
+            backdrop-filter: blur(12px);
+            background-color: rgba(19, 19, 19, 0.85);
+        }
+        .custom-glow {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus {
+            -webkit-text-fill-color: #e5e2e1;
+            -webkit-box-shadow: 0 0 0px 1000px #1e1e1e inset;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+        
+        /* New Animations and Effects */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .animate-shimmer {
+            background: linear-gradient(90deg, #f2ca50 0%, #fff9c4 50%, #f2ca50 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+
+        .input-glow:focus {
+            box-shadow: 0 0 15px rgba(242, 202, 80, 0.25);
+            border-color: #f2ca50;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary/30 min-h-screen flex flex-col items-center overflow-x-hidden">
+<!-- Hero Background Layer -->
+<div class="fixed inset-0 z-0">
+<img alt="Background Texture" class="w-full h-full object-cover opacity-30 scale-105" src="https://lh3.googleusercontent.com/aida/AP1WRLsu7RPwl4WDUseCag47lGwdRMkbnLVT1qMSZ4ZxLGyYJlFQnlFpmH8vObAMS9GrmNjeQKuNQSYC1-8MuFiQcYdstqzWa4tjuJ3jaRAHw-rdJn8iYrtC8ZBcdw6vyp9JL_rulZUyLErIno8nyEI7PMLe7OUzIFzVih2u7v02bdXQAv3DIm8VARXBWWe2y8OGZYsRGBsatcpoZv4kxxFj3DKTxFEr4FtznivXLgYq3vOMU2WqserTjpmnKhdn"/>
+<div class="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 w-full max-w-md px-margin-mobile flex flex-col items-center justify-between min-h-screen py-xl opacity-0 animate-fade-in-up">
+<!-- Header & Logo Section -->
+<header class="w-full flex flex-col items-center space-y-md">
+<div class="relative w-20 h-20 flex items-center justify-center bg-surface-container-high rounded-full border border-primary/20 custom-glow">
+<span class="material-symbols-outlined text-primary !text-5xl" style="font-variation-settings: 'FILL' 0, 'wght' 300;">checkroom</span>
+</div>
+<div class="text-center space-y-xs">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile uppercase tracking-[0.2em] animate-shimmer">SuitUP</h1>
+<p class="font-body-md text-on-surface-variant/80 max-w-[280px] mx-auto">Alfaiataria exclusiva e design de precisão ao seu alcance.</p>
+</div>
+</header>
+<!-- Form Section -->
+<div class="w-full space-y-lg mt-xl">
+<div class="space-y-xs">
+<h2 class="font-headline-md text-headline-md text-on-surface">Bem-vindo de volta</h2>
+<p class="font-body-md text-on-surface-variant">Inicie sessão para continuar a sua experiência personalizada.</p>
+</div>
+<form class="space-y-md" id="loginForm" onsubmit="event.preventDefault();">
+<!-- Email Input -->
+<div class="relative">
+<label class="font-label-lg text-label-lg text-on-surface-variant/70 ml-1" for="email">Email</label>
+<div class="mt-xs group relative">
+<input class="w-full bg-surface-container-low border-b border-outline/30 px-xs py-md text-on-surface outline-none transition-all duration-300 placeholder:text-on-surface-variant/30 input-glow" id="email" name="email" placeholder="nome@exemplo.com" type="email"/>
+<span class="material-symbols-outlined absolute right-xs top-1/2 -translate-y-1/2 text-on-surface-variant/40 group-focus-within:text-primary transition-colors">alternate_email</span>
+</div>
+</div>
+<!-- Password Input -->
+<div class="relative">
+<label class="font-label-lg text-label-lg text-on-surface-variant/70 ml-1" for="password">Palavra-passe</label>
+<div class="mt-xs group relative">
+<input class="w-full bg-surface-container-low border-b border-outline/30 px-xs py-md text-on-surface outline-none transition-all duration-300 placeholder:text-on-surface-variant/30 input-glow" id="password" name="password" placeholder="••••••••" type="password"/>
+<button class="material-symbols-outlined absolute right-xs top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-primary transition-colors" id="togglePassword" type="button">visibility</button>
+</div>
+</div>
+<!-- Forgot Password -->
+<div class="flex justify-end">
+<a class="font-label-lg text-label-lg text-primary/80 hover:text-primary transition-colors tracking-wide" href="#">Esqueceu a palavra-passe?</a>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-primary hover:bg-primary-fixed-dim hover:scale-[0.98] active:scale-95 text-on-primary font-label-lg text-label-lg py-md rounded-lg uppercase tracking-widest transition-all duration-200 shadow-lg shadow-primary/10 mt-md flex justify-center items-center h-[56px]" id="submitBtn" type="submit">
+<span>Entrar</span>
+</button>
+</form>
+</div>
+<!-- Social Login & Footer -->
+<footer class="w-full space-y-lg pt-xl">
+<div class="flex items-center space-x-sm">
+<div class="h-[1px] flex-grow bg-outline-variant/30"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant/50 uppercase tracking-widest">Ou entre com</span>
+<div class="h-[1px] flex-grow bg-outline-variant/30"></div>
+</div>
+<div class="grid grid-cols-3 gap-md">
+<button class="flex items-center justify-center p-md bg-surface-container-high rounded-xl border border-outline-variant/20 hover:border-primary/40 transition-all active:scale-95 group">
+<svg class="w-6 h-6 fill-on-surface group-hover:fill-primary transition-colors" viewbox="0 0 24 24">
+<path d="M12.48 10.92v3.28h7.84c-.24 1.84-.908 3.152-1.928 4.176-1.024 1.024-2.6 2.144-5.912 2.144-5.384 0-9.656-4.36-9.656-9.744s4.272-9.744 9.656-9.744c2.928 0 5.12 1.152 6.88 2.816l2.304-2.304C19.72 1.512 16.92 0 12.48 0 5.712 0 0 5.712 0 12.48s5.712 12.48 12.48 12.48c3.6 0 6.32-1.192 8.44-3.4 2.184-2.184 2.872-5.264 2.872-7.68 0-.736-.064-1.424-.184-2.064h-11.136z"></path>
+</svg>
+</button>
+<button class="flex items-center justify-center p-md bg-surface-container-high rounded-xl border border-outline-variant/20 hover:border-primary/40 transition-all active:scale-95 group">
+<svg class="w-6 h-6 fill-on-surface group-hover:fill-primary transition-colors" viewbox="0 0 24 24">
+<path d="M12.152 6.896c-.948 0-2.415-1.078-2.415-2.828 0-1.75 1.467-2.828 2.415-2.828.948 0 2.415 1.078 2.415 2.828 0 1.75-1.467 2.828-2.415 2.828zm10.51 7.218c-.462-.315-.815-.718-1.03-1.185-.213-.467-.32-1.012-.32-1.63 0-.74.148-1.353.443-1.84.296-.486.68-.868 1.155-1.144-.407-.63-.984-1.12-1.728-1.468-.745-.348-1.597-.522-2.553-.522-.99 0-1.845.163-2.565.49-.72.327-1.3.73-1.74 1.21-.36-.48-.905-.883-1.635-1.21-.73-.327-1.55-.49-2.46-.49-.97 0-1.853.174-2.65.523-.797.348-1.417.838-1.86 1.468.452.276.822.658 1.11 1.144.288.487.432 1.1.432 1.84 0 .618-.108 1.163-.322 1.63-.215.467-.568.87-1.06 1.21.36.63.882 1.135 1.566 1.515.683.38 1.488.57 2.415.57.88 0 1.643-.16 2.29-.48.647-.32 1.187-.715 1.62-1.185.45.47.988.865 1.613 1.185.625.32 1.4.48 2.325.48.91 0 1.7-.19 2.37-.57.67-.38 1.18-.885 1.53-1.515z"></path>
+</svg>
+</button>
+<button class="flex items-center justify-center p-md bg-surface-container-high rounded-xl border border-outline-variant/20 hover:border-primary/40 transition-all active:scale-95 group">
+<svg class="w-6 h-6 fill-on-surface group-hover:fill-primary transition-colors" viewbox="0 0 24 24">
+<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
+</svg>
+</button>
+</div>
+<p class="text-center font-body-md text-on-surface-variant/60">
+                Ainda não tem conta? 
+                <a class="text-primary font-bold hover:underline transition-all" href="#">Registe-se</a>
+</p>
+</footer>
+</main>
+<!-- Interactive script for visuals -->
+<script>
+        // Subtle move effect on inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('scale-[1.01]');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('scale-[1.01]');
+            });
+        });
+
+        // Toggle password visibility interaction
+        const passToggle = document.getElementById('togglePassword');
+        const passInput = document.getElementById('password');
+        passToggle.addEventListener('click', () => {
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                passToggle.textContent = 'visibility_off';
+            } else {
+                passInput.type = 'password';
+                passToggle.textContent = 'visibility';
+            }
+        });
+
+        // Login button loading state
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const originalBtnContent = submitBtn.innerHTML;
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Set loading state
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-90', 'cursor-not-allowed');
+            submitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-on-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>A Entrar...</span>
+            `;
+
+            // Simulate network request
+            setTimeout(() => {
+                submitBtn.innerHTML = `<span>Sucesso!</span>`;
+                submitBtn.classList.remove('opacity-90', 'cursor-not-allowed');
+                
+                // Reset after showing success
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalBtnContent;
+                    submitBtn.disabled = false;
+                }, 1500);
+            }, 2000);
+        });
+    </script>
+</body></html>
