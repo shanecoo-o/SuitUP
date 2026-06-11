@@ -52,6 +52,8 @@ import com.suitup.app.ui.theme.SuitTextStyles
 fun Preview3DScreen(
     state: Preview3DState,
     garmentColor: Color,
+    modelName: String = "",
+    configurationDetails: List<String> = emptyList(),
     showLight: Boolean = false,
     backgroundDark: Boolean = true,
     cartItemCount: Int = 0,
@@ -165,6 +167,30 @@ fun Preview3DScreen(
                     onClick = onToggleBackground,
                     icon = { PictureIcon(tint = SuitColors.Ink, size = 20.dp) }
                 )
+            }
+
+            if (modelName.isNotBlank()) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 16.dp, end = 16.dp, bottom = 18.dp)
+                        .background(SuitColors.SurfaceWhite.copy(alpha = 0.92f))
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(
+                        text = modelName,
+                        style = SuitTextStyles.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = SuitColors.Ink,
+                    )
+                    configurationDetails.take(3).forEach { detail ->
+                        Text(
+                            text = detail,
+                            style = SuitTextStyles.bodySmall,
+                            color = SuitColors.Slate,
+                        )
+                    }
+                }
             }
         }
 

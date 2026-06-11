@@ -3,6 +3,7 @@ package com.suitup.app.ui.screens.profile
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.suitup.app.data.mock.MockData
+import com.suitup.app.data.mock.MockOrderStore
 import com.suitup.app.domain.model.Utilizador
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +31,7 @@ class PerfilScreenModel : ScreenModel {
             _state.update {
                 it.copy(
                     utilizador = MockData.utilizadorActual,
-                    contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade },
+                    contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }
         }

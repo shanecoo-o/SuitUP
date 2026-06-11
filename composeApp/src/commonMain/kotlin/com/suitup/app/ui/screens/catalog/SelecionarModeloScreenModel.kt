@@ -3,6 +3,7 @@ package com.suitup.app.ui.screens.catalog
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.suitup.app.data.mock.MockData
+import com.suitup.app.data.mock.MockOrderStore
 import com.suitup.app.domain.model.CategoriaFato
 import com.suitup.app.domain.model.ModeloFato
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +37,7 @@ class SelecionarModeloScreenModel : ScreenModel {
             _state.update {
                 it.copy(
                     modelos = MockData.modelosFato,
-                    contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade },
+                    contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }
         }
@@ -49,9 +50,7 @@ class SelecionarModeloScreenModel : ScreenModel {
                                    else event.categoria
                 _state.update { it.copy(categoriaSeleccionada = novaCategoria) }
             }
-            is SelecionarModeloUiEvent.ModeloClicado -> {
-                // Navegação feita pelo VoyagerScreen.
-            }
+            is SelecionarModeloUiEvent.ModeloClicado -> MockOrderStore.startDraft(event.modelo)
         }
     }
 }

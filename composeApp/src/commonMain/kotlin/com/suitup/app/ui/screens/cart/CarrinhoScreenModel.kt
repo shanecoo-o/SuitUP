@@ -3,6 +3,7 @@ package com.suitup.app.ui.screens.cart
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.suitup.app.data.mock.MockData
+import com.suitup.app.data.mock.MockOrderStore
 import com.suitup.app.domain.model.ItemCarrinho
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,34 +34,30 @@ class CarrinhoScreenModel : ScreenModel {
     val state: StateFlow<CarrinhoUiState> = _state.asStateFlow()
 
     init {
-        screenModelScope.launch {
-            _state.update {
-                it.copy(
-                    itens = MockData.itensCarrinho,
-                    taxaEntrega = MockData.taxaEntregaMt,
-                )
-            }
-        }
+        refresh()
     }
 
     fun onEvent(event: CarrinhoUiEvent) {
         when (event) {
             is CarrinhoUiEvent.QuantidadeAlterada -> {
-                _state.update { s ->
-                    s.copy(
-                        itens = s.itens.map { item ->
-                            if (item.id == event.itemId) item.copy(quantidade = event.quantidade) else item
-                        }
-                    )
-                }
+                MockOrderStore.updateQuantity(event.itemId, event.quantidade)
+                refresh()
             }
             is CarrinhoUiEvent.RemoverItem -> {
-                _state.update { s ->
-                    s.copy(itens = s.itens.filter { it.id != event.itemId })
-                }
+                MockOrderStore.removeItem(event.itemId)
+                refresh()
             }
-            is CarrinhoUiEvent.FinalizarPedidoClicado -> {
-                // Step 4: persistir carrinho antes de navegar.
+            is CarrinhoUiEvent.FinalizarPedidoClicado -> refresh()
+        }
+    }
+
+    private fun refresh() {
+        screenModelScope.launch {
+            _state.update {
+                it.copy(
+                    itens = MockOrderStore.cartItems,
+                    taxaEntrega = MockData.taxaEntregaMt,
+                )
             }
         }
     }

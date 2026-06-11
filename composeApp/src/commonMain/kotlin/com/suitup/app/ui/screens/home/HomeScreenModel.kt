@@ -2,7 +2,7 @@ package com.suitup.app.ui.screens.home
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.suitup.app.data.mock.MockData
+import com.suitup.app.data.mock.MockOrderStore
 import com.suitup.app.domain.model.Pedido
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,11 +30,13 @@ class HomeScreenModel : ScreenModel {
 
     init {
         screenModelScope.launch {
-            _state.update {
-                it.copy(
-                    pedidosRecentes = MockData.pedidosRecentes,
-                    contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade },
-                )
+            MockOrderStore.orders.collect { pedidos ->
+                _state.update {
+                    it.copy(
+                        pedidosRecentes = pedidos.take(3),
+                        contadorCarrinho = MockOrderStore.cartItemCount,
+                    )
+                }
             }
         }
     }

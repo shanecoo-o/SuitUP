@@ -3,6 +3,7 @@ package com.suitup.app.ui.screens.checkout
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.suitup.app.data.mock.MockData
+import com.suitup.app.data.mock.MockOrderStore
 import com.suitup.app.domain.model.EnderecoEntrega
 import com.suitup.app.domain.model.PontoLevantamento
 import com.suitup.app.domain.model.TipoEntrega
@@ -51,7 +52,7 @@ class CheckoutScreenModel : ScreenModel {
                     nomeCompleto = u.nome,
                     telefone = u.telefone,
                     email = u.email,
-                    contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade },
+                    contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }
         }
@@ -99,9 +100,7 @@ class TipoEntregaScreenModel : ScreenModel {
 
     init {
         screenModelScope.launch {
-            _state.update {
-                it.copy(contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade })
-            }
+            _state.update { it.copy(contadorCarrinho = MockOrderStore.cartItemCount) }
         }
     }
 
@@ -154,7 +153,7 @@ class EnderecoScreenModel(private val modoInicial: TipoEntrega) : ScreenModel {
                     cidadesDisponiveis = MockData.cidadesMocambicanas,
                     bairrosDisponiveis = MockData.bairrosMaputo,
                     pontosLevantamento = MockData.pontosLevantamento,
-                    contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade },
+                    contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }
         }
@@ -201,6 +200,7 @@ data class PagamentoUiState(
     val numeroMpesa: String = "",
     val titularMpesa: String = "",
     val nomeFicheiroCarregado: String? = null,
+    val numeroPedidoCriado: String? = null,
     val contadorCarrinho: Int = 0,
 ) {
     val podeEnviar: Boolean get() = nomeFicheiroCarregado != null
@@ -229,7 +229,7 @@ class PagamentoScreenModel : ScreenModel {
                 it.copy(
                     numeroMpesa = MockData.numeroMpesa,
                     titularMpesa = MockData.titularMpesa,
-                    contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade },
+                    contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }
         }
@@ -245,7 +245,16 @@ class PagamentoScreenModel : ScreenModel {
             is PagamentoUiEvent.CopiarNumeroClicado ->
                 { /* Step 5: Clipboard expect/actual */ }
             is PagamentoUiEvent.EnviarComprovativoClicado -> {
-                if (_state.value.podeEnviar) _podeAvancar.value = true
+                if (_state.value.podeEnviar) {
+                    val order = MockOrderStore.createOrder(comprovativo = _state.value.nomeFicheiroCarregado)
+                    _state.update {
+                        it.copy(
+                            numeroPedidoCriado = order.numero,
+                            contadorCarrinho = MockOrderStore.cartItemCount,
+                        )
+                    }
+                    _podeAvancar.value = true
+                }
             }
         }
     }

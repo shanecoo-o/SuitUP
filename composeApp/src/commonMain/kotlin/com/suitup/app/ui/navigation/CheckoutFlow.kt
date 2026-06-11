@@ -9,7 +9,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
-import com.suitup.app.data.mock.MockData
 import com.suitup.app.domain.model.TipoEntrega
 import com.suitup.app.ui.screens.checkout.AddressScreen
 import com.suitup.app.ui.screens.checkout.CheckoutMedidasScreen
@@ -186,7 +185,7 @@ class PaymentVoyagerScreen : Screen {
         LaunchedEffect(podeAvancar) {
             if (podeAvancar) {
                 screenModel.avancarConsumido()
-                navigator.push(ConfirmationVoyagerScreen(MockData.novoPedido.numero))
+                navigator.push(ConfirmationVoyagerScreen(state.numeroPedidoCriado ?: "1025"))
             }
         }
 
