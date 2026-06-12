@@ -28,7 +28,7 @@ fun SuitDualBottomBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(SuitColors.Bone)
+            .background(SuitColors.Black)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {

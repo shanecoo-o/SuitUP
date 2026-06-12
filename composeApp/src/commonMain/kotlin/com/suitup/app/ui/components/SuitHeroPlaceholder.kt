@@ -22,8 +22,8 @@ import com.suitup.app.ui.theme.SuitColors
 @Composable
 fun SuitHeroPlaceholder(
     modifier: Modifier = Modifier,
-    background: Color = SuitColors.Charcoal,
-    strokeColor: Color = SuitColors.Smoke.copy(alpha = 0.18f),
+    background: Color = SuitColors.Black,
+    strokeColor: Color = SuitColors.Gold.copy(alpha = 0.26f),
 ) {
     Box(
         modifier = modifier.background(background),

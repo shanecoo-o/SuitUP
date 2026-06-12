@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,19 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.Utilizador
 import com.suitup.app.ui.components.SuitAvatar
+import com.suitup.app.ui.components.SuitCard
 import com.suitup.app.ui.components.SuitMenuRow
 import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 
 /**
- * Ecrã 15 — Perfil.
+ * Ecra 15 - Perfil.
  *
- * Header com avatar + nome + email do user, lista de items de menu para
- * navegar para as secções de gestão de conta, bottom nav com Perfil ativo.
- */
-/**
- * NOTA arquitetural: bottom nav vive no MainShellScreen (ui/navigation), não aqui.
+ * Bottom nav lives in MainShellScreen. This composable only renders the tab content.
  */
 @Composable
 fun ProfileScreen(
@@ -58,40 +54,32 @@ fun ProfileScreen(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            // Header com avatar + identidade
-            ProfileHeader(user = user)
+            SuitCard(padding = 16.dp) {
+                ProfileHeader(user = user)
+            }
 
-            HorizontalDivider(thickness = 1.dp, color = SuitColors.Mist)
+            SuitCard(padding = 8.dp) {
+                Column {
+                    SuitMenuRow(text = "Meus dados", onClick = onMyData)
+                    SuitMenuRow(text = "Enderecos", onClick = onAddresses)
+                    SuitMenuRow(text = "Metodos de pagamento", onClick = onPaymentMethods)
+                    SuitMenuRow(text = "Medidas salvas", onClick = onSavedMeasurements)
+                    SuitMenuRow(text = "Notificacoes", onClick = onNotifications)
+                    SuitMenuRow(text = "Configuracoes", onClick = onSettings)
+                }
+            }
 
-            // Menu items
-            SuitMenuRow(text = "Meus dados", onClick = onMyData)
-            HorizontalDivider(thickness = 1.dp, color = SuitColors.Mist)
-
-            SuitMenuRow(text = "Endereços", onClick = onAddresses)
-            HorizontalDivider(thickness = 1.dp, color = SuitColors.Mist)
-
-            SuitMenuRow(text = "Métodos de pagamento", onClick = onPaymentMethods)
-            HorizontalDivider(thickness = 1.dp, color = SuitColors.Mist)
-
-            SuitMenuRow(text = "Medidas salvas", onClick = onSavedMeasurements)
-            HorizontalDivider(thickness = 1.dp, color = SuitColors.Mist)
-
-            SuitMenuRow(text = "Notificações", onClick = onNotifications)
-            HorizontalDivider(thickness = 1.dp, color = SuitColors.Mist)
-
-            SuitMenuRow(text = "Configurações", onClick = onSettings)
-            HorizontalDivider(thickness = 1.dp, color = SuitColors.Mist)
-
-            // Sair — sem chevron, emphasized
-            SuitMenuRow(
-                text = "Sair",
-                onClick = onSignOut,
-                showChevron = false,
-                emphasized = true,
-            )
+            SuitCard(padding = 8.dp) {
+                SuitMenuRow(
+                    text = "Sair",
+                    onClick = onSignOut,
+                    showChevron = false,
+                    emphasized = true,
+                )
+            }
         }
     }
 }
@@ -101,7 +89,7 @@ private fun ProfileHeader(user: Utilizador) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {

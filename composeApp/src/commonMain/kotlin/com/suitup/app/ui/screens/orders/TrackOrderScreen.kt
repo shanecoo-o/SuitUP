@@ -148,7 +148,7 @@ private fun TimelineRow(
                         .width(2.dp)
                         .height(36.dp)
                         .background(
-                            if (event.estadoEvento == EstadoEvento.Concluido) SuitColors.Ink
+                            if (event.estadoEvento == EstadoEvento.Concluido) SuitColors.Gold
                             else SuitColors.Mist
                         )
                 )
@@ -186,8 +186,8 @@ private fun StatusIndicator(state: EstadoEvento) {
             .clip(CircleShape)
             .background(
                 when (state) {
-                    EstadoEvento.Concluido, EstadoEvento.Actual -> SuitColors.Ink
-                    EstadoEvento.Pendente -> SuitColors.SurfaceWhite
+                    EstadoEvento.Concluido, EstadoEvento.Actual -> SuitColors.Gold
+                    EstadoEvento.Pendente -> SuitColors.SurfaceLow
                 }
             )
             .border(
@@ -198,12 +198,12 @@ private fun StatusIndicator(state: EstadoEvento) {
         contentAlignment = Alignment.Center,
     ) {
         when (state) {
-            EstadoEvento.Concluido -> CheckIcon(tint = SuitColors.SurfaceWhite, size = 14.dp)
+            EstadoEvento.Concluido -> CheckIcon(tint = SuitColors.GoldInk, size = 14.dp)
             EstadoEvento.Actual -> Box(
                 modifier = Modifier
                     .size(8.dp)
                     .clip(CircleShape)
-                    .background(SuitColors.SurfaceWhite)
+                    .background(SuitColors.GoldInk)
             )
             EstadoEvento.Pendente -> Unit
         }

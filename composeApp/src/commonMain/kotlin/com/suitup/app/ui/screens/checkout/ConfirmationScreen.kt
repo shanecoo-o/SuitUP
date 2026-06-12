@@ -59,7 +59,7 @@ fun ConfirmationScreen(
             Spacer(Modifier.height(24.dp))
 
             Text(
-                text = "Pedido realizado com sucesso!",
+                text = "Pedido realizado com sucesso",
                 style = SuitTextStyles.headlineMedium,
                 color = SuitColors.Ink,
                 textAlign = TextAlign.Center,

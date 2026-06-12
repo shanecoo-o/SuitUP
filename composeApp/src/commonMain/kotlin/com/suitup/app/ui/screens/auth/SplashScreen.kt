@@ -45,7 +45,7 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            SuitLogoMark(size = 96.dp, tint = SuitColors.Ink)
+            SuitLogoMark(size = 96.dp, tint = SuitColors.Gold)
 
             Spacer(Modifier.height(20.dp))
 

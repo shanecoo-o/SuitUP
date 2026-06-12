@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.ItemCarrinho
 import com.suitup.app.ui.components.SuitButton
+import com.suitup.app.ui.components.SuitCard
 import com.suitup.app.ui.components.SuitGarmentMini
 import com.suitup.app.ui.components.SuitQuantityStepper
 import com.suitup.app.ui.components.SuitTopBar
@@ -121,14 +122,14 @@ private fun CartItemCard(
     onQuantityChange: (Int) -> Unit,
 ) {
     val garmentColor = remember(item) {
-        item.hexCor.toComposeColorOrNull() ?: SuitColors.Ink
+        item.hexCor.toComposeColorOrNull() ?: SuitColors.Charcoal
     }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(SuitTheme.shapes.card)
-            .background(SuitColors.SurfaceWhite)
+            .background(SuitColors.Surface)
             .border(1.dp, SuitColors.Mist, SuitTheme.shapes.card)
             .padding(14.dp),
     ) {
@@ -141,7 +142,7 @@ private fun CartItemCard(
                 SuitGarmentMini(
                     size = 64.dp,
                     garmentColor = garmentColor,
-                    background = SuitColors.Pearl,
+                    background = SuitColors.SurfaceLow,
                     showShirt = true,
                 )
 
@@ -195,7 +196,7 @@ private fun CartItemCard(
                 Text(
                     text = "Editar",
                     style = SuitTextStyles.labelMedium,
-                    color = SuitColors.Slate,
+                    color = SuitColors.Gold,
                     modifier = Modifier
                         .clickable(onClick = onEdit)
                         .padding(4.dp),
@@ -284,22 +285,35 @@ private fun EmptyCart(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = "Carrinho vazio",
-            style = SuitTextStyles.headlineMedium,
-            color = SuitColors.Ink,
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = "Adicione um fato para começar.",
-            style = SuitTextStyles.bodyMedium,
-            color = SuitColors.Slate,
-        )
-        Spacer(Modifier.height(20.dp))
-        SuitButton(
-            text = "Explorar modelos",
-            onClick = onContinueShopping,
-            fullWidth = false,
-        )
+        SuitCard(modifier = Modifier.fillMaxWidth(), padding = 20.dp) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                SuitGarmentMini(
+                    size = 72.dp,
+                    garmentColor = SuitColors.Charcoal,
+                    background = SuitColors.SurfaceLow,
+                    showShirt = true,
+                )
+                Text(
+                    text = "Carrinho vazio",
+                    style = SuitTextStyles.headlineMedium,
+                    color = SuitColors.Ink,
+                )
+                Text(
+                    text = "Adicione um fato para começar.",
+                    style = SuitTextStyles.bodyMedium,
+                    color = SuitColors.Slate,
+                )
+                Spacer(Modifier.height(8.dp))
+                SuitButton(
+                    text = "Explorar modelos",
+                    onClick = onContinueShopping,
+                    fullWidth = false,
+                )
+            }
+        }
     }
 }

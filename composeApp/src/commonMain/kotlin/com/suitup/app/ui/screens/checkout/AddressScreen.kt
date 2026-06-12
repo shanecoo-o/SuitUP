@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.EnderecoEntrega
 import com.suitup.app.domain.model.TipoEntrega
 import com.suitup.app.domain.model.PontoLevantamento
+import com.suitup.app.ui.components.SuitCard
 import com.suitup.app.ui.components.SuitDropdown
 import com.suitup.app.ui.components.SuitDualBottomBar
 import com.suitup.app.ui.components.SuitSegmentedToggle
@@ -201,11 +202,13 @@ private fun PickupForm(
         )
 
         if (points.isEmpty()) {
-            Text(
-                text = "Sem pontos disponíveis na sua área.",
-                style = SuitTextStyles.bodyMedium,
-                color = SuitColors.Slate,
-            )
+            SuitCard(modifier = Modifier.fillMaxWidth(), padding = 16.dp) {
+                Text(
+                    text = "Sem pontos disponíveis na sua área.",
+                    style = SuitTextStyles.bodyMedium,
+                    color = SuitColors.Slate,
+                )
+            }
         } else {
             points.forEach { point ->
                 SuitSelectableCard(

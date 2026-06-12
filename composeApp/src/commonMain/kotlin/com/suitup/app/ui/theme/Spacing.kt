@@ -28,10 +28,10 @@ data class SuitSpacing(
     // Tokens semânticos (otimizados para mobile)
     val screenPadding: Dp = 20.dp,
     val cardPadding: Dp = 16.dp,
-    val cardGap: Dp = 10.dp,
+    val cardGap: Dp = 12.dp,
     val sectionGap: Dp = 24.dp,
-    val inputGap: Dp = 6.dp,        // entre label e input
-    val fieldGap: Dp = 12.dp,       // entre fields
+    val inputGap: Dp = 8.dp,
+    val fieldGap: Dp = 14.dp,
 )
 
 val LocalSuitSpacing = staticCompositionLocalOf { SuitSpacing() }

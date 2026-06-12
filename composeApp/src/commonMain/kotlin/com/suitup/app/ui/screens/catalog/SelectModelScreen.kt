@@ -122,7 +122,7 @@ private fun ModelCard(
                 .fillMaxWidth()
                 .aspectRatio(0.78f)
                 .clip(SuitTheme.shapes.lg)
-                .background(SuitColors.Pearl),
+                .background(SuitColors.SurfaceLow),
             contentAlignment = Alignment.Center
         ) {
             // Mock visual: garment mini grande
@@ -173,7 +173,7 @@ private fun EmptyModels(modifier: Modifier = Modifier) {
 private fun colorForModel(model: ModeloFato): Color {
     val lower = model.nome.lowercase()
     return when {
-        "preto" in lower -> SuitColors.Ink
+        "preto" in lower -> SuitColors.Black
         "azul marinho" in lower -> Color(0xFF1F2A44)
         "azul" in lower -> Color(0xFF2D4A6B)
         "cinza" in lower || "antracite" in lower -> Color(0xFF3B3B3B)

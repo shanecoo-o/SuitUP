@@ -186,7 +186,7 @@ private fun ColorPartsList(
                         } else {
                             SuitTextStyles.bodyMedium
                         },
-                        color = if (isSelected) SuitColors.Ink else SuitColors.Slate,
+                        color = if (isSelected) SuitColors.Gold else SuitColors.Slate,
                     )
                 }
             }
@@ -234,7 +234,7 @@ private fun ColorSwatch(
             .clip(CircleShape)
             .border(
                 width = if (isSelected) 1.5.dp else 1.dp,
-                color = if (isSelected) SuitColors.Ink else SuitColors.Mist,
+                color = if (isSelected) SuitColors.Gold else SuitColors.Mist,
                 shape = CircleShape
             )
             .padding(if (isSelected) 3.dp else 2.dp)
@@ -288,7 +288,7 @@ private fun FabricSwatch(
                 .background(swatchColor)
                 .border(
                     width = if (isSelected) 1.5.dp else 1.dp,
-                    color = if (isSelected) SuitColors.Ink else SuitColors.Mist,
+                    color = if (isSelected) SuitColors.Gold else SuitColors.Mist,
                     shape = SuitTheme.shapes.sm
                 )
                 .clickable(onClick = onClick)

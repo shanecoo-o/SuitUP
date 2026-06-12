@@ -56,9 +56,9 @@ fun SuitUploadCard(
             .fillMaxWidth()
             .height(if (uploadedFileName == null) 120.dp else 72.dp)
             .clip(SuitTheme.shapes.lg)
-            .background(SuitColors.Pearl)
+            .background(SuitColors.SurfaceLow)
             .dashedBorder(
-                color = SuitColors.Smoke,
+                color = SuitColors.Mist,
                 cornerRadius = cornerRadius,
                 strokeWidth = 1.dp.value,
                 dashLength = 6f,
@@ -85,7 +85,7 @@ private fun EmptyState(title: String, hint: String) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier.padding(16.dp),
     ) {
-        UploadIcon(tint = SuitColors.Slate, size = 22.dp)
+        UploadIcon(tint = SuitColors.Gold, size = 22.dp)
         Spacer(Modifier.height(2.dp))
         Text(
             text = title,
@@ -113,7 +113,7 @@ private fun FilledState(fileName: String, onRemove: () -> Unit) {
             modifier = Modifier.size(28.dp),
             contentAlignment = Alignment.Center
         ) {
-            PictureIcon(tint = SuitColors.Ink, size = 22.dp)
+            PictureIcon(tint = SuitColors.Gold, size = 22.dp)
         }
         Column(
             modifier = Modifier.weight(1f),

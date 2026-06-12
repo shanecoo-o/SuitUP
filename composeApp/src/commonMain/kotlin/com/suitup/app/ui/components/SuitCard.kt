@@ -29,7 +29,7 @@ fun SuitCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     padding: Dp = 20.dp,
-    background: Color = SuitColors.SurfaceWhite,
+    background: Color = SuitColors.Surface,
     border: Boolean = true,
     shape: RoundedCornerShape = SuitTheme.shapes.card,
     content: @Composable () -> Unit,

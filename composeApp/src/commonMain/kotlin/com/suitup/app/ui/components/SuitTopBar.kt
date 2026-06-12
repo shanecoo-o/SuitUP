@@ -43,8 +43,8 @@ fun SuitTopBar(
     trailing: (@Composable () -> Unit)? = null,
     centerContent: (@Composable () -> Unit)? = null,
 ) {
-    val bg = if (dark) SuitColors.Ink else Color.Transparent
-    val fg = if (dark) SuitColors.SurfaceWhite else SuitColors.Ink
+    val bg = if (dark) SuitColors.Black else Color.Transparent
+    val fg = SuitColors.Ink
 
     Row(
         modifier = modifier
@@ -117,7 +117,7 @@ fun SuitTopBar(
                             Text(
                                 text = cartBadgeCount.toString(),
                                 style = SuitTextStyles.labelSmall,
-                                color = SuitColors.Ink
+                                color = SuitColors.GoldInk
                             )
                         }
                     }

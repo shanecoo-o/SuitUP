@@ -113,8 +113,8 @@ fun HomeScreen(
 @Composable
 private fun HeroCard(onCreateNewSuit: () -> Unit) {
     SuitCard(
-        background = SuitColors.Ink,
-        border = false,
+        background = SuitColors.SurfaceLow,
+        border = true,
         padding = 0.dp,
     ) {
         Row(
@@ -173,8 +173,8 @@ private fun OrderRow(order: Pedido, onClick: () -> Unit) {
         ) {
             SuitGarmentMini(
                 size = 56.dp,
-                garmentColor = order.designsFato.firstOrNull()?.cor?.hex?.toComposeColorOrNull() ?: SuitColors.Ink,
-                background = SuitColors.Pearl,
+                garmentColor = order.designsFato.firstOrNull()?.cor?.hex?.toComposeColorOrNull() ?: SuitColors.Charcoal,
+                background = SuitColors.SurfaceLow,
             )
 
             Column(
@@ -199,22 +199,22 @@ private fun OrderRow(order: Pedido, onClick: () -> Unit) {
 
 @Composable
 private fun EmptyOrders() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = "Ainda não tem pedidos",
-            style = SuitTextStyles.titleMedium,
-            color = SuitColors.Ink,
-        )
-        Text(
-            text = "Comece pelo seu primeiro fato.",
-            style = SuitTextStyles.bodyMedium,
-            color = SuitColors.Slate,
-        )
+    SuitCard(modifier = Modifier.fillMaxWidth(), padding = 18.dp) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "Ainda não tem pedidos",
+                style = SuitTextStyles.titleMedium,
+                color = SuitColors.Ink,
+            )
+            Text(
+                text = "Comece pelo seu primeiro fato.",
+                style = SuitTextStyles.bodyMedium,
+                color = SuitColors.Slate,
+            )
+        }
     }
 }

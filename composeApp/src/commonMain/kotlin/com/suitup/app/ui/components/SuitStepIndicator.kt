@@ -46,10 +46,10 @@ fun SuitStepIndicator(
                 modifier = Modifier
                     .size(28.dp)
                     .clip(CircleShape)
-                    .background(if (isActive || isCompleted) SuitColors.Ink else SuitColors.SurfaceWhite)
+                    .background(if (isActive || isCompleted) SuitColors.Gold else SuitColors.SurfaceLow)
                     .border(
                         width = 1.dp,
-                        color = if (isActive || isCompleted) SuitColors.Ink else SuitColors.Mist,
+                        color = if (isActive || isCompleted) SuitColors.Gold else SuitColors.Mist,
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -57,7 +57,7 @@ fun SuitStepIndicator(
                 Text(
                     text = step.toString(),
                     style = SuitTextStyles.labelMedium,
-                    color = if (isActive || isCompleted) SuitColors.SurfaceWhite else SuitColors.Smoke,
+                    color = if (isActive || isCompleted) SuitColors.GoldInk else SuitColors.Smoke,
                 )
             }
 
@@ -66,7 +66,7 @@ fun SuitStepIndicator(
                     modifier = Modifier
                         .width(28.dp)
                         .height(1.dp)
-                        .background(if (isCompleted) SuitColors.Ink else SuitColors.Mist)
+                        .background(if (isCompleted) SuitColors.Gold else SuitColors.Mist)
                 )
             }
         }

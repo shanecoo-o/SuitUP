@@ -34,17 +34,17 @@ fun SuitFilterChip(
     modifier: Modifier = Modifier,
 ) {
     val bg by animateColorAsState(
-        targetValue = if (selected) SuitColors.Ink else SuitColors.SurfaceWhite,
+        targetValue = if (selected) SuitColors.Gold else SuitColors.SurfaceLow,
         animationSpec = SuitAnim.normal(),
         label = "chip-bg"
     )
     val fg by animateColorAsState(
-        targetValue = if (selected) SuitColors.SurfaceWhite else SuitColors.Slate,
+        targetValue = if (selected) SuitColors.GoldInk else SuitColors.Slate,
         animationSpec = SuitAnim.normal(),
         label = "chip-fg"
     )
     val borderColor by animateColorAsState(
-        targetValue = if (selected) SuitColors.Ink else SuitColors.Mist,
+        targetValue = if (selected) SuitColors.Gold else SuitColors.Mist,
         animationSpec = SuitAnim.normal(),
         label = "chip-border"
     )

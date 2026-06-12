@@ -44,13 +44,13 @@ fun LapelPreviewCard(
     size: Dp = 56.dp,
 ) {
     val borderWidth = if (selected) 1.5.dp else 1.dp
-    val borderColor = if (selected) SuitColors.Ink else SuitColors.Mist
+    val borderColor = if (selected) SuitColors.Gold else SuitColors.Mist
 
     Box(
         modifier = modifier
             .size(size)
             .clip(SuitTheme.shapes.md)
-            .background(SuitColors.SurfaceWhite)
+            .background(if (selected) SuitColors.SurfaceHigh else SuitColors.SurfaceLow)
             .border(borderWidth, borderColor, SuitTheme.shapes.md)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -68,7 +68,7 @@ fun LapelPreviewCard(
 fun LapelMiniIllustration(
     type: TipoLapela,
     modifier: Modifier = Modifier,
-    color: Color = SuitColors.Ink,
+    color: Color = SuitColors.Pearl,
 ) {
     Canvas(modifier = modifier) {
         val w = size.width

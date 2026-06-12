@@ -54,7 +54,7 @@ fun SuitMenuRow(
             style = SuitTextStyles.bodyLarge.copy(
                 fontWeight = if (emphasized) FontWeight.SemiBold else FontWeight.Normal
             ),
-            color = SuitColors.Ink,
+            color = if (emphasized) SuitColors.Gold else SuitColors.Ink,
             modifier = Modifier.weight(1f),
         )
 

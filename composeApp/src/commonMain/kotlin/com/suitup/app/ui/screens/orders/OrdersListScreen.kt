@@ -89,8 +89,8 @@ private fun OrderListRow(order: Pedido, onClick: () -> Unit) {
             SuitGarmentMini(
                 size = 56.dp,
                 garmentColor = order.designsFato.firstOrNull()?.cor?.hex?.toComposeColorOrNull()
-                    ?: SuitColors.Ink,
-                background = SuitColors.Pearl,
+                    ?: SuitColors.Charcoal,
+                background = SuitColors.SurfaceLow,
             )
 
             Column(
@@ -118,19 +118,27 @@ private fun EmptyOrders(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 48.dp),
+            .padding(horizontal = 20.dp, vertical = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = "Ainda não tem pedidos",
-            style = SuitTextStyles.titleMedium,
-            color = SuitColors.Ink,
-        )
-        Text(
-            text = "O seu primeiro fato começa no separador Início.",
-            style = SuitTextStyles.bodyMedium,
-            color = SuitColors.Slate,
-        )
+        SuitCard(modifier = Modifier.fillMaxWidth(), padding = 18.dp) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = "Ainda não tem pedidos",
+                    style = SuitTextStyles.titleMedium,
+                    color = SuitColors.Ink,
+                )
+                Text(
+                    text = "O seu primeiro fato começa no separador Início.",
+                    style = SuitTextStyles.bodyMedium,
+                    color = SuitColors.Slate,
+                )
+            }
+        }
     }
 }

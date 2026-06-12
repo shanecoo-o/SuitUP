@@ -1,0 +1,78 @@
+// EditorSlider.kt — Slider de ajuste visual do fato
+// Pacote sugerido: com.suitup.editor
+
+package com.suitup.editor
+
+data class EditorSlider(
+    val id: String,
+    val label: String,
+    val min: Float,
+    val max: Float,
+    val defaultValue: Float,
+    val step: Float = 1f,
+    val unit: String = "%",
+    val targetLayerIds: List<String>,
+    val scaleMin: Float,
+    val scaleMax: Float
+) {
+    fun toScale(value: Float): Float =
+        scaleMin + ((value - min) / (max - min)) * (scaleMax - scaleMin)
+
+    companion object {
+        fun defaults(): List<EditorSlider> = listOf(
+            EditorSlider(
+                id             = "lapela",
+                label          = "Lapela",
+                min            = 0f, max = 100f, defaultValue = 50f,
+                targetLayerIds = listOf("lapel"),
+                scaleMin       = 0.5f, scaleMax = 1.5f
+            ),
+            EditorSlider(
+                id             = "comprimento",
+                label          = "Comprimento",
+                min            = 0f, max = 100f, defaultValue = 60f,
+                targetLayerIds = listOf("jacket_base", "sleeve"),
+                scaleMin       = 0.7f, scaleMax = 1.3f
+            ),
+            EditorSlider(
+                id             = "ombro",
+                label          = "Ombro",
+                min            = 0f, max = 100f, defaultValue = 45f,
+                targetLayerIds = listOf("jacket_base"),
+                scaleMin       = 0.85f, scaleMax = 1.25f
+            ),
+        )
+    }
+}
+
+// Composable do slider com label + valor
+@Composable
+fun SuitSlider(
+    slider: EditorSlider,
+    value: Float,
+    onValueChange: (Float) -> Unit
+) {
+    val animatedScale by animateFloatAsState(
+        targetValue = slider.toScale(value),
+        animationSpec = tween(durationMillis = 100)
+    )
+
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(slider.label.uppercase(), style = MaterialTheme.typography.labelSmall)
+            Text("${value.toInt()}${slider.unit}", style = MaterialTheme.typography.labelSmall)
+        }
+        Slider(
+            value          = value,
+            onValueChange  = onValueChange,
+            valueRange     = slider.min..slider.max,
+            steps          = ((slider.max - slider.min) / slider.step).toInt() - 1
+        )
+    }
+
+    // Expor animatedScale para o layer afectado
+    // Uso: Modifier.graphicsLayer { scaleX = animatedScale }
+}

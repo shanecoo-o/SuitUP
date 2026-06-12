@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.suitup.app.ui.components.SuitButton
+import com.suitup.app.ui.components.SuitCard
 import com.suitup.app.ui.components.SuitStepIndicator
 import com.suitup.app.ui.components.SuitSwitch
 import com.suitup.app.ui.components.SuitTextField
@@ -100,26 +101,28 @@ fun CheckoutScreen(
             }
 
             // Medidas section
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = "Medidas",
-                    style = SuitTextStyles.titleMedium,
-                    color = SuitColors.Ink,
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+            SuitCard(padding = 16.dp) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = "Usar medidas salvas",
-                        style = SuitTextStyles.bodyMedium,
-                        color = SuitColors.Slate,
+                        text = "Medidas",
+                        style = SuitTextStyles.titleMedium,
+                        color = SuitColors.Ink,
                     )
-                    SuitSwitch(
-                        checked = useSavedMeasurements,
-                        onCheckedChange = onToggleMeasurements,
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Usar medidas salvas",
+                            style = SuitTextStyles.bodyMedium,
+                            color = SuitColors.Slate,
+                        )
+                        SuitSwitch(
+                            checked = useSavedMeasurements,
+                            onCheckedChange = onToggleMeasurements,
+                        )
+                    }
                 }
             }
         }

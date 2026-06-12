@@ -1,0 +1,80 @@
+{
+  "_comment": "final_suit_configuration_example.json — Objecto final gerado pelo editor ao confirmar. Este é o payload enviado para o carrinho / checkout / ordem de produção.",
+
+  "configurationId": "cfg_20240611_145500_navy_wool",
+  "generatedAt": "2024-06-11T14:55:00Z",
+  "userId": "user_abc123",
+  "sessionId": "session_20240611_143022",
+
+  "suit": {
+    "modelo": "Classic Suit",
+    "modeloId": "classic_suit",
+
+    "cor": {
+      "id": "navy",
+      "hex": "#1a2340",
+      "label": "Navy"
+    },
+
+    "tecido": {
+      "id": "wool",
+      "label": "Wool",
+      "description": "Lã merino premium"
+    },
+
+    "ajustes": {
+      "lapela":      { "valor": 55, "descricao": "Lapela ligeiramente larga" },
+      "comprimento": { "valor": 60, "descricao": "Comprimento padrão" },
+      "ombro":       { "valor": 45, "descricao": "Ombro ligeiramente estreito" }
+    },
+
+    "detalhes": {
+      "lapela":  "notch",
+      "botoes":  "two_buttons",
+      "bolsos":  "flap",
+      "fit":     "slim",
+      "forro":   "standard",
+      "gola":    "standard"
+    },
+
+    "preview": {
+      "anguloActivo": "front",
+      "layers": [
+        { "id": "jacket_base", "angle": "front", "visible": true, "assetPath": "assets/suit_layers/front/jacket_base.png" },
+        { "id": "lapel",       "angle": "front", "visible": true, "assetPath": "assets/suit_layers/front/lapel.png" },
+        { "id": "buttons",     "angle": "front", "visible": true, "assetPath": "assets/suit_layers/front/buttons.png" },
+        { "id": "pockets",     "angle": "front", "visible": true, "assetPath": "assets/suit_layers/front/pockets.png" },
+        { "id": "trousers",    "angle": "front", "visible": true, "assetPath": "assets/suit_layers/front/trousers.png" }
+      ]
+    }
+  },
+
+  "preco": {
+    "base": 12500,
+    "modificadorTecido": 0,
+    "modificadorCor": 0,
+    "subtotal": 12500,
+    "iva": 1875,
+    "total": 14375,
+    "moeda": "MZN"
+  },
+
+  "checkout": {
+    "itemId": "suit_classic_navy_wool_slim",
+    "quantidade": 1,
+    "notas": "Lapela notch, dois botões, bolso flap, fit slim",
+    "prazoProducao": "14 dias úteis",
+    "necessitaMedidas": true
+  },
+
+  "medidas": {
+    "estado": "pendente",
+    "link": "/medidas/cfg_20240611_145500_navy_wool"
+  },
+
+  "tracking": {
+    "etapa": "editor_concluido",
+    "proximaEtapa": "medidas",
+    "progresso": 33
+  }
+}

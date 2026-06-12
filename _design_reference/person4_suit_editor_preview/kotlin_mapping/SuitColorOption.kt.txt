@@ -1,0 +1,49 @@
+// SuitColorOption.kt — Opção de cor do fato
+// Pacote sugerido: com.suitup.editor
+
+package com.suitup.editor
+
+import androidx.compose.ui.graphics.Color
+
+data class SuitColorOption(
+    val id: String,
+    val hex: String,
+    val label: String,
+    val premium: Boolean = false
+) {
+    val composeColor: Color
+        get() = Color(android.graphics.Color.parseColor(hex))
+
+    companion object {
+        fun defaults(): List<SuitColorOption> = listOf(
+            SuitColorOption("navy",      "#1a2340", "Navy"),
+            SuitColorOption("charcoal",  "#2d2d2d", "Charcoal"),
+            SuitColorOption("black",     "#0d0d0d", "Black"),
+            SuitColorOption("cream",     "#e8e0d0", "Cream"),
+            SuitColorOption("grey",      "#707070", "Grey"),
+            SuitColorOption("wine",      "#5c1a2a", "Wine"),
+            SuitColorOption("forest",    "#1a3a28", "Forest"),
+            SuitColorOption("camel",     "#c8a87a", "Camel"),
+            SuitColorOption("cobalt",    "#1a3a7a", "Cobalt",  premium = true),
+            SuitColorOption("burgundy",  "#4a0e1a", "Burgundy",premium = true),
+            SuitColorOption("ivory",     "#f0ead8", "Ivory"),
+            SuitColorOption("teal",      "#0f3d3a", "Teal",    premium = true),
+            SuitColorOption("rust",      "#7a2a1a", "Rust",    premium = true),
+            SuitColorOption("olive",     "#3d4a1a", "Olive"),
+            SuitColorOption("slate",     "#3a4a5c", "Slate"),
+            SuitColorOption("sand",      "#d4c4a0", "Sand"),
+        )
+    }
+}
+
+// Aplicar cor via LightingColorFilter (Android Canvas)
+fun applyColorFilter(paint: Paint, color: SuitColorOption) {
+    paint.colorFilter = LightingColorFilter(
+        android.graphics.Color.parseColor(color.hex),
+        0
+    )
+}
+
+// Aplicar cor via BlendModeColorFilter em Compose
+fun colorFilterFor(color: SuitColorOption): ColorFilter =
+    ColorFilter.tint(color.composeColor, blendMode = BlendMode.SrcIn)

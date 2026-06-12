@@ -1,0 +1,114 @@
+{
+  "_comment": "editor_config.json — Configuração estática do Editor SuitUP. Usar como fonte de verdade para inicializar o EditorViewModel em Kotlin.",
+
+  "version": "1.0.0",
+  "editorName": "SuitUP Suit Editor",
+
+  "angles": [
+    { "id": "front", "label": "Frente",  "order": 0 },
+    { "id": "side",  "label": "Lado",    "order": 1 },
+    { "id": "back",  "label": "Costas",  "order": 2 }
+  ],
+
+  "colors": [
+    { "id": "navy",      "hex": "#1a2340", "label": "Navy",         "premium": false },
+    { "id": "charcoal",  "hex": "#2d2d2d", "label": "Charcoal",     "premium": false },
+    { "id": "black",     "hex": "#0d0d0d", "label": "Black",        "premium": false },
+    { "id": "cream",     "hex": "#e8e0d0", "label": "Cream",        "premium": false },
+    { "id": "grey",      "hex": "#707070", "label": "Grey",         "premium": false },
+    { "id": "wine",      "hex": "#5c1a2a", "label": "Wine",         "premium": false },
+    { "id": "forest",    "hex": "#1a3a28", "label": "Forest",       "premium": false },
+    { "id": "camel",     "hex": "#c8a87a", "label": "Camel",        "premium": false },
+    { "id": "cobalt",    "hex": "#1a3a7a", "label": "Cobalt",       "premium": true  },
+    { "id": "burgundy",  "hex": "#4a0e1a", "label": "Burgundy",     "premium": true  },
+    { "id": "ivory",     "hex": "#f0ead8", "label": "Ivory",        "premium": false },
+    { "id": "teal",      "hex": "#0f3d3a", "label": "Teal",         "premium": true  },
+    { "id": "rust",      "hex": "#7a2a1a", "label": "Rust",         "premium": true  },
+    { "id": "olive",     "hex": "#3d4a1a", "label": "Olive",        "premium": false },
+    { "id": "slate",     "hex": "#3a4a5c", "label": "Slate",        "premium": false },
+    { "id": "sand",      "hex": "#d4c4a0", "label": "Sand",         "premium": false }
+  ],
+
+  "fabrics": [
+    {
+      "id": "wool",
+      "label": "Wool",
+      "assetPath": "assets/fabrics/wool.png",
+      "description": "Lã merino premium, ideal para clima frio",
+      "priceModifier": 0,
+      "available": true
+    },
+    {
+      "id": "cotton",
+      "label": "Cotton",
+      "assetPath": "assets/fabrics/cotton.png",
+      "description": "Algodão de alta qualidade, respirável",
+      "priceModifier": -1500,
+      "available": true
+    },
+    {
+      "id": "linen",
+      "label": "Linen",
+      "assetPath": "assets/fabrics/linen.png",
+      "description": "Linho natural, ideal para clima quente",
+      "priceModifier": 500,
+      "available": true
+    },
+    {
+      "id": "premium_black",
+      "label": "Premium Black",
+      "assetPath": "assets/fabrics/premium_black.png",
+      "description": "Tecido premium exclusivo, acabamento acetinado",
+      "priceModifier": 5000,
+      "available": true
+    }
+  ],
+
+  "layers": [
+    { "id": "trousers",     "angle": "front", "zOrder": 0, "canChangeColor": true,  "canChangeFabric": true,  "visible": true,  "toggleable": false, "assetPath": "assets/suit_layers/front/trousers.png" },
+    { "id": "jacket_base",  "angle": "front", "zOrder": 1, "canChangeColor": true,  "canChangeFabric": true,  "visible": true,  "toggleable": false, "assetPath": "assets/suit_layers/front/jacket_base.png" },
+    { "id": "lapel",        "angle": "front", "zOrder": 2, "canChangeColor": true,  "canChangeFabric": true,  "visible": true,  "toggleable": true,  "assetPath": "assets/suit_layers/front/lapel.png" },
+    { "id": "buttons",      "angle": "front", "zOrder": 3, "canChangeColor": true,  "canChangeFabric": false, "visible": true,  "toggleable": true,  "assetPath": "assets/suit_layers/front/buttons.png" },
+    { "id": "pockets",      "angle": "front", "zOrder": 4, "canChangeColor": true,  "canChangeFabric": true,  "visible": true,  "toggleable": true,  "assetPath": "assets/suit_layers/front/pockets.png" },
+    { "id": "trousers",     "angle": "side",  "zOrder": 0, "canChangeColor": true,  "canChangeFabric": true,  "visible": true,  "toggleable": false, "assetPath": "assets/suit_layers/side/trousers.png" },
+    { "id": "jacket_base",  "angle": "side",  "zOrder": 1, "canChangeColor": true,  "canChangeFabric": true,  "visible": true,  "toggleable": false, "assetPath": "assets/suit_layers/side/jacket_base.png" },
+    { "id": "sleeve",       "angle": "side",  "zOrder": 2, "canChangeColor": true,  "canChangeFabric": true,  "visible": true,  "toggleable": true,  "assetPath": "assets/suit_layers/side/sleeve.png" },
+    { "id": "trousers",     "angle": "back",  "zOrder": 0, "canChangeColor": true,  "canChangeFabric": true,  "visible": true,  "toggleable": false, "assetPath": "assets/suit_layers/back/trousers.png" },
+    { "id": "jacket_base",  "angle": "back",  "zOrder": 1, "canChangeColor": true,  "canChangeFabric": true,  "visible": true,  "toggleable": false, "assetPath": "assets/suit_layers/back/jacket_base.png" },
+    { "id": "collar",       "angle": "back",  "zOrder": 2, "canChangeColor": true,  "canChangeFabric": true,  "visible": true,  "toggleable": true,  "assetPath": "assets/suit_layers/back/collar.png" }
+  ],
+
+  "sliders": [
+    {
+      "id": "lapela",
+      "label": "Lapela",
+      "min": 0, "max": 100, "defaultValue": 50, "step": 1, "unit": "%",
+      "targetLayers": ["lapel"],
+      "composeProperty": "scaleX",
+      "scaleRange": { "min": 0.5, "max": 1.5 }
+    },
+    {
+      "id": "comprimento",
+      "label": "Comprimento",
+      "min": 0, "max": 100, "defaultValue": 60, "step": 1, "unit": "%",
+      "targetLayers": ["jacket_base", "sleeve"],
+      "composeProperty": "scaleY",
+      "scaleRange": { "min": 0.7, "max": 1.3 }
+    },
+    {
+      "id": "ombro",
+      "label": "Ombro",
+      "min": 0, "max": 100, "defaultValue": 45, "step": 1, "unit": "%",
+      "targetLayers": ["jacket_base"],
+      "composeProperty": "scaleX",
+      "scaleRange": { "min": 0.85, "max": 1.25 }
+    }
+  ],
+
+  "suitModels": [
+    { "id": "classic_suit",  "label": "Classic Suit",  "basePrice": 12500 },
+    { "id": "slim_fit",      "label": "Slim Fit",      "basePrice": 13500 },
+    { "id": "double_breast", "label": "Double Breast", "basePrice": 15000 },
+    { "id": "tuxedo",        "label": "Tuxedo",        "basePrice": 18000 }
+  ]
+}

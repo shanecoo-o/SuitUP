@@ -174,7 +174,7 @@ private fun PartRow(
             } else {
                 SuitTextStyles.bodyMedium
             },
-            color = if (isSelected) SuitColors.Ink else SuitColors.Slate,
+            color = if (isSelected) SuitColors.Gold else SuitColors.Slate,
         )
     }
 }
@@ -228,7 +228,7 @@ private fun LapelEditor(
                 Text(
                     text = widthLabel(width),
                     style = SuitTextStyles.labelMedium,
-                    color = SuitColors.Ink,
+                    color = SuitColors.Gold,
                 )
             }
             SuitSlider(

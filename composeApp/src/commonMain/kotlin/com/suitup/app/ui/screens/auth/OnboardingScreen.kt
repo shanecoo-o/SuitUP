@@ -70,7 +70,7 @@ fun OnboardingScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(SuitColors.Ink)
+            .background(SuitColors.Black)
     ) {
         // Hero placeholder ocupa o ecrã todo no fundo
         SuitHeroPlaceholder(
@@ -85,7 +85,7 @@ fun OnboardingScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(280.dp)
-                    .background(SuitColors.Ink)
+                    .background(SuitColors.Black)
             )
         }
 

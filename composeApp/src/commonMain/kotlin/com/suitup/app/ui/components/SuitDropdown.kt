@@ -68,8 +68,8 @@ fun <T> SuitDropdown(
                 .fillMaxWidth()
                 .height(48.dp)
                 .clip(SuitTheme.shapes.input)
-                .background(SuitColors.SurfaceWhite)
-                .border(1.dp, if (expanded) SuitColors.Ink else SuitColors.Mist, SuitTheme.shapes.input)
+                .background(SuitColors.SurfaceLow)
+                .border(1.dp, if (expanded) SuitColors.Gold else SuitColors.Mist, SuitTheme.shapes.input)
                 .clickable(enabled = enabled) { expanded = !expanded }
                 .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -91,7 +91,7 @@ fun <T> SuitDropdown(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier
-                .background(SuitColors.SurfaceWhite)
+                .background(SuitColors.Surface)
                 .widthIn(min = 200.dp),
             offset = androidx.compose.ui.unit.DpOffset(0.dp, 4.dp),
         ) {
@@ -102,7 +102,7 @@ fun <T> SuitDropdown(
                         Text(
                             text = optionLabel(option),
                             style = SuitTextStyles.bodyMedium,
-                            color = if (isSelected) SuitColors.Ink else SuitColors.Slate,
+                            color = if (isSelected) SuitColors.Gold else SuitColors.Slate,
                         )
                     },
                     onClick = {
@@ -113,7 +113,7 @@ fun <T> SuitDropdown(
                         textColor = SuitColors.Ink,
                     ),
                     modifier = Modifier.background(
-                        if (isSelected) SuitColors.Pearl else Color.Transparent
+                        if (isSelected) SuitColors.SurfaceHigh else Color.Transparent
                     ),
                 )
                 if (index < options.lastIndex) {

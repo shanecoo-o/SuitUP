@@ -124,7 +124,7 @@ private fun MpesaNumberCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(SuitTheme.shapes.card)
-            .background(SuitColors.SurfaceWhite)
+            .background(SuitColors.Surface)
             .border(1.dp, SuitColors.Mist, SuitTheme.shapes.card)
             .padding(20.dp),
     ) {
@@ -147,7 +147,7 @@ private fun MpesaNumberCard(
                 Text(
                     text = "Copiar",
                     style = SuitTextStyles.labelMedium,
-                    color = SuitColors.Ink,
+                    color = SuitColors.Gold,
                     modifier = Modifier
                         .clickable(onClick = onCopyNumber)
                         .padding(8.dp),

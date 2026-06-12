@@ -106,7 +106,7 @@ fun Preview3DScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 FloatingCircleButton(onClick = onBack) {
-                    BackChevronIcon(tint = SuitColors.Ink, size = 20.dp)
+                    BackChevronIcon(tint = SuitColors.Pearl, size = 20.dp)
                 }
 
                 Text(
@@ -117,7 +117,7 @@ fun Preview3DScreen(
 
                 Box {
                     FloatingCircleButton(onClick = onCartClick) {
-                        CartIcon(tint = SuitColors.Ink, size = 20.dp)
+                        CartIcon(tint = SuitColors.Pearl, size = 20.dp)
                     }
                     if (cartItemCount > 0) {
                         Box(
@@ -132,7 +132,7 @@ fun Preview3DScreen(
                             Text(
                                 text = cartItemCount.toString(),
                                 style = SuitTextStyles.labelSmall,
-                                color = SuitColors.Ink,
+                                color = SuitColors.GoldInk,
                             )
                         }
                     }
@@ -150,22 +150,22 @@ fun Preview3DScreen(
                 Suit3DControlButton(
                     label = "Girar",
                     onClick = onRotate,
-                    icon = { RotateIcon(tint = SuitColors.Ink, size = 20.dp) }
+                    icon = { RotateIcon(tint = SuitColors.Gold, size = 20.dp) }
                 )
                 Suit3DControlButton(
                     label = "Zoom",
                     onClick = onZoom,
-                    icon = { ZoomIcon(tint = SuitColors.Ink, size = 20.dp) }
+                    icon = { ZoomIcon(tint = SuitColors.Gold, size = 20.dp) }
                 )
                 Suit3DControlButton(
                     label = "Luz",
                     onClick = onToggleLight,
-                    icon = { BulbIcon(tint = SuitColors.Ink, size = 20.dp) }
+                    icon = { BulbIcon(tint = SuitColors.Gold, size = 20.dp) }
                 )
                 Suit3DControlButton(
                     label = "Fundo",
                     onClick = onToggleBackground,
-                    icon = { PictureIcon(tint = SuitColors.Ink, size = 20.dp) }
+                    icon = { PictureIcon(tint = SuitColors.Gold, size = 20.dp) }
                 )
             }
 
@@ -174,7 +174,7 @@ fun Preview3DScreen(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(start = 16.dp, end = 16.dp, bottom = 18.dp)
-                        .background(SuitColors.SurfaceWhite.copy(alpha = 0.92f))
+                        .background(SuitColors.Surface.copy(alpha = 0.94f))
                         .padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
@@ -229,10 +229,10 @@ private fun FloatingCircleButton(
     icon: @Composable () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(SuitColors.SurfaceWhite.copy(alpha = 0.95f))
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+            .background(SuitColors.SurfaceLow.copy(alpha = 0.96f))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {

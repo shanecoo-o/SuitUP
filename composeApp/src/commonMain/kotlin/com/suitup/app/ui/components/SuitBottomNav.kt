@@ -37,7 +37,7 @@ fun SuitBottomNav(
     onSelect: (SuitTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth().background(SuitColors.SurfaceWhite)) {
+    Column(modifier = modifier.fillMaxWidth().background(SuitColors.Black)) {
         HorizontalDivider(thickness = 1.dp, color = SuitColors.Mist)
         Row(
             modifier = Modifier
@@ -66,7 +66,7 @@ private fun NavItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val tint = if (isSelected) SuitColors.Ink else SuitColors.Smoke
+    val tint = if (isSelected) SuitColors.Gold else SuitColors.Smoke
     Column(
         modifier = modifier
             .clickable(onClick = onClick)

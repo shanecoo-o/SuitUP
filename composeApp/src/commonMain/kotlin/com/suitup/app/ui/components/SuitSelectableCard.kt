@@ -46,7 +46,7 @@ fun SuitSelectableCard(
     leadingIcon: (@Composable () -> Unit)? = null,
 ) {
     val borderColor by animateColorAsState(
-        targetValue = if (selected) SuitColors.Ink else SuitColors.Mist,
+        targetValue = if (selected) SuitColors.Gold else SuitColors.Mist,
         animationSpec = SuitAnim.normal(),
         label = "card-border"
     )
@@ -60,7 +60,7 @@ fun SuitSelectableCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(SuitTheme.shapes.card)
-            .background(SuitColors.SurfaceWhite)
+            .background(if (selected) SuitColors.SurfaceHigh else SuitColors.Surface)
             .border(borderWidth, borderColor, SuitTheme.shapes.card)
             .clickable(onClick = onClick)
             .padding(16.dp),
@@ -102,10 +102,10 @@ private fun SelectionIndicator(selected: Boolean) {
         modifier = Modifier
             .size(22.dp)
             .clip(CircleShape)
-            .background(if (selected) SuitColors.Ink else SuitColors.SurfaceWhite)
+            .background(if (selected) SuitColors.Gold else SuitColors.SurfaceLow)
             .border(
                 width = if (selected) 0.dp else 1.5.dp,
-                color = if (selected) SuitColors.Ink else SuitColors.Mist,
+                color = if (selected) SuitColors.Gold else SuitColors.Mist,
                 shape = CircleShape,
             ),
         contentAlignment = Alignment.Center
@@ -116,7 +116,7 @@ private fun SelectionIndicator(selected: Boolean) {
                 modifier = Modifier
                     .size(8.dp)
                     .clip(CircleShape)
-                    .background(SuitColors.SurfaceWhite)
+                    .background(SuitColors.GoldInk)
             )
         }
     }

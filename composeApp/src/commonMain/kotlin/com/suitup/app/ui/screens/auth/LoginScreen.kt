@@ -114,7 +114,7 @@ fun LoginScreen(
                 Text(
                     text = "Esqueceu a senha?",
                     style = SuitTextStyles.bodySmall,
-                    color = SuitColors.Ink,
+                    color = SuitColors.Gold,
                     modifier = Modifier
                         .clickable(onClick = onForgotPassword)
                         .padding(4.dp)
@@ -159,7 +159,7 @@ fun LoginScreen(
             Text(
                 text = "Criar conta",
                 style = SuitTextStyles.bodyMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
-                color = SuitColors.Ink,
+                color = SuitColors.Gold,
                 modifier = Modifier
                     .clickable(onClick = onCreateAccount)
                     .padding(4.dp)
