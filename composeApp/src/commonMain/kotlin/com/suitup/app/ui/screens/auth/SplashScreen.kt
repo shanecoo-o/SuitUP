@@ -1,6 +1,7 @@
 package com.suitup.app.ui.screens.auth
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,12 +13,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.suitup.app.ui.components.SuitLogoMark
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.painterResource
+import suitup.composeapp.generated.resources.Res
+import suitup.composeapp.generated.resources.logo_suitup
 
 /**
  * Ecrã 01 — Splash.
@@ -45,7 +49,12 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            SuitLogoMark(size = 96.dp, tint = SuitColors.Gold)
+            Image(
+                painter = painterResource(Res.drawable.logo_suitup),
+                contentDescription = "Logotipo SuitUP",
+                modifier = Modifier.height(96.dp),
+                contentScale = ContentScale.Fit,
+            )
 
             Spacer(Modifier.height(20.dp))
 

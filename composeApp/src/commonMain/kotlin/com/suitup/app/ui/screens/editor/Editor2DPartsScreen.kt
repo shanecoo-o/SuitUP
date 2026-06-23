@@ -2,6 +2,7 @@ package com.suitup.app.ui.screens.editor
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.TipoLapela
@@ -28,6 +30,9 @@ import com.suitup.app.ui.components.SuitStepIndicator
 import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
+import org.jetbrains.compose.resources.painterResource
+import suitup.composeapp.generated.resources.Res
+import suitup.composeapp.generated.resources.editor_suit_front
 
 /**
  * Ecrã 06 — Editor 2D · Partes.
@@ -85,11 +90,13 @@ fun Editor2DPartsScreen(
                     .padding(end = 16.dp, start = 4.dp),
                 contentAlignment = Alignment.Center
             ) {
-                SuitGarmentMini(
-                    size = 200.dp,
-                    garmentColor = garmentColor,
-                    background = Color.Transparent,
-                    showShirt = true,
+                Image(
+                    painter = painterResource(Res.drawable.editor_suit_front),
+                    contentDescription = "Pré-visualização do fato",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp),
+                    contentScale = ContentScale.Fit,
                 )
             }
         }

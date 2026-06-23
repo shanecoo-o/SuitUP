@@ -2,6 +2,7 @@ package com.suitup.app.ui.screens.catalog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.CategoriaFato
@@ -30,6 +32,13 @@ import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 import com.suitup.app.ui.theme.SuitTheme
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import suitup.composeapp.generated.resources.Res
+import suitup.composeapp.generated.resources.suit_casual_linen
+import suitup.composeapp.generated.resources.suit_classic_black
+import suitup.composeapp.generated.resources.suit_grey_slim
+import suitup.composeapp.generated.resources.suit_navy_business
 
 /**
  * Ecrã 05 — Selecionar Modelo.
@@ -125,13 +134,24 @@ private fun ModelCard(
                 .background(SuitColors.SurfaceLow),
             contentAlignment = Alignment.Center
         ) {
-            // Mock visual: garment mini grande
-            SuitGarmentMini(
-                size = 132.dp,
-                garmentColor = colorForModel(model),
-                background = Color.Transparent,
-                showShirt = true,
-            )
+            val image = imageForModel(model)
+            if (image != null) {
+                Image(
+                    painter = painterResource(image),
+                    contentDescription = model.nome,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    contentScale = ContentScale.Fit,
+                )
+            } else {
+                SuitGarmentMini(
+                    size = 132.dp,
+                    garmentColor = colorForModel(model),
+                    background = Color.Transparent,
+                    showShirt = true,
+                )
+            }
         }
 
         // Name
@@ -179,6 +199,19 @@ private fun colorForModel(model: ModeloFato): Color {
         "cinza" in lower || "antracite" in lower -> Color(0xFF3B3B3B)
         "grafite" in lower -> Color(0xFF2C2C2C)
         else -> SuitColors.Charcoal
+    }
+}
+
+private fun imageForModel(model: ModeloFato): DrawableResource? {
+    val lower = model.nome.lowercase()
+    return when {
+        "preto" in lower -> Res.drawable.suit_classic_black
+        "cinza" in lower || "grafite" in lower || "antracite" in lower -> Res.drawable.suit_grey_slim
+        "azul" in lower -> Res.drawable.suit_navy_business
+        "linho" in lower || "linen" in lower -> Res.drawable.suit_casual_linen
+        model.id == "m4" -> Res.drawable.suit_navy_business
+        model.id == "m6" -> Res.drawable.suit_grey_slim
+        else -> Res.drawable.suit_classic_black
     }
 }
 

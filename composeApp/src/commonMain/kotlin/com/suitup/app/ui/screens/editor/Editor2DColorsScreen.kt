@@ -3,6 +3,7 @@ package com.suitup.app.ui.screens.editor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.Tecido
 import com.suitup.app.domain.model.CorFato
@@ -34,6 +36,9 @@ import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 import com.suitup.app.ui.theme.SuitTheme
 import com.suitup.app.ui.util.toComposeColorOrNull
+import org.jetbrains.compose.resources.painterResource
+import suitup.composeapp.generated.resources.Res
+import suitup.composeapp.generated.resources.editor_suit_front
 
 /**
  * Ecrã 07 — Editor 2D · Cores e Tecidos.
@@ -93,11 +98,13 @@ fun Editor2DColorsScreen(
                     .padding(end = 16.dp, start = 4.dp),
                 contentAlignment = Alignment.Center
             ) {
-                SuitGarmentMini(
-                    size = 200.dp,
-                    garmentColor = previewColor,
-                    background = Color.Transparent,
-                    showShirt = true,
+                Image(
+                    painter = painterResource(Res.drawable.editor_suit_front),
+                    contentDescription = "Pré-visualização do fato",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp),
+                    contentScale = ContentScale.Fit,
                 )
             }
         }

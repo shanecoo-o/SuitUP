@@ -1,6 +1,7 @@
 package com.suitup.app.ui.screens.editor
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.suitup.app.ui.components.Suit3DControlButton
@@ -34,6 +37,9 @@ import com.suitup.app.ui.icons.RotateIcon
 import com.suitup.app.ui.icons.ZoomIcon
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
+import org.jetbrains.compose.resources.painterResource
+import suitup.composeapp.generated.resources.Res
+import suitup.composeapp.generated.resources.preview_3d_placeholder
 
 /**
  * Ecrã 08 — Preview 3D (versão fiel ao mockup).
@@ -83,6 +89,16 @@ fun Preview3DScreen(
                 modifier = Modifier.fillMaxSize(),
                 bright = showLight,
                 lightBackground = !backgroundDark,
+            )
+
+            Image(
+                painter = painterResource(Res.drawable.preview_3d_placeholder),
+                contentDescription = "Pré-visualização 3D do fato",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 72.dp, end = 12.dp, top = 56.dp, bottom = 32.dp)
+                    .graphicsLayer { alpha = if (backgroundDark) 0.46f else 0.82f },
+                contentScale = ContentScale.Fit,
             )
 
             // Suit preview interativo no centro
