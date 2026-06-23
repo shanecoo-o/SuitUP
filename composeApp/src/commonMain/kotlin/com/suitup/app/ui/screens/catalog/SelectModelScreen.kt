@@ -203,6 +203,8 @@ private fun colorForModel(model: ModeloFato): Color {
 }
 
 private fun imageForModel(model: ModeloFato): DrawableResource? {
+    imageForKey(model.urlImagemPrevia)?.let { return it }
+
     val lower = model.nome.lowercase()
     return when {
         "preto" in lower -> Res.drawable.suit_classic_black
@@ -213,6 +215,14 @@ private fun imageForModel(model: ModeloFato): DrawableResource? {
         model.id == "m6" -> Res.drawable.suit_grey_slim
         else -> Res.drawable.suit_classic_black
     }
+}
+
+private fun imageForKey(key: String): DrawableResource? = when (key) {
+    "suit_classic_black" -> Res.drawable.suit_classic_black
+    "suit_grey_slim" -> Res.drawable.suit_grey_slim
+    "suit_navy_business" -> Res.drawable.suit_navy_business
+    "suit_casual_linen" -> Res.drawable.suit_casual_linen
+    else -> null
 }
 
 

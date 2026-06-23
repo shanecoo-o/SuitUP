@@ -2,8 +2,9 @@ package com.suitup.app.ui.screens.catalog
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.suitup.app.data.mock.MockData
+import com.suitup.app.data.mock.MockCatalogStore
 import com.suitup.app.data.mock.MockOrderStore
+import com.suitup.app.data.mock.toModeloFato
 import com.suitup.app.domain.model.CategoriaFato
 import com.suitup.app.domain.model.ModeloFato
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,11 +35,13 @@ class SelecionarModeloScreenModel : ScreenModel {
 
     init {
         screenModelScope.launch {
-            _state.update {
-                it.copy(
-                    modelos = MockData.modelosFato,
-                    contadorCarrinho = MockOrderStore.cartItemCount,
-                )
+            MockCatalogStore.suitModels.collect { suitModels ->
+                _state.update {
+                    it.copy(
+                        modelos = suitModels.filter { model -> model.available }.map { model -> model.toModeloFato() },
+                        contadorCarrinho = MockOrderStore.cartItemCount,
+                    )
+                }
             }
         }
     }

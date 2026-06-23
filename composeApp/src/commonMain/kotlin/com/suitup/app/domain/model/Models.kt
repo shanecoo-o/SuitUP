@@ -55,10 +55,26 @@ data class ModeloFato(
     val urlImagemPrevia: String,   // mock — Coil resolve, ou usamos drawable interno
 )
 
+@Serializable
+data class SuitModel(
+    val id: String,
+    val name: String,
+    val category: String,
+    val description: String,
+    val basePrice: Int,
+    val imageKey: String,
+    val fabricType: String,
+    val color: String,
+    val available: Boolean = true,
+)
+
 enum class CategoriaFato(val label: String) {
     Classico("Clássico"),
     CorteSlim("Slim Fit"),
-    Executivo("Executivo");
+    Executivo("Executivo"),
+    Casual("Casual"),
+    Premium("Premium"),
+    Gala("Gala");
 
     companion object {
         fun all() = entries.toList()

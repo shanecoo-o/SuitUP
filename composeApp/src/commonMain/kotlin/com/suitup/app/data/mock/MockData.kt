@@ -24,14 +24,8 @@ object MockData {
         )
     )
 
-    val modelosFato = listOf(
-        ModeloFato("m1", "Clássico Preto", CategoriaFato.Classico, 3450, "https://picsum.photos/seed/suit1/400/600"),
-        ModeloFato("m2", "Slim Azul Marinho", CategoriaFato.CorteSlim, 3450, "https://picsum.photos/seed/suit2/400/600"),
-        ModeloFato("m3", "Cinza Grafite", CategoriaFato.Classico, 3650, "https://picsum.photos/seed/suit3/400/600"),
-        ModeloFato("m4", "Azul Escuro", CategoriaFato.Executivo, 4200, "https://picsum.photos/seed/suit4/400/600"),
-        ModeloFato("m5", "Preto Executivo", CategoriaFato.Executivo, 4500, "https://picsum.photos/seed/suit5/400/600"),
-        ModeloFato("m6", "Slim Antracite", CategoriaFato.CorteSlim, 3550, "https://picsum.photos/seed/suit6/400/600"),
-    )
+    val modelosFato: List<ModeloFato>
+        get() = MockCatalogStore.getActiveModeloFatos()
 
     val tecidos = listOf(
         Tecido("f1", "Lã Premium", "#1F2A44"),

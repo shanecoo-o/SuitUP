@@ -66,7 +66,8 @@ object MockOrderStore {
     }
 
     fun ensureDraft(modeloId: String): MockDesignDraft {
-        val modelo = MockData.modelosFato.firstOrNull { it.id == modeloId } ?: MockData.modelosFato.first()
+        val modelo = MockCatalogStore.getModeloFatoById(modeloId)
+            ?: MockCatalogStore.getActiveModeloFatos().first()
         return _draft.value?.takeIf { it.modelo.id == modeloId } ?: startDraft(modelo)
     }
 
