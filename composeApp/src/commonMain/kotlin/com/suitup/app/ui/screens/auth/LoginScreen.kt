@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.suitup.app.ui.components.SuitButton
+import com.suitup.app.ui.components.SuitButtonVariant
 import com.suitup.app.ui.components.SuitDividerWithText
 import com.suitup.app.ui.components.SuitLogoStack
 import com.suitup.app.ui.components.SuitSocialButton
@@ -52,6 +53,7 @@ fun LoginScreen(
     onGoogleLogin: () -> Unit = {},
     onAppleLogin: () -> Unit = {},
     onCreateAccount: () -> Unit = {},
+    onAdminLogin: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -130,7 +132,15 @@ fun LoginScreen(
             enabled = !isLoading && email.isNotBlank() && password.isNotBlank(),
         )
 
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(12.dp))
+
+        SuitButton(
+            text = "Entrar como Admin",
+            onClick = onAdminLogin,
+            variant = SuitButtonVariant.Secondary,
+        )
+
+        Spacer(Modifier.height(24.dp))
 
         SuitDividerWithText("ou continue com")
 

@@ -98,6 +98,9 @@ class LoginVoyagerScreen : Screen {
             },
             onAppleLogin = {
                 screenModel.onEvent(LoginUiEvent.EntrarDemoClicado)
+            },
+            onAdminLogin = {
+                navigator?.push(AdminDashboardVoyagerScreen())
             }
         )
     }
