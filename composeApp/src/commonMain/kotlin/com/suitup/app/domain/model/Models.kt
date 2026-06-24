@@ -51,7 +51,7 @@ data class ModeloFato(
     val id: String,
     val nome: String,
     val categoria: CategoriaFato,
-    val precoBase: Int,            // em meticais (R$)
+    val precoBase: Int,            // em meticais (MZN)
     val urlImagemPrevia: String,   // mock — Coil resolve, ou usamos drawable interno
 )
 
@@ -172,8 +172,9 @@ data class PontoLevantamento(
 )
 
 enum class EstadoPedido(val label: String) {
-    AguardandoPagamento("Aguardando validação do pagamento"),
-    PagamentoValidado("Pagamento validado"),
+    AguardandoPagamento("Aguardando confirmação do pagamento"),
+    PagamentoValidado("Pagamento confirmado"),
+    PagamentoRejeitado("Pagamento rejeitado"),
     EmProducao("Em produção"),
     ProntoParaEntrega("Pronto para entrega"),
     Entregue("Entregue"),
@@ -195,9 +196,17 @@ data class InfoPagamento(
     val caminhoImagemComprovativo: String? = null,
     val numeroMpesa: String,
     val titular: String,
+    val status: PaymentStatus = PaymentStatus.PENDING,
+    val referenciaTransaccao: String? = null,
 )
 
 enum class MetodoPagamento { MpesaManual }
+
+enum class PaymentStatus(val label: String) {
+    PENDING("Pendente"),
+    CONFIRMED("Confirmado"),
+    REJECTED("Rejeitado"),
+}
 
 /**
  * Item no carrinho — referencia um DesignFato + quantidade.

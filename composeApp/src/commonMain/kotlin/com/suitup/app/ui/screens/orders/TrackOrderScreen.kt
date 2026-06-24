@@ -26,9 +26,12 @@ import com.suitup.app.domain.model.EstadoEvento
 import com.suitup.app.domain.model.Pedido
 import com.suitup.app.domain.model.EventoPedido
 import com.suitup.app.domain.model.EstadoPedido
+import com.suitup.app.domain.model.PaymentStatus
 import com.suitup.app.ui.components.SuitButton
 import com.suitup.app.ui.components.SuitCard
 import com.suitup.app.ui.components.SuitEyebrow
+import com.suitup.app.ui.components.SuitStatusBadge
+import com.suitup.app.ui.components.SuitStatusKind
 import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.icons.CheckIcon
 import com.suitup.app.ui.theme.SuitColors
@@ -47,7 +50,7 @@ fun TrackOrderScreen(
     cartItemCount: Int = 0,
     onBack: () -> Unit = {},
     onCartClick: () -> Unit = {},
-    onContactSupport: () -> Unit = {},
+    onContactSupport: (() -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier
@@ -75,19 +78,50 @@ fun TrackOrderScreen(
                 actualizadoEm = order.actualizadoEm,
             )
 
+            PaymentStatusCard(status = order.pagamento.status)
+
             // Timeline
             OrderTimeline(events = order.linhaTempo)
         }
 
         // Footer
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 14.dp),
-        ) {
-            SuitButton(
-                text = "Falar com suporte",
-                onClick = onContactSupport,
+        if (onContactSupport != null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
+            ) {
+                SuitButton(
+                    text = "Falar com suporte",
+                    onClick = onContactSupport,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PaymentStatusCard(status: PaymentStatus) {
+    val (description, kind) = when (status) {
+        PaymentStatus.PENDING -> "Aguardando confirmação do pagamento" to SuitStatusKind.Pendente
+        PaymentStatus.CONFIRMED -> "Pagamento confirmado pela equipa SuitUP" to SuitStatusKind.Success
+        PaymentStatus.REJECTED -> "Pagamento rejeitado. Contacte o suporte para reenviar o comprovativo." to SuitStatusKind.Error
+    }
+
+    SuitCard {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SuitEyebrow("Pagamento")
+                SuitStatusBadge(text = status.label, kind = kind)
+            }
+            Text(
+                text = description,
+                style = SuitTextStyles.bodySmall,
+                color = SuitColors.Slate,
             )
         }
     }
@@ -215,8 +249,9 @@ private fun StatusIndicator(state: EstadoEvento) {
  * Difere ligeiramente do label completo do domain para encurtar.
  */
 private fun eventTitleLabel(estado: EstadoPedido): String = when (estado) {
-    EstadoPedido.AguardandoPagamento -> "Pagamento enviado"
-    EstadoPedido.PagamentoValidado -> "Pagamento validado"
+    EstadoPedido.AguardandoPagamento -> "Aguardando confirmação do pagamento"
+    EstadoPedido.PagamentoValidado -> "Pagamento confirmado"
+    EstadoPedido.PagamentoRejeitado -> "Pagamento rejeitado"
     EstadoPedido.EmProducao -> "Em produção"
     EstadoPedido.ProntoParaEntrega -> "Pronto para entrega"
     EstadoPedido.Entregue -> "Entregue"

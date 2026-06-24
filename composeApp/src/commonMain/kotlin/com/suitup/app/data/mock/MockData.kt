@@ -69,7 +69,7 @@ object MockData {
             tipoEntrega = TipoEntrega.Entrega,
             enderecoEntrega = EnderecoEntrega("Maputo", "Polana", "Av. Julius Nyerere, 123", "Próximo ao Shopping Polana"),
             pontoLevantamento = null,
-            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda"),
+            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda", PaymentStatus.CONFIRMED),
             estado = EstadoPedido.EmProducao,
             linhaTempo = orderTimelineFor(EstadoPedido.EmProducao),
             criadoEm = "20/05/2024", actualizadoEm = "20/05/2024 10:30"
@@ -81,7 +81,7 @@ object MockData {
             tipoEntrega = TipoEntrega.Entrega,
             enderecoEntrega = EnderecoEntrega("Maputo", "Sommerschield", "Rua dos Lírios, 45", null),
             pontoLevantamento = null,
-            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda"),
+            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda", PaymentStatus.PENDING),
             estado = EstadoPedido.AguardandoPagamento,
             linhaTempo = orderTimelineFor(EstadoPedido.AguardandoPagamento),
             criadoEm = "18/05/2024", actualizadoEm = "18/05/2024 14:12"
@@ -93,7 +93,7 @@ object MockData {
             tipoEntrega = TipoEntrega.Levantamento,
             enderecoEntrega = null,
             pontoLevantamento = PontoLevantamento("p1", "Loja Polana", "Av. 24 de Julho, 1234"),
-            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda"),
+            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda", PaymentStatus.CONFIRMED),
             estado = EstadoPedido.Entregue,
             linhaTempo = orderTimelineFor(EstadoPedido.Entregue),
             criadoEm = "10/05/2024", actualizadoEm = "15/05/2024 16:45"
@@ -110,7 +110,7 @@ object MockData {
         tipoEntrega = TipoEntrega.Entrega,
         enderecoEntrega = EnderecoEntrega("Maputo", "Polana", "Av. Julius Nyerere, 123", "Próximo ao Shopping Polana"),
         pontoLevantamento = null,
-        pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda"),
+            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda", PaymentStatus.PENDING),
         estado = EstadoPedido.AguardandoPagamento,
         linhaTempo = orderTimelineFor(EstadoPedido.AguardandoPagamento),
         criadoEm = "20/05/2024", actualizadoEm = "20/05/2024 10:30"

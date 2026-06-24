@@ -11,6 +11,7 @@ import com.suitup.app.domain.model.ItemCarrinho
 import com.suitup.app.domain.model.MetodoPagamento
 import com.suitup.app.domain.model.ModeloFato
 import com.suitup.app.domain.model.PartesFato
+import com.suitup.app.domain.model.PaymentStatus
 import com.suitup.app.domain.model.Pedido
 import com.suitup.app.domain.model.PontoLevantamento
 import com.suitup.app.domain.model.Tecido
@@ -50,6 +51,11 @@ object MockOrderStore {
 
     val cartItemCount: Int
         get() = _cartEntries.value.sumOf { it.quantity }
+
+    fun getAllOrders(): List<Pedido> = _orders.value
+
+    fun getPendingPayments(): List<Pedido> =
+        _orders.value.filter { it.pagamento.status == PaymentStatus.PENDING }
 
     fun startDraft(modelo: ModeloFato): MockDesignDraft {
         val existing = _draft.value
@@ -141,6 +147,8 @@ object MockOrderStore {
                 caminhoImagemComprovativo = comprovativo,
                 numeroMpesa = MockData.numeroMpesa,
                 titular = MockData.titularMpesa,
+                status = PaymentStatus.PENDING,
+                referenciaTransaccao = comprovativo,
             ),
             estado = EstadoPedido.AguardandoPagamento,
             linhaTempo = timelineFor(EstadoPedido.AguardandoPagamento),
@@ -150,6 +158,70 @@ object MockOrderStore {
         _orders.update { listOf(order) + it }
         _cartEntries.value = emptyList()
         return order
+    }
+
+    fun confirmPayment(orderId: String) {
+        updatePaymentStatus(
+            orderId = orderId,
+            status = PaymentStatus.CONFIRMED,
+            estadoPedido = EstadoPedido.PagamentoValidado,
+        )
+    }
+
+    fun rejectPayment(orderId: String) {
+        updatePaymentStatus(
+            orderId = orderId,
+            status = PaymentStatus.REJECTED,
+            estadoPedido = EstadoPedido.PagamentoRejeitado,
+        )
+    }
+
+    fun updateOrderStatus(orderId: String, estadoPedido: EstadoPedido) {
+        _orders.update { orders ->
+            orders.map { order ->
+                if (order.id != orderId) {
+                    order
+                } else if (
+                    estadoPedido.requiresConfirmedPayment() &&
+                    order.pagamento.status != PaymentStatus.CONFIRMED
+                ) {
+                    order
+                } else {
+                    order.copy(
+                        estado = estadoPedido,
+                        linhaTempo = timelineFor(estadoPedido),
+                        actualizadoEm = nowLabel(),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun EstadoPedido.requiresConfirmedPayment(): Boolean =
+        this == EstadoPedido.PagamentoValidado ||
+            this == EstadoPedido.EmProducao ||
+            this == EstadoPedido.ProntoParaEntrega ||
+            this == EstadoPedido.Entregue
+
+    private fun updatePaymentStatus(
+        orderId: String,
+        status: PaymentStatus,
+        estadoPedido: EstadoPedido,
+    ) {
+        _orders.update { orders ->
+            orders.map { order ->
+                if (order.id != orderId) {
+                    order
+                } else {
+                    order.copy(
+                        pagamento = order.pagamento.copy(status = status),
+                        estado = estadoPedido,
+                        linhaTempo = timelineFor(estadoPedido),
+                        actualizadoEm = nowLabel(),
+                    )
+                }
+            }
+        }
     }
 
     private fun MockDesignDraft.toDesign(id: String): DesignFato = DesignFato(
@@ -184,6 +256,20 @@ object MockOrderStore {
             cor.id == other.cor.id
 
     private fun timelineFor(current: EstadoPedido): List<EventoPedido> {
+        if (current == EstadoPedido.PagamentoRejeitado) {
+            return listOf(
+                EventoPedido(
+                    estadoPedido = EstadoPedido.AguardandoPagamento,
+                    estadoEvento = EstadoEvento.Concluido,
+                    ocorridoEm = null,
+                ),
+                EventoPedido(
+                    estadoPedido = EstadoPedido.PagamentoRejeitado,
+                    estadoEvento = EstadoEvento.Actual,
+                    ocorridoEm = null,
+                ),
+            )
+        }
         val flow = listOf(
             EstadoPedido.AguardandoPagamento,
             EstadoPedido.PagamentoValidado,
@@ -214,4 +300,6 @@ object MockOrderStore {
             )
         }
     }
+
+    private fun nowLabel(): String = "20/05/2024 10:30"
 }

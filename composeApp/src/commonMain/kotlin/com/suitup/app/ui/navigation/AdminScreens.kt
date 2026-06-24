@@ -12,9 +12,13 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.suitup.app.data.mock.MockCatalogStore
 import com.suitup.app.data.mock.MockOrderStore
 import com.suitup.app.domain.model.EstadoPedido
+import com.suitup.app.domain.model.PaymentStatus
 import com.suitup.app.ui.screens.admin.AdminCatalogScreen
 import com.suitup.app.ui.screens.admin.AdminDashboardScreen
 import com.suitup.app.ui.screens.admin.AdminDashboardStats
+import com.suitup.app.ui.screens.admin.AdminOrderDetailsScreen
+import com.suitup.app.ui.screens.admin.AdminOrdersScreen
+import com.suitup.app.ui.screens.admin.AdminPaymentsScreen
 import com.suitup.app.ui.screens.admin.AdminSuitFormScreen
 import com.suitup.app.ui.screens.admin.AdminSuitFormState
 import com.suitup.app.ui.screens.admin.toAdminFormState
@@ -33,7 +37,13 @@ class AdminDashboardVoyagerScreen : Screen {
             inactiveModels = models.count { !it.available },
             estimatedRevenueMt = models.filter { it.available }.sumOf { it.basePrice },
             totalOrders = orders.size,
-            pendingPayments = orders.count { it.estado == EstadoPedido.AguardandoPagamento },
+            pendingOrders = orders.count { it.estado == EstadoPedido.AguardandoPagamento },
+            productionOrders = orders.count { it.estado == EstadoPedido.EmProducao },
+            deliveredOrders = orders.count { it.estado == EstadoPedido.Entregue },
+            pendingPayments = orders.count { it.pagamento.status == PaymentStatus.PENDING },
+            confirmedPayments = orders.count { it.pagamento.status == PaymentStatus.CONFIRMED },
+            rejectedPayments = orders.count { it.pagamento.status == PaymentStatus.REJECTED },
+            confirmedRevenueMt = orders.filter { it.pagamento.status == PaymentStatus.CONFIRMED }.sumOf { it.total },
         )
 
         AdminDashboardScreen(
@@ -41,6 +51,73 @@ class AdminDashboardVoyagerScreen : Screen {
             onBack = { navigator.pop() },
             onCatalogClick = { navigator.push(AdminCatalogVoyagerScreen()) },
             onAddSuitClick = { navigator.push(AdminSuitFormVoyagerScreen()) },
+            onOrdersClick = { navigator.push(AdminOrdersVoyagerScreen()) },
+            onPaymentsClick = { navigator.push(AdminPaymentsVoyagerScreen()) },
+        )
+    }
+}
+
+class AdminOrdersVoyagerScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val orders by MockOrderStore.orders.collectAsState()
+
+        AdminOrdersScreen(
+            orders = orders,
+            onBack = { navigator.pop() },
+            onOpenDetails = { id -> navigator.push(AdminOrderDetailsVoyagerScreen(id)) },
+        )
+    }
+}
+
+class AdminPaymentsVoyagerScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val orders by MockOrderStore.orders.collectAsState()
+        val paymentOrders = orders.sortedBy { order ->
+            when (order.pagamento.status) {
+                PaymentStatus.PENDING -> 0
+                PaymentStatus.REJECTED -> 1
+                PaymentStatus.CONFIRMED -> 2
+            }
+        }
+
+        AdminPaymentsScreen(
+            orders = paymentOrders,
+            onBack = { navigator.pop() },
+            onOpenDetails = { id -> navigator.push(AdminOrderDetailsVoyagerScreen(id)) },
+            onConfirm = { MockOrderStore.confirmPayment(it) },
+            onReject = { MockOrderStore.rejectPayment(it) },
+        )
+    }
+}
+
+class AdminOrderDetailsVoyagerScreen(
+    private val orderId: String,
+) : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val orders by MockOrderStore.orders.collectAsState()
+        val order = orders.firstOrNull { it.id == orderId }
+
+        if (order == null) {
+            AdminOrdersScreen(
+                orders = orders,
+                onBack = { navigator.pop() },
+                onOpenDetails = { id -> navigator.push(AdminOrderDetailsVoyagerScreen(id)) },
+            )
+            return
+        }
+
+        AdminOrderDetailsScreen(
+            order = order,
+            onBack = { navigator.pop() },
+            onConfirmPayment = { MockOrderStore.confirmPayment(it) },
+            onRejectPayment = { MockOrderStore.rejectPayment(it) },
+            onUpdateStatus = { status -> MockOrderStore.updateOrderStatus(order.id, status) },
         )
     }
 }

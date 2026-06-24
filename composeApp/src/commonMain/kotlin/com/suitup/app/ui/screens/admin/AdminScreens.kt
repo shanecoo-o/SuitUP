@@ -26,6 +26,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.suitup.app.domain.model.EstadoPedido
+import com.suitup.app.domain.model.PaymentStatus
+import com.suitup.app.domain.model.Pedido
 import com.suitup.app.domain.model.SuitModel
 import com.suitup.app.ui.components.SuitButton
 import com.suitup.app.ui.components.SuitButtonSize
@@ -54,7 +57,13 @@ data class AdminDashboardStats(
     val inactiveModels: Int,
     val estimatedRevenueMt: Int,
     val totalOrders: Int,
+    val pendingOrders: Int = 0,
+    val productionOrders: Int = 0,
+    val deliveredOrders: Int = 0,
     val pendingPayments: Int,
+    val confirmedPayments: Int = 0,
+    val rejectedPayments: Int = 0,
+    val confirmedRevenueMt: Int = 0,
 )
 
 data class AdminSuitFormState(
@@ -87,6 +96,8 @@ fun AdminDashboardScreen(
     onBack: () -> Unit = {},
     onCatalogClick: () -> Unit = {},
     onAddSuitClick: () -> Unit = {},
+    onOrdersClick: () -> Unit = {},
+    onPaymentsClick: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -115,11 +126,23 @@ fun AdminDashboardScreen(
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                         StatCard("Modelos inactivos", stats.inactiveModels.toString(), Modifier.weight(1f))
-                        StatCard("Receita estimada demo", formatMetical(stats.estimatedRevenueMt), Modifier.weight(1f))
+                        StatCard("Valor do catálogo activo", formatMetical(stats.estimatedRevenueMt), Modifier.weight(1f))
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        StatCard("Pedidos totais demo", stats.totalOrders.toString(), Modifier.weight(1f))
-                        StatCard("Pagamentos pendentes demo", stats.pendingPayments.toString(), Modifier.weight(1f))
+                        StatCard("Pedidos totais", stats.totalOrders.toString(), Modifier.weight(1f))
+                        StatCard("Pagamentos pendentes", stats.pendingPayments.toString(), Modifier.weight(1f))
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                        StatCard("Em produção", stats.productionOrders.toString(), Modifier.weight(1f))
+                        StatCard("Entregues", stats.deliveredOrders.toString(), Modifier.weight(1f))
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                        StatCard("Pagamentos confirmados", stats.confirmedPayments.toString(), Modifier.weight(1f))
+                        StatCard("Pagamentos rejeitados", stats.rejectedPayments.toString(), Modifier.weight(1f))
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                        StatCard("Receita confirmada", formatMetical(stats.confirmedRevenueMt), Modifier.weight(1f))
+                        StatCard("Pedidos por analisar", stats.pendingOrders.toString(), Modifier.weight(1f))
                     }
                 }
             }
@@ -130,8 +153,8 @@ fun AdminDashboardScreen(
                         Text("Acções rápidas", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
                         SuitButton("Gerir Catálogo", onClick = onCatalogClick)
                         SuitButton("Adicionar Fato", onClick = onAddSuitClick, variant = SuitButtonVariant.Secondary)
-                        SuitButton("Ver Pedidos · em breve", onClick = {}, enabled = false, variant = SuitButtonVariant.Secondary)
-                        SuitButton("Confirmar Pagamentos · em breve", onClick = {}, enabled = false, variant = SuitButtonVariant.Secondary)
+                        SuitButton("Ver Pedidos", onClick = onOrdersClick, variant = SuitButtonVariant.Secondary)
+                        SuitButton("Confirmar Pagamentos", onClick = onPaymentsClick, variant = SuitButtonVariant.Secondary)
                     }
                 }
             }
@@ -174,14 +197,25 @@ fun AdminCatalogScreen(
                 SuitButton("Adicionar Fato", onClick = onAddSuit)
             }
 
-            items(models, key = { it.id }) { model ->
-                AdminSuitCard(
-                    model = model,
-                    onEdit = { onEditSuit(model.id) },
-                    onToggleAvailability = {
-                        if (model.available) onDeactivate(model.id) else onReactivate(model.id)
-                    },
-                )
+            if (models.isEmpty()) {
+                item {
+                    SuitCard {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("Catálogo vazio", style = SuitTextStyles.titleMedium, color = SuitColors.Ink)
+                            Text("Adicione o primeiro fato para o disponibilizar no catálogo do cliente.", style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
+                        }
+                    }
+                }
+            } else {
+                items(models, key = { it.id }) { model ->
+                    AdminSuitCard(
+                        model = model,
+                        onEdit = { onEditSuit(model.id) },
+                        onToggleAvailability = {
+                            if (model.available) onDeactivate(model.id) else onReactivate(model.id)
+                        },
+                    )
+                }
             }
         }
     }
@@ -342,12 +376,302 @@ fun AdminSuitFormScreen(
             SuitButton(
                 text = if (isEditMode) "Actualizar fato" else "Guardar fato",
                 onClick = onSave,
-                enabled = state.name.isNotBlank() && state.basePrice.isNotBlank(),
+                enabled = state.name.isNotBlank() &&
+                    state.description.isNotBlank() &&
+                    state.basePrice.toIntOrNull()?.let { it > 0 } == true &&
+                    state.color.isNotBlank(),
                 fullWidth = false,
                 modifier = Modifier.weight(1f),
             )
         }
     }
+}
+
+@Composable
+fun AdminOrdersScreen(
+    orders: List<Pedido>,
+    onBack: () -> Unit = {},
+    onOpenDetails: (String) -> Unit = {},
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SuitColors.Bone),
+    ) {
+        SuitTopBar(title = "Pedidos Admin", onBack = onBack)
+
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item {
+                Text("Pedidos recebidos", style = SuitTextStyles.headlineLarge, color = SuitColors.Ink)
+            }
+
+            if (orders.isEmpty()) {
+                item {
+                    SuitCard {
+                        Text("Ainda não existem pedidos.", style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
+                    }
+                }
+            } else {
+                items(orders, key = { it.id }) { order ->
+                    AdminOrderCard(order = order, onOpen = { onOpenDetails(order.id) })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AdminPaymentsScreen(
+    orders: List<Pedido>,
+    onBack: () -> Unit = {},
+    onOpenDetails: (String) -> Unit = {},
+    onConfirm: (String) -> Unit = {},
+    onReject: (String) -> Unit = {},
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SuitColors.Bone),
+    ) {
+        SuitTopBar(title = "Pagamentos", onBack = onBack)
+
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Validação manual M-Pesa", style = SuitTextStyles.headlineLarge, color = SuitColors.Ink)
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        PaymentCountBadge("Pendentes", orders.count { it.pagamento.status == PaymentStatus.PENDING }, SuitStatusKind.Pendente)
+                        PaymentCountBadge("Confirmados", orders.count { it.pagamento.status == PaymentStatus.CONFIRMED }, SuitStatusKind.Success)
+                        PaymentCountBadge("Rejeitados", orders.count { it.pagamento.status == PaymentStatus.REJECTED }, SuitStatusKind.Error)
+                    }
+                }
+            }
+
+            if (orders.isEmpty()) {
+                item {
+                    SuitCard {
+                        Text("Ainda não existem pagamentos submetidos.", style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
+                    }
+                }
+            } else {
+                items(orders, key = { it.id }) { order ->
+                    AdminPaymentCard(
+                        order = order,
+                        onOpen = { onOpenDetails(order.id) },
+                        onConfirm = { onConfirm(order.id) },
+                        onReject = { onReject(order.id) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AdminOrderDetailsScreen(
+    order: Pedido,
+    onBack: () -> Unit = {},
+    onConfirmPayment: (String) -> Unit = {},
+    onRejectPayment: (String) -> Unit = {},
+    onUpdateStatus: (EstadoPedido) -> Unit = {},
+) {
+    val statusOptions = listOf(
+        EstadoPedido.PagamentoValidado,
+        EstadoPedido.EmProducao,
+        EstadoPedido.ProntoParaEntrega,
+        EstadoPedido.Entregue,
+        EstadoPedido.Cancelado,
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SuitColors.Bone),
+    ) {
+        SuitTopBar(title = "Pedido #${order.numero}", onBack = onBack)
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            AdminOrderSummary(order = order)
+
+            SuitCard {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Pagamento", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
+                    PaymentStatusBadge(order.pagamento.status)
+                    Text("Método: M-Pesa manual", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+                    Text("Número: ${order.pagamento.numeroMpesa}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+                    Text("Titular: ${order.pagamento.titular}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+                    Text(
+                        text = "Referência: ${order.pagamento.referenciaTransaccao ?: order.pagamento.caminhoImagemComprovativo ?: "Sem referência"}",
+                        style = SuitTextStyles.bodySmall,
+                        color = SuitColors.Slate,
+                    )
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SuitButton(
+                            text = "Confirmar",
+                            onClick = { onConfirmPayment(order.id) },
+                            enabled = order.pagamento.status == PaymentStatus.PENDING,
+                            size = SuitButtonSize.Small,
+                            fullWidth = false,
+                            modifier = Modifier.weight(1f),
+                        )
+                        SuitButton(
+                            text = "Rejeitar",
+                            onClick = { onRejectPayment(order.id) },
+                            enabled = order.pagamento.status == PaymentStatus.PENDING,
+                            size = SuitButtonSize.Small,
+                            variant = SuitButtonVariant.Secondary,
+                            fullWidth = false,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
+
+            SuitCard {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Actualizar estado", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
+                    if (order.pagamento.status == PaymentStatus.CONFIRMED) {
+                        SuitDropdown(
+                            options = statusOptions,
+                            selectedOption = order.estado.takeIf { it in statusOptions } ?: EstadoPedido.PagamentoValidado,
+                            onSelect = onUpdateStatus,
+                            optionLabel = { it.label },
+                        )
+                    } else {
+                        Text(
+                            text = if (order.pagamento.status == PaymentStatus.REJECTED) {
+                                "O pagamento foi rejeitado. O pedido não pode avançar até ser corrigido."
+                            } else {
+                                "Confirme o pagamento antes de avançar o pedido para produção."
+                            },
+                            style = SuitTextStyles.bodySmall,
+                            color = SuitColors.Slate,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AdminOrderCard(order: Pedido, onOpen: () -> Unit) {
+    SuitCard(padding = 14.dp) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            AdminOrderSummary(order = order)
+            SuitButton(
+                text = "Ver detalhes",
+                onClick = onOpen,
+                size = SuitButtonSize.Small,
+                variant = SuitButtonVariant.Secondary,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AdminPaymentCard(
+    order: Pedido,
+    onOpen: () -> Unit,
+    onConfirm: () -> Unit,
+    onReject: () -> Unit,
+) {
+    SuitCard(padding = 14.dp) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            AdminOrderSummary(order = order)
+            PaymentStatusBadge(order.pagamento.status)
+            if (order.pagamento.status == PaymentStatus.PENDING) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SuitButton(
+                        text = "Confirmar",
+                        onClick = onConfirm,
+                        size = SuitButtonSize.Small,
+                        fullWidth = false,
+                        modifier = Modifier.weight(1f),
+                    )
+                    SuitButton(
+                        text = "Rejeitar",
+                        onClick = onReject,
+                        size = SuitButtonSize.Small,
+                        variant = SuitButtonVariant.Secondary,
+                        fullWidth = false,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            } else {
+                Text(
+                    text = if (order.pagamento.status == PaymentStatus.CONFIRMED) {
+                        "Pagamento revisto e confirmado."
+                    } else {
+                        "Pagamento revisto e rejeitado."
+                    },
+                    style = SuitTextStyles.bodySmall,
+                    color = SuitColors.Slate,
+                )
+            }
+            SuitButton(
+                text = "Abrir pedido",
+                onClick = onOpen,
+                size = SuitButtonSize.Small,
+                variant = SuitButtonVariant.Ghost,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AdminOrderSummary(order: Pedido) {
+    val suitName = order.designsFato.firstOrNull()?.nome ?: "Sem fato"
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("Pedido #${order.numero}", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
+        Text(suitName, style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
+        SuitStatusBadge(text = order.estado.label, kind = order.toAdminBadgeKind())
+        Text("Cliente: ${order.idUtilizador}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+        Text("Total: ${formatMetical(order.total)}", style = SuitTextStyles.titleMedium, color = SuitColors.Gold)
+        Text("Entrega: ${order.tipoEntrega.label}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+    }
+}
+
+@Composable
+private fun PaymentStatusBadge(status: PaymentStatus) {
+    SuitStatusBadge(
+        text = status.label,
+        kind = when (status) {
+            PaymentStatus.PENDING -> SuitStatusKind.Pendente
+            PaymentStatus.CONFIRMED -> SuitStatusKind.Success
+            PaymentStatus.REJECTED -> SuitStatusKind.Error
+        },
+    )
+}
+
+@Composable
+private fun PaymentCountBadge(label: String, count: Int, kind: SuitStatusKind) {
+    SuitStatusBadge(text = "$label: $count", kind = kind)
+}
+
+private fun Pedido.toAdminBadgeKind(): SuitStatusKind = when (estado) {
+    EstadoPedido.AguardandoPagamento -> SuitStatusKind.Pendente
+    EstadoPedido.PagamentoValidado -> SuitStatusKind.Info
+    EstadoPedido.PagamentoRejeitado -> SuitStatusKind.Error
+    EstadoPedido.EmProducao -> SuitStatusKind.Info
+    EstadoPedido.ProntoParaEntrega -> SuitStatusKind.Info
+    EstadoPedido.Entregue -> SuitStatusKind.Success
+    EstadoPedido.Cancelado -> SuitStatusKind.Error
 }
 
 @Composable
