@@ -45,7 +45,7 @@ fun PaymentScreen(
     cartItemCount: Int = 0,
     onBack: () -> Unit = {},
     onCartClick: () -> Unit = {},
-    onCopyNumber: () -> Unit = {},
+    onCopyNumber: (() -> Unit)? = null,
     onPickFile: () -> Unit = {},
     onRemoveFile: () -> Unit = {},
     onSubmit: () -> Unit = {},
@@ -118,7 +118,7 @@ fun PaymentScreen(
 private fun MpesaNumberCard(
     numero: String,
     titular: String,
-    onCopyNumber: () -> Unit,
+    onCopyNumber: (() -> Unit)?,
 ) {
     Box(
         modifier = Modifier
@@ -144,14 +144,16 @@ private fun MpesaNumberCard(
                     ),
                     color = SuitColors.Ink,
                 )
-                Text(
-                    text = "Copiar",
-                    style = SuitTextStyles.labelMedium,
-                    color = SuitColors.Gold,
-                    modifier = Modifier
-                        .clickable(onClick = onCopyNumber)
-                        .padding(8.dp),
-                )
+                if (onCopyNumber != null) {
+                    Text(
+                        text = "Copiar",
+                        style = SuitTextStyles.labelMedium,
+                        color = SuitColors.Gold,
+                        modifier = Modifier
+                            .clickable(onClick = onCopyNumber)
+                            .padding(8.dp),
+                    )
+                }
             }
 
             Text(

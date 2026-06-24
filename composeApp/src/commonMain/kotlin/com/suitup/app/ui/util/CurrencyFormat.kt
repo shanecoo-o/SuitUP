@@ -1,11 +1,11 @@
 package com.suitup.app.ui.util
 
 /**
- * Formata valor em meticais (MT) no padrão moçambicano: "MT 3.450,00".
+ * Formata valor em meticais (MZN) no padrão moçambicano: "MZN 3.450,00".
  *
  * Convenção: o valor de entrada é em **meticais inteiros** (não centavos).
- * Para 3450 metais → "MT 3.450,00"
- * Para 150.5 metais → "MT 150,50"
+ * Para 3450 meticais → "MZN 3.450,00"
+ * Para 150.5 meticais → "MZN 150,50"
  *
  * Quando integrarmos com backend, mover para domain/money.
  */
@@ -30,7 +30,7 @@ fun formatMetical(amount: Double): String {
 
     val decStr = decimals.toString().padStart(2, '0')
 
-    return "MT $withSeparator,$decStr"
+    return "MZN $withSeparator,$decStr"
 }
 
 /** Versão inteira (sem decimais quando 0). */

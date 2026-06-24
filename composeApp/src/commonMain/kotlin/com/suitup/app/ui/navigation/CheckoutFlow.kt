@@ -196,7 +196,6 @@ class PaymentVoyagerScreen : Screen {
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
             onCartClick = {},
-            onCopyNumber = { screenModel.onEvent(PagamentoUiEvent.CopiarNumeroClicado) },
             onPickFile = { screenModel.onEvent(PagamentoUiEvent.EscolherFicheiroClicado) },
             onRemoveFile = { screenModel.onEvent(PagamentoUiEvent.RemoverFicheiroClicado) },
             onSubmit = { screenModel.onEvent(PagamentoUiEvent.EnviarComprovativoClicado) }

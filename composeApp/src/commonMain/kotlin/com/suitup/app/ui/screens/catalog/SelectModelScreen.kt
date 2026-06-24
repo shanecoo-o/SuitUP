@@ -32,6 +32,7 @@ import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 import com.suitup.app.ui.theme.SuitTheme
+import com.suitup.app.ui.util.formatMetical
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import suitup.composeapp.generated.resources.Res
@@ -160,6 +161,18 @@ private fun ModelCard(
             style = SuitTextStyles.titleMedium,
             color = SuitColors.Ink,
             modifier = Modifier.padding(horizontal = 4.dp)
+        )
+        Text(
+            text = model.categoria.label,
+            style = SuitTextStyles.bodySmall,
+            color = SuitColors.Slate,
+            modifier = Modifier.padding(horizontal = 4.dp),
+        )
+        Text(
+            text = formatMetical(model.precoBase),
+            style = SuitTextStyles.labelMedium,
+            color = SuitColors.Gold,
+            modifier = Modifier.padding(horizontal = 4.dp),
         )
     }
 }

@@ -42,7 +42,6 @@ class TrackOrderVoyagerScreen(private val pedidoId: String) : Screen {
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
             onCartClick = { navigator.push(CartVoyagerScreen()) },
-            onContactSupport = {}
         )
     }
 }

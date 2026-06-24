@@ -63,12 +63,13 @@ fun ProfileScreen(
 
             SuitCard(padding = 8.dp) {
                 Column {
-                    SuitMenuRow(text = "Meus dados", onClick = onMyData)
-                    SuitMenuRow(text = "Enderecos", onClick = onAddresses)
-                    SuitMenuRow(text = "Metodos de pagamento", onClick = onPaymentMethods)
-                    SuitMenuRow(text = "Medidas salvas", onClick = onSavedMeasurements)
-                    SuitMenuRow(text = "Notificacoes", onClick = onNotifications)
-                    SuitMenuRow(text = "Configuracoes", onClick = onSettings)
+                    val unavailableLabel = "Disponível numa próxima fase"
+                    SuitMenuRow(text = "Meus dados", onClick = onMyData, enabled = false, supportingText = unavailableLabel)
+                    SuitMenuRow(text = "Endereços", onClick = onAddresses, enabled = false, supportingText = unavailableLabel)
+                    SuitMenuRow(text = "Métodos de pagamento", onClick = onPaymentMethods, enabled = false, supportingText = unavailableLabel)
+                    SuitMenuRow(text = "Medidas guardadas", onClick = onSavedMeasurements, enabled = false, supportingText = unavailableLabel)
+                    SuitMenuRow(text = "Notificações", onClick = onNotifications, enabled = false, supportingText = unavailableLabel)
+                    SuitMenuRow(text = "Configurações", onClick = onSettings, enabled = false, supportingText = unavailableLabel)
                 }
             }
 

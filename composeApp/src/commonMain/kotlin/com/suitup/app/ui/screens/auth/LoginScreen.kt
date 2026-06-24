@@ -48,7 +48,7 @@ fun LoginScreen(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,
-    onForgotPassword: () -> Unit = {},
+    onForgotPassword: (() -> Unit)? = null,
     onLogin: () -> Unit,
     onGoogleLogin: () -> Unit = {},
     onAppleLogin: () -> Unit = {},
@@ -109,18 +109,20 @@ fun LoginScreen(
             )
 
             // Esqueceu a senha — alinhado à direita
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                Text(
-                    text = "Esqueceu a senha?",
-                    style = SuitTextStyles.bodySmall,
-                    color = SuitColors.Gold,
-                    modifier = Modifier
-                        .clickable(onClick = onForgotPassword)
-                        .padding(4.dp)
-                )
+            if (onForgotPassword != null) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    Text(
+                        text = "Esqueceu a senha?",
+                        style = SuitTextStyles.bodySmall,
+                        color = SuitColors.Gold,
+                        modifier = Modifier
+                            .clickable(onClick = onForgotPassword)
+                            .padding(4.dp)
+                    )
+                }
             }
         }
 
