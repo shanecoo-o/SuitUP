@@ -34,7 +34,16 @@ class CarrinhoScreenModel : ScreenModel {
     val state: StateFlow<CarrinhoUiState> = _state.asStateFlow()
 
     init {
-        refresh()
+        screenModelScope.launch {
+            MockOrderStore.cart.collect { items ->
+                _state.update {
+                    it.copy(
+                        itens = items,
+                        taxaEntrega = MockData.taxaEntregaMt,
+                    )
+                }
+            }
+        }
     }
 
     fun onEvent(event: CarrinhoUiEvent) {
@@ -52,13 +61,11 @@ class CarrinhoScreenModel : ScreenModel {
     }
 
     private fun refresh() {
-        screenModelScope.launch {
-            _state.update {
-                it.copy(
-                    itens = MockOrderStore.cartItems,
-                    taxaEntrega = MockData.taxaEntregaMt,
-                )
-            }
+        _state.update {
+            it.copy(
+                itens = MockOrderStore.cartItems,
+                taxaEntrega = MockData.taxaEntregaMt,
+            )
         }
     }
 }

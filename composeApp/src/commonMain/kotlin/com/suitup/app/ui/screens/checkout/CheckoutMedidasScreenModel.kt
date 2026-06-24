@@ -119,6 +119,7 @@ class CheckoutMedidasScreenModel(
     private fun validarEAvancar() {
         if (_state.value.podeContinuar) {
             _state.update { it.copy(erro = null) }
+            MockOrderStore.updateCheckoutMeasurements(_state.value.medidas)
             _podeAvancar.value = true
         } else {
             _state.update {

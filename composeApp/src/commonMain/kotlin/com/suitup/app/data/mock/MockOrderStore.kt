@@ -2,12 +2,14 @@ package com.suitup.app.data.mock
 
 import com.suitup.app.domain.model.CorFato
 import com.suitup.app.domain.model.DesignFato
+import com.suitup.app.domain.model.DadosClientePedido
 import com.suitup.app.domain.model.EnderecoEntrega
 import com.suitup.app.domain.model.EstadoEvento
 import com.suitup.app.domain.model.EstadoPedido
 import com.suitup.app.domain.model.EventoPedido
 import com.suitup.app.domain.model.InfoPagamento
 import com.suitup.app.domain.model.ItemCarrinho
+import com.suitup.app.domain.model.Medidas
 import com.suitup.app.domain.model.MetodoPagamento
 import com.suitup.app.domain.model.ModeloFato
 import com.suitup.app.domain.model.PartesFato
@@ -28,6 +30,23 @@ data class MockDesignDraft(
     val cor: CorFato = MockData.coresFato.first(),
 )
 
+data class MockCheckoutDraft(
+    val cliente: DadosClientePedido = DadosClientePedido(
+        nome = MockData.utilizadorActual.nome,
+        email = MockData.utilizadorActual.email,
+        telefone = MockData.utilizadorActual.telefone,
+    ),
+    val medidas: Medidas = MockData.utilizadorActual.medidasGuardadas ?: Medidas(),
+    val tipoEntrega: TipoEntrega = TipoEntrega.Entrega,
+    val enderecoEntrega: EnderecoEntrega? = EnderecoEntrega(
+        cidade = "Maputo",
+        bairro = "Polana",
+        rua = "Av. Julius Nyerere, 123",
+        referencia = "Próximo ao Shopping Polana",
+    ),
+    val pontoLevantamento: PontoLevantamento? = null,
+)
+
 private data class CartEntry(
     val id: String,
     val design: DesignFato,
@@ -43,14 +62,20 @@ object MockOrderStore {
     val draft: StateFlow<MockDesignDraft?> = _draft.asStateFlow()
 
     private val _cartEntries = MutableStateFlow<List<CartEntry>>(emptyList())
+    private val _cartItems = MutableStateFlow<List<ItemCarrinho>>(emptyList())
+    val cart: StateFlow<List<ItemCarrinho>> = _cartItems.asStateFlow()
+
+    private val _checkoutDraft = MutableStateFlow(MockCheckoutDraft())
+    val checkoutDraft: StateFlow<MockCheckoutDraft> = _checkoutDraft.asStateFlow()
+
     private val _orders = MutableStateFlow(MockData.pedidosRecentes)
     val orders: StateFlow<List<Pedido>> = _orders.asStateFlow()
 
     val cartItems: List<ItemCarrinho>
-        get() = _cartEntries.value.map { it.toCartItem() }
+        get() = _cartItems.value
 
     val cartItemCount: Int
-        get() = _cartEntries.value.sumOf { it.quantity }
+        get() = _cartItems.value.sumOf { it.quantidade }
 
     fun getAllOrders(): List<Pedido> = _orders.value
 
@@ -105,6 +130,7 @@ object MockOrderStore {
                 entries + CartEntry(cartId, design, 1)
             }
         }
+        syncCart()
         return cartItems.first { it.id == cartId || it.nome == design.nome }
     }
 
@@ -113,19 +139,62 @@ object MockOrderStore {
         _cartEntries.update { entries ->
             entries.map { if (it.id == itemId) it.copy(quantity = newQuantity) else it }
         }
+        syncCart()
     }
 
     fun removeItem(itemId: String) {
         _cartEntries.update { entries -> entries.filterNot { it.id == itemId } }
+        syncCart()
+        if (_cartEntries.value.isEmpty()) clearCheckoutDraft()
+    }
+
+    fun beginCheckout() {
+        _checkoutDraft.value = MockCheckoutDraft()
+    }
+
+    fun updateCheckoutCustomer(nome: String, email: String, telefone: String) {
+        _checkoutDraft.update {
+            it.copy(cliente = DadosClientePedido(nome.trim(), email.trim(), telefone.trim()))
+        }
+    }
+
+    fun updateCheckoutMeasurements(medidas: Medidas) {
+        _checkoutDraft.update { it.copy(medidas = medidas) }
+    }
+
+    fun updateCheckoutDeliveryType(tipoEntrega: TipoEntrega) {
+        _checkoutDraft.update {
+            it.copy(
+                tipoEntrega = tipoEntrega,
+                enderecoEntrega = if (tipoEntrega == TipoEntrega.Entrega) {
+                    it.enderecoEntrega ?: MockCheckoutDraft().enderecoEntrega
+                } else {
+                    null
+                },
+                pontoLevantamento = if (tipoEntrega == TipoEntrega.Levantamento) it.pontoLevantamento else null,
+            )
+        }
+    }
+
+    fun updateCheckoutDelivery(
+        tipoEntrega: TipoEntrega,
+        enderecoEntrega: EnderecoEntrega?,
+        pontoLevantamento: PontoLevantamento?,
+    ) {
+        _checkoutDraft.update {
+            it.copy(
+                tipoEntrega = tipoEntrega,
+                enderecoEntrega = if (tipoEntrega == TipoEntrega.Entrega) enderecoEntrega else null,
+                pontoLevantamento = if (tipoEntrega == TipoEntrega.Levantamento) pontoLevantamento else null,
+            )
+        }
     }
 
     fun createOrder(
-        tipoEntrega: TipoEntrega = TipoEntrega.Entrega,
-        enderecoEntrega: EnderecoEntrega? = EnderecoEntrega("Maputo", "Polana", "Av. Julius Nyerere, 123", "Proximo ao Shopping Polana"),
-        pontoLevantamento: PontoLevantamento? = null,
         comprovativo: String? = null,
     ): Pedido {
         val entries = _cartEntries.value
+        val checkout = _checkoutDraft.value
         val designs = entries.flatMap { entry -> List(entry.quantity) { entry.design } }
         val subtotal = entries.sumOf { it.design.preco * it.quantity }
         val taxaEntrega = if (entries.isEmpty()) 0 else MockData.taxaEntregaMt
@@ -135,20 +204,22 @@ object MockOrderStore {
             id = "o$numero",
             numero = numero,
             idUtilizador = MockData.utilizadorActual.id,
+            cliente = checkout.cliente,
+            medidas = checkout.medidas,
             designsFato = designs,
             subtotal = subtotal,
             taxaEntrega = taxaEntrega,
             total = subtotal + taxaEntrega,
-            tipoEntrega = tipoEntrega,
-            enderecoEntrega = if (tipoEntrega == TipoEntrega.Entrega) enderecoEntrega else null,
-            pontoLevantamento = if (tipoEntrega == TipoEntrega.Levantamento) pontoLevantamento else null,
+            tipoEntrega = checkout.tipoEntrega,
+            enderecoEntrega = checkout.enderecoEntrega,
+            pontoLevantamento = checkout.pontoLevantamento,
             pagamento = InfoPagamento(
                 metodo = MetodoPagamento.MpesaManual,
                 caminhoImagemComprovativo = comprovativo,
                 numeroMpesa = MockData.numeroMpesa,
                 titular = MockData.titularMpesa,
                 status = PaymentStatus.PENDING,
-                referenciaTransaccao = comprovativo,
+                referenciaTransaccao = "MPESA-DEMO-$numero",
             ),
             estado = EstadoPedido.AguardandoPagamento,
             linhaTempo = timelineFor(EstadoPedido.AguardandoPagamento),
@@ -157,6 +228,8 @@ object MockOrderStore {
         )
         _orders.update { listOf(order) + it }
         _cartEntries.value = emptyList()
+        syncCart()
+        clearCheckoutDraft()
         return order
     }
 
@@ -248,6 +321,14 @@ object MockOrderStore {
             "Botoes: ${design.partes.botoes.label}",
         ),
     )
+
+    private fun syncCart() {
+        _cartItems.value = _cartEntries.value.map { it.toCartItem() }
+    }
+
+    private fun clearCheckoutDraft() {
+        _checkoutDraft.value = MockCheckoutDraft()
+    }
 
     private fun DesignFato.sameConfigurationAs(other: DesignFato): Boolean =
         idModeloBase == other.idModeloBase &&

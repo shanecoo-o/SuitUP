@@ -28,11 +28,13 @@ class PerfilScreenModel : ScreenModel {
 
     init {
         screenModelScope.launch {
-            _state.update {
-                it.copy(
-                    utilizador = MockData.utilizadorActual,
-                    contadorCarrinho = MockOrderStore.cartItemCount,
-                )
+            MockOrderStore.cart.collect { cart ->
+                _state.update {
+                    it.copy(
+                        utilizador = MockData.utilizadorActual,
+                        contadorCarrinho = cart.sumOf { item -> item.quantidade },
+                    )
+                }
             }
         }
     }

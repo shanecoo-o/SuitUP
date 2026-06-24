@@ -508,6 +508,43 @@ fun AdminOrderDetailsScreen(
             AdminOrderSummary(order = order)
 
             SuitCard {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Cliente e entrega", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
+                    Text(
+                        text = order.cliente?.nome ?: order.idUtilizador,
+                        style = SuitTextStyles.bodyMedium,
+                        color = SuitColors.Ink,
+                    )
+                    order.cliente?.let { cliente ->
+                        Text(
+                            text = "${cliente.telefone} · ${cliente.email}",
+                            style = SuitTextStyles.bodySmall,
+                            color = SuitColors.Slate,
+                        )
+                    }
+                    Text(
+                        text = deliverySummary(order),
+                        style = SuitTextStyles.bodySmall,
+                        color = SuitColors.Slate,
+                    )
+                    order.medidas?.let { medidas ->
+                        Text(
+                            text = "Medidas: altura ${medidas.alturaCm} cm, peito ${medidas.peitoCm} cm, cintura ${medidas.cinturaCm} cm, ombros ${medidas.ombrosCm} cm, manga ${medidas.mangaCm} cm, calça ${medidas.calcaCm} cm",
+                            style = SuitTextStyles.bodySmall,
+                            color = SuitColors.Slate,
+                        )
+                        if (medidas.observacoes.isNotBlank()) {
+                            Text(
+                                text = "Observações: ${medidas.observacoes}",
+                                style = SuitTextStyles.bodySmall,
+                                color = SuitColors.Slate,
+                            )
+                        }
+                    }
+                }
+            }
+
+            SuitCard {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("Pagamento", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
                     PaymentStatusBadge(order.pagamento.status)
@@ -641,9 +678,30 @@ private fun AdminOrderSummary(order: Pedido) {
         Text("Pedido #${order.numero}", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
         Text(suitName, style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
         SuitStatusBadge(text = order.estado.label, kind = order.toAdminBadgeKind())
-        Text("Cliente: ${order.idUtilizador}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+        Text("Cliente: ${order.cliente?.nome ?: order.idUtilizador}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
         Text("Total: ${formatMetical(order.total)}", style = SuitTextStyles.titleMedium, color = SuitColors.Gold)
         Text("Entrega: ${order.tipoEntrega.label}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+    }
+}
+
+private fun deliverySummary(order: Pedido): String = when (order.tipoEntrega) {
+    com.suitup.app.domain.model.TipoEntrega.Entrega -> {
+        val address = order.enderecoEntrega
+        if (address == null) {
+            "Entrega: morada não informada"
+        } else {
+            listOfNotNull(
+                address.rua,
+                address.bairro,
+                address.cidade,
+                address.referencia?.takeIf { it.isNotBlank() },
+            ).joinToString(", ", prefix = "Entrega: ")
+        }
+    }
+    com.suitup.app.domain.model.TipoEntrega.Levantamento -> {
+        val point = order.pontoLevantamento
+        if (point == null) "Levantamento: ponto não informado"
+        else "Levantamento: ${point.nome}, ${point.endereco}"
     }
 }
 

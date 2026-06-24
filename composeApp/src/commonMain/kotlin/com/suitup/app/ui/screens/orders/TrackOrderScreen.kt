@@ -103,7 +103,7 @@ fun TrackOrderScreen(
 @Composable
 private fun PaymentStatusCard(status: PaymentStatus) {
     val (description, kind) = when (status) {
-        PaymentStatus.PENDING -> "Aguardando confirmação do pagamento" to SuitStatusKind.Pendente
+        PaymentStatus.PENDING -> "Pagamento enviado. Aguardando confirmação do administrador." to SuitStatusKind.Pendente
         PaymentStatus.CONFIRMED -> "Pagamento confirmado pela equipa SuitUP" to SuitStatusKind.Success
         PaymentStatus.REJECTED -> "Pagamento rejeitado. Contacte o suporte para reenviar o comprovativo." to SuitStatusKind.Error
     }
@@ -249,7 +249,7 @@ private fun StatusIndicator(state: EstadoEvento) {
  * Difere ligeiramente do label completo do domain para encurtar.
  */
 private fun eventTitleLabel(estado: EstadoPedido): String = when (estado) {
-    EstadoPedido.AguardandoPagamento -> "Aguardando confirmação do pagamento"
+    EstadoPedido.AguardandoPagamento -> "Pedido recebido"
     EstadoPedido.PagamentoValidado -> "Pagamento confirmado"
     EstadoPedido.PagamentoRejeitado -> "Pagamento rejeitado"
     EstadoPedido.EmProducao -> "Em produção"
@@ -268,7 +268,7 @@ private fun eventTitleLabel(estado: EstadoPedido): String = when (estado) {
 private fun eventSubLabel(event: EventoPedido): String = when (event.estadoEvento) {
     EstadoEvento.Concluido -> when {
         event.ocorridoEm != null -> event.ocorridoEm
-        event.estadoPedido == EstadoPedido.AguardandoPagamento -> "Aguardando validação"
+        event.estadoPedido == EstadoPedido.AguardandoPagamento -> "Aguardando confirmação do administrador"
         else -> "Concluído"
     }
     EstadoEvento.Actual -> "Em curso"

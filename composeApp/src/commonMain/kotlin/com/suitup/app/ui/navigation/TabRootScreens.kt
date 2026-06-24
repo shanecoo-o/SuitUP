@@ -12,6 +12,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import com.suitup.app.data.mock.MockData
+import com.suitup.app.data.mock.MockOrderStore
 import com.suitup.app.domain.model.CategoriaFato
 import com.suitup.app.ui.screens.cart.CartScreen
 import com.suitup.app.ui.screens.cart.CarrinhoScreenModel
@@ -64,6 +65,7 @@ class CartVoyagerScreen : Screen {
             onItemEdit = { navigator.pop() },
             onCheckout = {
                 screenModel.onEvent(CarrinhoUiEvent.FinalizarPedidoClicado)
+                MockOrderStore.beginCheckout()
                 navigator.push(CheckoutVoyagerScreen())
             },
             onContinueShopping = {

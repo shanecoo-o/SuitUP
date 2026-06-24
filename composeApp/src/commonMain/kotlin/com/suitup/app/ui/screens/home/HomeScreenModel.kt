@@ -7,6 +7,7 @@ import com.suitup.app.domain.model.Pedido
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -30,11 +31,13 @@ class HomeScreenModel : ScreenModel {
 
     init {
         screenModelScope.launch {
-            MockOrderStore.orders.collect { pedidos ->
+            combine(MockOrderStore.orders, MockOrderStore.cart) { pedidos, cart ->
+                pedidos to cart
+            }.collect { (pedidos, cart) ->
                 _state.update {
                     it.copy(
                         pedidosRecentes = pedidos.take(3),
-                        contadorCarrinho = MockOrderStore.cartItemCount,
+                        contadorCarrinho = cart.sumOf { item -> item.quantidade },
                     )
                 }
             }

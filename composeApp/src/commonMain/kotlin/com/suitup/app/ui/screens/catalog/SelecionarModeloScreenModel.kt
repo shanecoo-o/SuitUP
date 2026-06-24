@@ -10,6 +10,7 @@ import com.suitup.app.domain.model.ModeloFato
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -35,11 +36,13 @@ class SelecionarModeloScreenModel : ScreenModel {
 
     init {
         screenModelScope.launch {
-            MockCatalogStore.suitModels.collect { suitModels ->
+            combine(MockCatalogStore.suitModels, MockOrderStore.cart) { suitModels, cart ->
+                suitModels to cart
+            }.collect { (suitModels, cart) ->
                 _state.update {
                     it.copy(
                         modelos = suitModels.filter { model -> model.available }.map { model -> model.toModeloFato() },
-                        contadorCarrinho = MockOrderStore.cartItemCount,
+                        contadorCarrinho = cart.sumOf { item -> item.quantidade },
                     )
                 }
             }

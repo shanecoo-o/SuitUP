@@ -78,7 +78,14 @@ class CheckoutScreenModel : ScreenModel {
         val erroTel = if (s.telefone.isBlank()) "Telefone obrigatório" else null
         val erroEmail = if (s.email.isBlank()) "Email obrigatório" else null
         _state.update { it.copy(erroNome = erroNome, erroTelefone = erroTel, erroEmail = erroEmail) }
-        if (erroNome == null && erroTel == null && erroEmail == null) _podeAvancar.value = true
+        if (erroNome == null && erroTel == null && erroEmail == null) {
+            MockOrderStore.updateCheckoutCustomer(
+                nome = s.nomeCompleto,
+                email = s.email,
+                telefone = s.telefone,
+            )
+            _podeAvancar.value = true
+        }
     }
 }
 
@@ -107,7 +114,9 @@ class TipoEntregaScreenModel : ScreenModel {
     fun onEvent(event: TipoEntregaUiEvent) {
         when (event) {
             is TipoEntregaUiEvent.TipoSeleccionado ->
-                _state.update { it.copy(tipoSeleccionado = event.tipo) }
+                _state.update { it.copy(tipoSeleccionado = event.tipo) }.also {
+                    MockOrderStore.updateCheckoutDeliveryType(event.tipo)
+                }
         }
     }
 }
@@ -183,12 +192,26 @@ class EnderecoScreenModel(private val modoInicial: TipoEntrega) : ScreenModel {
             TipoEntrega.Entrega -> {
                 val erro = if (s.endereco.rua.isBlank()) "Morada obrigatória" else null
                 _state.update { it.copy(erroEndereco = erro) }
-                if (erro == null) _podeAvancar.value = true
+                if (erro == null) {
+                    MockOrderStore.updateCheckoutDelivery(
+                        tipoEntrega = s.modo,
+                        enderecoEntrega = s.endereco,
+                        pontoLevantamento = null,
+                    )
+                    _podeAvancar.value = true
+                }
             }
             TipoEntrega.Levantamento -> {
                 val erro = if (s.pontoSeleccionado == null) "Seleccione um ponto de levantamento" else null
                 _state.update { it.copy(erroPonto = erro) }
-                if (erro == null) _podeAvancar.value = true
+                if (erro == null) {
+                    MockOrderStore.updateCheckoutDelivery(
+                        tipoEntrega = s.modo,
+                        enderecoEntrega = null,
+                        pontoLevantamento = s.pontoSeleccionado,
+                    )
+                    _podeAvancar.value = true
+                }
             }
         }
     }
@@ -245,7 +268,7 @@ class PagamentoScreenModel : ScreenModel {
             is PagamentoUiEvent.CopiarNumeroClicado ->
                 { /* Step 5: Clipboard expect/actual */ }
             is PagamentoUiEvent.EnviarComprovativoClicado -> {
-                if (_state.value.podeEnviar) {
+                if (_state.value.podeEnviar && _state.value.numeroPedidoCriado == null) {
                     val order = MockOrderStore.createOrder(comprovativo = _state.value.nomeFicheiroCarregado)
                     _state.update {
                         it.copy(

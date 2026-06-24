@@ -68,7 +68,7 @@ fun ConfirmationScreen(
             Spacer(Modifier.height(12.dp))
 
             Text(
-                text = "Seu pedido foi recebido e está aguardando validação do pagamento.",
+                text = "Pagamento enviado. Aguardando confirmação do administrador.",
                 style = SuitTextStyles.bodyMedium,
                 color = SuitColors.Slate,
                 textAlign = TextAlign.Center,

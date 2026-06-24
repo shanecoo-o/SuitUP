@@ -137,6 +137,8 @@ data class Pedido(
     val id: String,
     val numero: String,                  // ex: "1025"
     val idUtilizador: String,
+    val cliente: DadosClientePedido? = null,
+    val medidas: Medidas? = null,
     val designsFato: List<DesignFato>,
     val subtotal: Int,
     val taxaEntrega: Int,
@@ -149,6 +151,13 @@ data class Pedido(
     val linhaTempo: List<EventoPedido>,
     val criadoEm: String,               // ISO date string mock
     val actualizadoEm: String,
+)
+
+@Serializable
+data class DadosClientePedido(
+    val nome: String,
+    val email: String,
+    val telefone: String,
 )
 
 enum class TipoEntrega(val label: String, val description: String) {
