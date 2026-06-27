@@ -1,34 +1,28 @@
 package com.suitup.app.ui.screens.auth
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.suitup.app.ui.components.SuitLogoMark
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
+import com.suitup.app.ui.theme.SuitTheme
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.painterResource
-import suitup.composeapp.generated.resources.Res
-import suitup.composeapp.generated.resources.logo_suitup
 
-/**
- * Ecrã 01 — Splash.
- *
- * Logo centrado com tagline subtil. Após [autoAdvanceMillis] chama [onTimeout].
- * Composable stateless: a navegação real é injetada pelo Voyager no Step 2.
- */
 @Composable
 fun SplashScreen(
     onTimeout: () -> Unit = {},
@@ -42,35 +36,65 @@ fun SplashScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(SuitColors.Bone),
-        contentAlignment = Alignment.Center
+            .background(SuitColors.InkBlack),
     ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .width(72.dp)
+                .height(2.dp)
+                .background(SuitColors.GoldPrimary),
+        )
+
         Column(
+            modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Image(
-                painter = painterResource(Res.drawable.logo_suitup),
-                contentDescription = "Logotipo SuitUP",
-                modifier = Modifier.height(96.dp),
-                contentScale = ContentScale.Fit,
-            )
+            Box(
+                modifier = Modifier
+                    .size(88.dp)
+                    .clip(SuitTheme.shapes.lg)
+                    .background(SuitColors.WarmBlack),
+                contentAlignment = Alignment.Center,
+            ) {
+                SuitLogoMark(size = 64.dp, tint = SuitColors.GoldChampagne)
+            }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(24.dp))
 
             Text(
-                text = "Suit Up",
-                style = SuitTextStyles.brand.copy(fontWeight = FontWeight.Normal),
-                color = SuitColors.Ink,
+                text = "SuitUP",
+                style = SuitTextStyles.displayMedium,
+                color = SuitColors.Pearl,
             )
 
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "Vista-se para o sucesso",
-                style = SuitTextStyles.bodySmall,
-                color = SuitColors.Slate,
+                text = "FEITO À SUA MEDIDA",
+                style = SuitTextStyles.eyebrow,
+                color = SuitColors.GoldChampagne,
             )
+        }
+
+        Row(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            repeat(3) { index ->
+                Box(
+                    modifier = Modifier
+                        .width(if (index == 0) 24.dp else 6.dp)
+                        .height(3.dp)
+                        .clip(SuitTheme.shapes.pill)
+                        .background(
+                            if (index == 0) SuitColors.GoldPrimary
+                            else SuitColors.MutedGray
+                        )
+                )
+            }
+            Spacer(Modifier.height(56.dp))
         }
     }
 }

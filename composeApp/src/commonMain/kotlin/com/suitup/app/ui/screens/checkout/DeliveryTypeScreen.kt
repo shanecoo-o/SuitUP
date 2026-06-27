@@ -10,10 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.TipoEntrega
+import com.suitup.app.ui.components.CheckoutStepIndicator
+import com.suitup.app.ui.components.PremiumTopBar
+import com.suitup.app.ui.components.SectionHeader
 import com.suitup.app.ui.components.SuitDualBottomBar
 import com.suitup.app.ui.components.SuitSelectableCard
-import com.suitup.app.ui.components.SuitStepIndicator
-import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.icons.PinIcon
 import com.suitup.app.ui.icons.TruckIcon
 import com.suitup.app.ui.theme.SuitColors
@@ -39,11 +40,11 @@ fun DeliveryTypeScreen(
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(
+        PremiumTopBar(
+            title = "Checkout",
             onBack = onBack,
             onCart = onCartClick,
             cartBadgeCount = cartItemCount,
-            centerContent = { SuitStepIndicator(currentStep = 3, totalSteps = 5) },
         )
 
         Column(
@@ -52,12 +53,12 @@ fun DeliveryTypeScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(
-                text = "Escolha o tipo de entrega",
-                style = SuitTextStyles.headlineMedium,
-                color = SuitColors.Ink,
+            CheckoutStepIndicator(currentStep = 3)
+            SectionHeader(
+                eyebrow = "ENTREGA",
+                title = "Como deseja receber?",
+                description = "Escolha entrega ao domicílio ou levantamento na loja.",
             )
-
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SuitSelectableCard(
                     title = TipoEntrega.Entrega.label,

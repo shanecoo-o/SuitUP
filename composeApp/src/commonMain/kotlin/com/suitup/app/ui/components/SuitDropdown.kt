@@ -68,8 +68,8 @@ fun <T> SuitDropdown(
                 .fillMaxWidth()
                 .height(48.dp)
                 .clip(SuitTheme.shapes.input)
-                .background(SuitColors.SurfaceLow)
-                .border(1.dp, if (expanded) SuitColors.Gold else SuitColors.Mist, SuitTheme.shapes.input)
+                .background(SuitColors.WarmBlack)
+                .border(1.dp, if (expanded) SuitColors.GoldChampagne else SuitColors.Mist, SuitTheme.shapes.input)
                 .clickable(enabled = enabled) { expanded = !expanded }
                 .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,

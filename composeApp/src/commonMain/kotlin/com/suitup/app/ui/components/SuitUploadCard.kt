@@ -45,8 +45,8 @@ fun SuitUploadCard(
     uploadedFileName: String?,
     onPickFile: () -> Unit,
     modifier: Modifier = Modifier,
-    title: String = "Selecionar imagem",
-    hint: String = "Formatos: JPG, PNG (Máx. 5MB)",
+    title: String = "Enviar comprovativo",
+    hint: String = "PNG, JPG ou PDF até 10MB",
     onRemove: () -> Unit = {},
 ) {
     val cornerRadius = 12.dp
@@ -56,7 +56,7 @@ fun SuitUploadCard(
             .fillMaxWidth()
             .height(if (uploadedFileName == null) 120.dp else 72.dp)
             .clip(SuitTheme.shapes.lg)
-            .background(SuitColors.SurfaceLow)
+            .background(SuitColors.WarmBlack)
             .dashedBorder(
                 color = SuitColors.Mist,
                 cornerRadius = cornerRadius,

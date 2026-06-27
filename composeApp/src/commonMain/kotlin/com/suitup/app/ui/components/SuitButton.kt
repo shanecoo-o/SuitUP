@@ -64,8 +64,8 @@ fun SuitButton(
     val (bg, fg, border) = when (variant) {
         SuitButtonVariant.Primary -> Triple<Color, Color, BorderStroke?>(SuitColors.Gold, SuitColors.GoldInk, null)
         SuitButtonVariant.Gold -> Triple<Color, Color, BorderStroke?>(SuitColors.Gold, SuitColors.GoldInk, null)
-        SuitButtonVariant.Secondary -> Triple<Color, Color, BorderStroke?>(SuitColors.SurfaceLow, SuitColors.Ink, BorderStroke(1.dp, SuitColors.Mist))
-        SuitButtonVariant.SecondaryOnDark -> Triple<Color, Color, BorderStroke?>(Color.Transparent, SuitColors.Ink, BorderStroke(1.dp, SuitColors.Mist))
+        SuitButtonVariant.Secondary -> Triple<Color, Color, BorderStroke?>(SuitColors.WarmBlack, SuitColors.Pearl, BorderStroke(1.dp, SuitColors.BronzeSubtle))
+        SuitButtonVariant.SecondaryOnDark -> Triple<Color, Color, BorderStroke?>(Color.Transparent, SuitColors.Pearl, BorderStroke(1.dp, SuitColors.BronzeSubtle))
         SuitButtonVariant.Ghost -> Triple<Color, Color, BorderStroke?>(Color.Transparent, SuitColors.Ink, null)
     }
 

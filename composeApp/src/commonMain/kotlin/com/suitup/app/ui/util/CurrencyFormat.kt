@@ -35,3 +35,7 @@ fun formatMetical(amount: Double): String {
 
 /** Versão inteira (sem decimais quando 0). */
 fun formatMetical(amount: Int): String = formatMetical(amount.toDouble())
+
+fun formatMzn(amount: Int): String = formatMetical(amount)
+
+fun formatMzn(amount: Double): String = formatMetical(amount)

@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -30,6 +32,21 @@ import com.suitup.app.domain.model.EstadoPedido
 import com.suitup.app.domain.model.PaymentStatus
 import com.suitup.app.domain.model.Pedido
 import com.suitup.app.domain.model.SuitModel
+import com.suitup.app.ui.components.AdminActionCard
+import com.suitup.app.ui.components.CheckoutSummaryCard
+import com.suitup.app.ui.components.CheckoutSummaryLine
+import com.suitup.app.ui.components.EmptyStateCard
+import com.suitup.app.ui.components.MetricCard
+import com.suitup.app.ui.components.PaymentStatusCard
+import com.suitup.app.ui.components.PremiumCard
+import com.suitup.app.ui.components.PremiumDropdown
+import com.suitup.app.ui.components.PremiumTextField
+import com.suitup.app.ui.components.PremiumTopBar
+import com.suitup.app.ui.components.PrimaryGoldButton
+import com.suitup.app.ui.components.SecondaryDarkButton
+import com.suitup.app.ui.components.SectionHeader
+import com.suitup.app.ui.components.StatusChip
+import com.suitup.app.ui.components.StatusChipType
 import com.suitup.app.ui.components.SuitButton
 import com.suitup.app.ui.components.SuitButtonSize
 import com.suitup.app.ui.components.SuitButtonVariant
@@ -43,13 +60,9 @@ import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 import com.suitup.app.ui.theme.SuitTheme
 import com.suitup.app.ui.util.formatMetical
-import org.jetbrains.compose.resources.DrawableResource
+import com.suitup.app.ui.util.formatMzn
+import com.suitup.app.ui.util.suitImageResource
 import org.jetbrains.compose.resources.painterResource
-import suitup.composeapp.generated.resources.Res
-import suitup.composeapp.generated.resources.suit_casual_linen
-import suitup.composeapp.generated.resources.suit_classic_black
-import suitup.composeapp.generated.resources.suit_grey_slim
-import suitup.composeapp.generated.resources.suit_navy_business
 
 data class AdminDashboardStats(
     val totalModels: Int,
@@ -93,6 +106,7 @@ object AdminCatalogOptions {
 @Composable
 fun AdminDashboardScreen(
     stats: AdminDashboardStats,
+    recentOrders: List<Pedido> = emptyList(),
     onBack: () -> Unit = {},
     onCatalogClick: () -> Unit = {},
     onAddSuitClick: () -> Unit = {},
@@ -104,7 +118,7 @@ fun AdminDashboardScreen(
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(title = "Admin", onBack = onBack)
+        PremiumTopBar(title = "Painel do Administrador", onBack = onBack)
 
         LazyColumn(
             modifier = Modifier.weight(1f),
@@ -112,52 +126,80 @@ fun AdminDashboardScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Painel administrativo", style = SuitTextStyles.headlineLarge, color = SuitColors.Ink)
-                    Text("Resumo local para demonstração.", style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
+                SectionHeader(
+                    eyebrow = "ADMINISTRADOR",
+                    title = "Gestão da loja e encomendas",
+                    description = "Visão operacional do catálogo, pedidos e pagamentos.",
+                )
+            }
+
+            item {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    item { MetricCard("Total de pedidos", stats.totalOrders.toString(), Modifier.width(148.dp)) }
+                    item { MetricCard("Pendentes", stats.pendingOrders.toString(), Modifier.width(148.dp)) }
+                    item { MetricCard("Em produção", stats.productionOrders.toString(), Modifier.width(148.dp)) }
+                    item { MetricCard("Entregues", stats.deliveredOrders.toString(), Modifier.width(148.dp)) }
+                    item { MetricCard("Pagamentos", stats.pendingPayments.toString(), Modifier.width(148.dp)) }
+                    item { MetricCard("Confirmados", stats.confirmedPayments.toString(), Modifier.width(148.dp)) }
+                    item { MetricCard("Receita", formatMzn(stats.confirmedRevenueMt), Modifier.width(174.dp)) }
+                    item { MetricCard("Modelos activos", stats.activeModels.toString(), Modifier.width(148.dp)) }
                 }
             }
 
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        StatCard("Total de modelos", stats.totalModels.toString(), Modifier.weight(1f))
-                        StatCard("Modelos activos", stats.activeModels.toString(), Modifier.weight(1f))
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        StatCard("Modelos inactivos", stats.inactiveModels.toString(), Modifier.weight(1f))
-                        StatCard("Valor do catálogo activo", formatMetical(stats.estimatedRevenueMt), Modifier.weight(1f))
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        StatCard("Pedidos totais", stats.totalOrders.toString(), Modifier.weight(1f))
-                        StatCard("Pagamentos pendentes", stats.pendingPayments.toString(), Modifier.weight(1f))
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        StatCard("Em produção", stats.productionOrders.toString(), Modifier.weight(1f))
-                        StatCard("Entregues", stats.deliveredOrders.toString(), Modifier.weight(1f))
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        StatCard("Pagamentos confirmados", stats.confirmedPayments.toString(), Modifier.weight(1f))
-                        StatCard("Pagamentos rejeitados", stats.rejectedPayments.toString(), Modifier.weight(1f))
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        StatCard("Receita confirmada", formatMetical(stats.confirmedRevenueMt), Modifier.weight(1f))
-                        StatCard("Pedidos por analisar", stats.pendingOrders.toString(), Modifier.weight(1f))
+                    SectionHeader(title = "Acções rápidas")
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        item {
+                            AdminActionCard(
+                                "Gerir Catálogo",
+                                "Modelos e disponibilidade.",
+                                onCatalogClick,
+                                Modifier.width(220.dp),
+                            )
+                        }
+                        item {
+                            AdminActionCard(
+                                "Adicionar Fato",
+                                "Criar novo modelo.",
+                                onAddSuitClick,
+                                Modifier.width(220.dp),
+                            )
+                        }
+                        item {
+                            AdminActionCard(
+                                "Ver Pedidos",
+                                "Produção e entrega.",
+                                onOrdersClick,
+                                Modifier.width(220.dp),
+                            )
+                        }
+                        item {
+                            AdminActionCard(
+                                "Confirmar Pagamentos",
+                                "Validar comprovativos.",
+                                onPaymentsClick,
+                                Modifier.width(220.dp),
+                            )
+                        }
                     }
                 }
             }
 
-            item {
-                SuitCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("Acções rápidas", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
-                        SuitButton("Gerir Catálogo", onClick = onCatalogClick)
-                        SuitButton("Adicionar Fato", onClick = onAddSuitClick, variant = SuitButtonVariant.Secondary)
-                        SuitButton("Ver Pedidos", onClick = onOrdersClick, variant = SuitButtonVariant.Secondary)
-                        SuitButton("Confirmar Pagamentos", onClick = onPaymentsClick, variant = SuitButtonVariant.Secondary)
-                    }
+            if (recentOrders.isNotEmpty()) {
+                item {
+                    SectionHeader(
+                        eyebrow = "ACTIVIDADE",
+                        title = "Pedidos recentes",
+                        actionLabel = "Ver todos",
+                        onAction = onOrdersClick,
+                    )
+                }
+                items(recentOrders.take(2), key = { it.id }) { order ->
+                    AdminOrderCard(order = order, onOpen = onOrdersClick)
                 }
             }
+
         }
     }
 }
@@ -186,7 +228,7 @@ fun AdminCatalogScreen(
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(title = "Catálogo Admin", onBack = onBack)
+        PremiumTopBar(title = "Gestão do Catálogo", onBack = onBack)
 
         LazyColumn(
             modifier = Modifier.weight(1f),
@@ -194,17 +236,22 @@ fun AdminCatalogScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                SuitButton("Adicionar Fato", onClick = onAddSuit)
+                SectionHeader(
+                    eyebrow = "CATÁLOGO",
+                    title = "${models.count { it.available }} activos, ${models.count { !it.available }} inactivos",
+                    actionLabel = "Adicionar Fato",
+                    onAction = onAddSuit,
+                )
             }
 
             if (models.isEmpty()) {
                 item {
-                    SuitCard {
-                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text("Catálogo vazio", style = SuitTextStyles.titleMedium, color = SuitColors.Ink)
-                            Text("Adicione o primeiro fato para o disponibilizar no catálogo do cliente.", style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
-                        }
-                    }
+                    EmptyStateCard(
+                        title = "Nenhum modelo encontrado",
+                        description = "Adicione o primeiro fato para iniciar o catálogo.",
+                        actionLabel = "Adicionar primeiro fato",
+                        onAction = onAddSuit,
+                    )
                 }
             } else {
                 items(models, key = { it.id }) { model ->
@@ -227,7 +274,7 @@ private fun AdminSuitCard(
     onEdit: () -> Unit,
     onToggleAvailability: () -> Unit,
 ) {
-    SuitCard(padding = 14.dp) {
+    PremiumCard(padding = 14.dp) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -242,31 +289,33 @@ private fun AdminSuitCard(
                     verticalAlignment = Alignment.Top,
                 ) {
                     Text(model.name, style = SuitTextStyles.titleMedium, color = SuitColors.Ink, modifier = Modifier.weight(1f))
-                    SuitStatusBadge(
-                        text = if (model.available) "Activo" else "Inactivo",
-                        kind = if (model.available) SuitStatusKind.Success else SuitStatusKind.Neutral,
+                    StatusChip(
+                        status = if (model.available) StatusChipType.Active else StatusChipType.Inactive,
                     )
                 }
 
                 Text(model.category, style = SuitTextStyles.bodySmall, color = SuitColors.Gold)
-                Text(formatMetical(model.basePrice), style = SuitTextStyles.titleMedium, color = SuitColors.Ink)
+                Text(formatMzn(model.basePrice), style = SuitTextStyles.titleMedium, color = SuitColors.GoldChampagne)
                 Text("Tecido: ${model.fabricType}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
                 Text("Cor: ${model.color}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SuitButton(
+                    SecondaryDarkButton(
                         text = "Editar",
                         onClick = onEdit,
-                        size = SuitButtonSize.Small,
-                        variant = SuitButtonVariant.Secondary,
                         fullWidth = false,
+                        modifier = Modifier.weight(1f),
                     )
-                    SuitButton(
+                    if (model.available) SecondaryDarkButton(
                         text = if (model.available) "Desactivar" else "Reactivar",
                         onClick = onToggleAvailability,
-                        size = SuitButtonSize.Small,
-                        variant = if (model.available) SuitButtonVariant.Secondary else SuitButtonVariant.Gold,
                         fullWidth = false,
+                        modifier = Modifier.weight(1f),
+                    ) else PrimaryGoldButton(
+                        text = "Reactivar",
+                        onClick = onToggleAvailability,
+                        fullWidth = false,
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }
@@ -288,7 +337,7 @@ fun AdminSuitFormScreen(
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(title = title, onBack = onCancel)
+        PremiumTopBar(title = title, onBack = onCancel)
 
         Column(
             modifier = Modifier
@@ -297,46 +346,52 @@ fun AdminSuitFormScreen(
                 .padding(horizontal = 20.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            SuitCard {
+            SectionHeader(
+                eyebrow = if (isEditMode) "EDIÇÃO" else "NOVO MODELO",
+                title = title,
+                description = "Configure os dados apresentados no catálogo.",
+            )
+            PremiumCard {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SuitTextField(
+                    Text("Identificação", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+                    PremiumTextField(
                         value = state.name,
                         onValueChange = { onStateChange(state.copy(name = it)) },
                         label = "Nome do fato",
                         placeholder = "Ex: Fato Azul Executivo",
                     )
-                    SuitDropdown(
+                    PremiumDropdown(
                         options = AdminCatalogOptions.categories,
                         selectedOption = state.category,
                         onSelect = { onStateChange(state.copy(category = it)) },
                         optionLabel = { it },
                     )
-                    SuitTextField(
+                    PremiumTextField(
                         value = state.description,
                         onValueChange = { onStateChange(state.copy(description = it)) },
                         label = "Descrição",
                         placeholder = "Descrição breve para o catálogo",
                     )
-                    SuitTextField(
+                    PremiumTextField(
                         value = state.basePrice,
                         onValueChange = { onStateChange(state.copy(basePrice = it.filter(Char::isDigit))) },
                         label = "Preço base",
                         placeholder = "8500",
                         keyboardType = KeyboardType.Number,
                     )
-                    SuitDropdown(
+                    PremiumDropdown(
                         options = AdminCatalogOptions.fabrics,
                         selectedOption = state.fabricType,
                         onSelect = { onStateChange(state.copy(fabricType = it)) },
                         optionLabel = { it },
                     )
-                    SuitTextField(
+                    PremiumTextField(
                         value = state.color,
                         onValueChange = { onStateChange(state.copy(color = it)) },
                         label = "Cor",
                         placeholder = "Preto",
                     )
-                    SuitDropdown(
+                    PremiumDropdown(
                         options = AdminCatalogOptions.availability,
                         selectedOption = state.available,
                         onSelect = { onStateChange(state.copy(available = it)) },
@@ -345,12 +400,18 @@ fun AdminSuitFormScreen(
                 }
             }
 
-            SuitCard {
+            PremiumCard {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Seleccionar foto", style = SuitTextStyles.titleMedium, color = SuitColors.Ink)
+                    Text("Imagem", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+                    StatusChip(status = StatusChipType.Analysis, label = "Upload simulado")
                     CatalogImage(state.imageKey, state.name.ifBlank { "Foto seleccionada" }, size = 132)
                     Text("Foto seleccionada: ${state.imageKey}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
-                    SuitDropdown(
+                    Text(
+                        "A imagem será ligada ao catálogo local de demonstração.",
+                        style = SuitTextStyles.bodySmall,
+                        color = SuitColors.Smoke,
+                    )
+                    PremiumDropdown(
                         options = AdminCatalogOptions.imageKeys,
                         selectedOption = state.imageKey,
                         onSelect = { onStateChange(state.copy(imageKey = it)) },
@@ -366,14 +427,13 @@ fun AdminSuitFormScreen(
                 .padding(horizontal = 20.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            SuitButton(
+            SecondaryDarkButton(
                 text = "Cancelar",
                 onClick = onCancel,
-                variant = SuitButtonVariant.Secondary,
                 fullWidth = false,
                 modifier = Modifier.weight(1f),
             )
-            SuitButton(
+            PrimaryGoldButton(
                 text = if (isEditMode) "Actualizar fato" else "Guardar fato",
                 onClick = onSave,
                 enabled = state.name.isNotBlank() &&
@@ -398,7 +458,7 @@ fun AdminOrdersScreen(
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(title = "Pedidos Admin", onBack = onBack)
+        PremiumTopBar(title = "Gestão de Pedidos", onBack = onBack)
 
         LazyColumn(
             modifier = Modifier.weight(1f),
@@ -406,14 +466,42 @@ fun AdminOrdersScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                Text("Pedidos recebidos", style = SuitTextStyles.headlineLarge, color = SuitColors.Ink)
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    SectionHeader(
+                        eyebrow = "PEDIDOS",
+                        title = "Gestão de Pedidos",
+                        description = "Acompanhe pagamento, produção e entrega.",
+                    )
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        item { StatusChip(StatusChipType.Analysis, label = "Todos: ${orders.size}") }
+                        item {
+                            StatusChip(
+                                StatusChipType.Pending,
+                                label = "Pendentes: ${orders.count { it.pagamento.status == PaymentStatus.PENDING }}",
+                            )
+                        }
+                        item {
+                            StatusChip(
+                                StatusChipType.Production,
+                                label = "Produção: ${orders.count { it.estado == EstadoPedido.EmProducao }}",
+                            )
+                        }
+                        item {
+                            StatusChip(
+                                StatusChipType.Delivered,
+                                label = "Entregues: ${orders.count { it.estado == EstadoPedido.Entregue }}",
+                            )
+                        }
+                    }
+                }
             }
 
             if (orders.isEmpty()) {
                 item {
-                    SuitCard {
-                        Text("Ainda não existem pedidos.", style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
-                    }
+                    EmptyStateCard(
+                        title = "Ainda não existem pedidos",
+                        description = "Os novos pedidos dos clientes aparecerão aqui.",
+                    )
                 }
             } else {
                 items(orders, key = { it.id }) { order ->
@@ -437,7 +525,7 @@ fun AdminPaymentsScreen(
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(title = "Pagamentos", onBack = onBack)
+        PremiumTopBar(title = "Confirmação de Pagamentos", onBack = onBack)
 
         LazyColumn(
             modifier = Modifier.weight(1f),
@@ -446,20 +534,56 @@ fun AdminPaymentsScreen(
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Validação manual M-Pesa", style = SuitTextStyles.headlineLarge, color = SuitColors.Ink)
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        PaymentCountBadge("Pendentes", orders.count { it.pagamento.status == PaymentStatus.PENDING }, SuitStatusKind.Pendente)
-                        PaymentCountBadge("Confirmados", orders.count { it.pagamento.status == PaymentStatus.CONFIRMED }, SuitStatusKind.Success)
-                        PaymentCountBadge("Rejeitados", orders.count { it.pagamento.status == PaymentStatus.REJECTED }, SuitStatusKind.Error)
+                    SectionHeader(
+                        eyebrow = "PAGAMENTOS",
+                        title = "Validação manual M-Pesa",
+                        description = "Confirme ou rejeite comprovativos antes da produção.",
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                        MetricCard(
+                            "Pendentes",
+                            orders.count { it.pagamento.status == PaymentStatus.PENDING }.toString(),
+                            Modifier.weight(1f),
+                        )
+                        MetricCard(
+                            "Confirmados",
+                            orders.count { it.pagamento.status == PaymentStatus.CONFIRMED }.toString(),
+                            Modifier.weight(1f),
+                        )
                     }
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                        MetricCard(
+                            "Rejeitados",
+                            orders.count { it.pagamento.status == PaymentStatus.REJECTED }.toString(),
+                            Modifier.weight(1f),
+                        )
+                        MetricCard(
+                            "Receita confirmada",
+                            formatMzn(
+                                orders.filter { it.pagamento.status == PaymentStatus.CONFIRMED }
+                                    .sumOf { it.total }
+                            ),
+                            Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
+
+            if (orders.isNotEmpty() && orders.none { it.pagamento.status == PaymentStatus.PENDING }) {
+                item {
+                    EmptyStateCard(
+                        title = "Não existem pagamentos pendentes",
+                        description = "Os comprovativos que aguardam validação aparecerão em primeiro lugar.",
+                    )
                 }
             }
 
             if (orders.isEmpty()) {
                 item {
-                    SuitCard {
-                        Text("Ainda não existem pagamentos submetidos.", style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
-                    }
+                    EmptyStateCard(
+                        title = "Ainda não existem pagamentos",
+                        description = "Os pagamentos submetidos pelos clientes aparecerão aqui.",
+                    )
                 }
             } else {
                 items(orders, key = { it.id }) { order ->
@@ -496,7 +620,7 @@ fun AdminOrderDetailsScreen(
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(title = "Pedido #${order.numero}", onBack = onBack)
+        PremiumTopBar(title = "Detalhes do Pedido", onBack = onBack)
 
         Column(
             modifier = Modifier
@@ -505,9 +629,14 @@ fun AdminOrderDetailsScreen(
                 .padding(horizontal = 20.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            SectionHeader(
+                eyebrow = "PEDIDO #${order.numero}",
+                title = order.estado.label,
+                description = "Criado em ${order.criadoEm}",
+            )
             AdminOrderSummary(order = order)
 
-            SuitCard {
+            PremiumCard {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text("Cliente e entrega", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
                     Text(
@@ -544,10 +673,11 @@ fun AdminOrderDetailsScreen(
                 }
             }
 
-            SuitCard {
+            PaymentStatusCard(status = order.pagamento.status)
+
+            PremiumCard {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("Pagamento", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
-                    PaymentStatusBadge(order.pagamento.status)
                     Text("Método: M-Pesa manual", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
                     Text("Número: ${order.pagamento.numeroMpesa}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
                     Text("Titular: ${order.pagamento.titular}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
@@ -557,33 +687,26 @@ fun AdminOrderDetailsScreen(
                         color = SuitColors.Slate,
                     )
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SuitButton(
-                            text = "Confirmar",
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        PrimaryGoldButton(
+                            text = "Confirmar pagamento",
                             onClick = { onConfirmPayment(order.id) },
                             enabled = order.pagamento.status == PaymentStatus.PENDING,
-                            size = SuitButtonSize.Small,
-                            fullWidth = false,
-                            modifier = Modifier.weight(1f),
                         )
-                        SuitButton(
-                            text = "Rejeitar",
+                        SecondaryDarkButton(
+                            text = "Rejeitar pagamento",
                             onClick = { onRejectPayment(order.id) },
                             enabled = order.pagamento.status == PaymentStatus.PENDING,
-                            size = SuitButtonSize.Small,
-                            variant = SuitButtonVariant.Secondary,
-                            fullWidth = false,
-                            modifier = Modifier.weight(1f),
                         )
                     }
                 }
             }
 
-            SuitCard {
+            PremiumCard {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("Actualizar estado", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
                     if (order.pagamento.status == PaymentStatus.CONFIRMED) {
-                        SuitDropdown(
+                        PremiumDropdown(
                             options = statusOptions,
                             selectedOption = order.estado.takeIf { it in statusOptions } ?: EstadoPedido.PagamentoValidado,
                             onSelect = onUpdateStatus,
@@ -602,20 +725,26 @@ fun AdminOrderDetailsScreen(
                     }
                 }
             }
+
+            CheckoutSummaryCard(
+                lines = listOf(
+                    CheckoutSummaryLine("Subtotal", order.subtotal),
+                    CheckoutSummaryLine("Entrega", order.taxaEntrega),
+                ),
+                totalMzn = order.total,
+            )
         }
     }
 }
 
 @Composable
 private fun AdminOrderCard(order: Pedido, onOpen: () -> Unit) {
-    SuitCard(padding = 14.dp) {
+    PremiumCard(padding = 14.dp) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             AdminOrderSummary(order = order)
-            SuitButton(
+            SecondaryDarkButton(
                 text = "Ver detalhes",
                 onClick = onOpen,
-                size = SuitButtonSize.Small,
-                variant = SuitButtonVariant.Secondary,
             )
         }
     }
@@ -628,24 +757,21 @@ private fun AdminPaymentCard(
     onConfirm: () -> Unit,
     onReject: () -> Unit,
 ) {
-    SuitCard(padding = 14.dp) {
+    PremiumCard(padding = 14.dp) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             AdminOrderSummary(order = order)
             PaymentStatusBadge(order.pagamento.status)
             if (order.pagamento.status == PaymentStatus.PENDING) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SuitButton(
+                    PrimaryGoldButton(
                         text = "Confirmar",
                         onClick = onConfirm,
-                        size = SuitButtonSize.Small,
                         fullWidth = false,
                         modifier = Modifier.weight(1f),
                     )
-                    SuitButton(
+                    SecondaryDarkButton(
                         text = "Rejeitar",
                         onClick = onReject,
-                        size = SuitButtonSize.Small,
-                        variant = SuitButtonVariant.Secondary,
                         fullWidth = false,
                         modifier = Modifier.weight(1f),
                     )
@@ -661,11 +787,9 @@ private fun AdminPaymentCard(
                     color = SuitColors.Slate,
                 )
             }
-            SuitButton(
+            SecondaryDarkButton(
                 text = "Abrir pedido",
                 onClick = onOpen,
-                size = SuitButtonSize.Small,
-                variant = SuitButtonVariant.Ghost,
             )
         }
     }
@@ -674,13 +798,27 @@ private fun AdminPaymentCard(
 @Composable
 private fun AdminOrderSummary(order: Pedido) {
     val suitName = order.designsFato.firstOrNull()?.nome ?: "Sem fato"
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("Pedido #${order.numero}", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
-        Text(suitName, style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
-        SuitStatusBadge(text = order.estado.label, kind = order.toAdminBadgeKind())
-        Text("Cliente: ${order.cliente?.nome ?: order.idUtilizador}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
-        Text("Total: ${formatMetical(order.total)}", style = SuitTextStyles.titleMedium, color = SuitColors.Gold)
-        Text("Entrega: ${order.tipoEntrega.label}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top,
+        ) {
+            Text("Pedido #${order.numero}", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
+            SuitStatusBadge(text = order.estado.label, kind = order.toAdminBadgeKind())
+        }
+        Text(
+            "${order.cliente?.nome ?: order.idUtilizador} · $suitName",
+            style = SuitTextStyles.bodySmall,
+            color = SuitColors.Slate,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(formatMzn(order.total), style = SuitTextStyles.titleMedium, color = SuitColors.Gold)
+            Text(order.criadoEm, style = SuitTextStyles.bodySmall, color = SuitColors.Smoke)
+        }
     }
 }
 
@@ -742,7 +880,7 @@ private fun CatalogImage(imageKey: String, description: String, size: Int = 88) 
         contentAlignment = Alignment.Center,
     ) {
         Image(
-            painter = painterResource(imageResourceForKey(imageKey)),
+            painter = painterResource(suitImageResource(imageKey)),
             contentDescription = description,
             modifier = Modifier
                 .fillMaxSize()
@@ -750,13 +888,6 @@ private fun CatalogImage(imageKey: String, description: String, size: Int = 88) 
             contentScale = ContentScale.Fit,
         )
     }
-}
-
-fun imageResourceForKey(key: String): DrawableResource = when (key) {
-    "suit_navy_business" -> Res.drawable.suit_navy_business
-    "suit_grey_slim" -> Res.drawable.suit_grey_slim
-    "suit_casual_linen" -> Res.drawable.suit_casual_linen
-    else -> Res.drawable.suit_classic_black
 }
 
 fun SuitModel.toAdminFormState(): AdminSuitFormState = AdminSuitFormState(

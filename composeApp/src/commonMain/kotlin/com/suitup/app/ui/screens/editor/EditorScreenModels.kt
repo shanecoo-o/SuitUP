@@ -21,6 +21,8 @@ data class EditorPartesUiState(
     val partes: PartesFato = PartesFato(),
     val parteSeleccionada: EditorPart = EditorPart.Lapela,
     val corFato: Color = SuitColors.Ink,
+    val nomeModelo: String = "",
+    val precoBase: Int = 0,
     val contadorCarrinho: Int = 0,
 )
 
@@ -42,6 +44,8 @@ class EditorPartesScreenModel(private val modeloId: String) : ScreenModel {
                 it.copy(
                     partes = draft.partes,
                     corFato = draft.cor.hex.toComposeColorOrNull() ?: SuitColors.Ink,
+                    nomeModelo = draft.modelo.nome,
+                    precoBase = draft.modelo.precoBase,
                     contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }
@@ -70,6 +74,8 @@ data class EditorCoresUiState(
     val tecidos: List<Tecido> = emptyList(),
     val corSeleccionada: CorFato? = null,
     val tecidoSeleccionado: Tecido? = null,
+    val nomeModelo: String = "",
+    val precoBase: Int = 0,
     val contadorCarrinho: Int = 0,
 ) {
     val corActual: CorFato get() = corSeleccionada ?: coresFato.firstOrNull() ?: CorFato("", "", "#1F2A44")
@@ -96,6 +102,8 @@ class EditorCoresScreenModel(private val modeloId: String) : ScreenModel {
                     tecidos = MockData.tecidos,
                     corSeleccionada = draft.cor,
                     tecidoSeleccionado = draft.tecido,
+                    nomeModelo = draft.modelo.nome,
+                    precoBase = draft.modelo.precoBase,
                     contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }
@@ -122,6 +130,7 @@ data class Preview3DUiState(
     val estadoVisor: Preview3DState = Preview3DState(),
     val corFato: Color = SuitColors.Ink,
     val nomeModelo: String = "",
+    val precoEstimado: Int = 0,
     val detalhesConfiguracao: List<String> = emptyList(),
     val mostrarLuz: Boolean = false,
     val fundoEscuro: Boolean = true,
@@ -149,6 +158,7 @@ class Preview3DScreenModel(private val modeloId: String, private val colorHex: S
                 it.copy(
                     corFato = cor,
                     nomeModelo = design.nome,
+                    precoEstimado = design.preco,
                     detalhesConfiguracao = listOf(
                         "Tecido: ${design.tecido.nome}",
                         "Cor: ${design.cor.nome}",

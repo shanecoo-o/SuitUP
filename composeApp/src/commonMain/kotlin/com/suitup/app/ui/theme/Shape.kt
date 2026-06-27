@@ -24,8 +24,8 @@ data class SuitShapes(
 
     // Semânticos
     val button: RoundedCornerShape = RoundedCornerShape(8.dp),
-    val card: RoundedCornerShape = RoundedCornerShape(12.dp),
-    val input: RoundedCornerShape = RoundedCornerShape(10.dp),
+    val card: RoundedCornerShape = RoundedCornerShape(10.dp),
+    val input: RoundedCornerShape = RoundedCornerShape(8.dp),
     val sheet: RoundedCornerShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
     val tag: RoundedCornerShape = RoundedCornerShape(999.dp),
     val avatar: RoundedCornerShape = RoundedCornerShape(999.dp),

@@ -7,6 +7,7 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import com.suitup.app.ui.screens.orders.AcompanharPedidoScreenModel
 import com.suitup.app.ui.screens.orders.ListaPedidosScreenModel
 import com.suitup.app.ui.screens.orders.OrdersListScreen
@@ -16,6 +17,7 @@ class OrdersListVoyagerScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val tabNavigator = LocalTabNavigator.current
         val screenModel = rememberScreenModel { ListaPedidosScreenModel() }
         val state by screenModel.state.collectAsState()
 
@@ -23,7 +25,8 @@ class OrdersListVoyagerScreen : Screen {
             orders = state.pedidos,
             cartItemCount = state.contadorCarrinho,
             onOrderClick = { pedido -> navigator.push(TrackOrderVoyagerScreen(pedido.id)) },
-            onCartClick = { navigator.push(CartVoyagerScreen()) }
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
+            onExploreCatalog = { tabNavigator.current = ModelsTab },
         )
     }
 }

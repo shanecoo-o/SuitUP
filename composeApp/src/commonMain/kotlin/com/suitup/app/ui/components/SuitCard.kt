@@ -38,7 +38,7 @@ fun SuitCard(
         modifier = modifier
             .clip(shape)
             .background(background)
-            .let { m -> if (border) m.border(1.dp, SuitColors.Mist, shape) else m }
+            .let { m -> if (border) m.border(1.dp, SuitColors.BronzeSubtle.copy(alpha = 0.38f), shape) else m }
             .let { m -> if (onClick != null) m.clickable(onClick = onClick) else m }
             .padding(padding)
     ) {

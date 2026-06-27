@@ -48,6 +48,7 @@ class AdminDashboardVoyagerScreen : Screen {
 
         AdminDashboardScreen(
             stats = stats,
+            recentOrders = orders,
             onBack = { navigator.pop() },
             onCatalogClick = { navigator.push(AdminCatalogVoyagerScreen()) },
             onAddSuitClick = { navigator.push(AdminSuitFormVoyagerScreen()) },

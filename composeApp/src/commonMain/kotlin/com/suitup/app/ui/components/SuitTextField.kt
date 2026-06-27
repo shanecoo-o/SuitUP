@@ -56,7 +56,7 @@ fun SuitTextField(
 
     val borderColor = when {
         error != null -> SuitColors.PaleRedInk
-        isFocused -> SuitColors.Gold
+        isFocused -> SuitColors.GoldChampagne
         else -> SuitColors.Mist
     }
 
@@ -73,7 +73,7 @@ fun SuitTextField(
                 .fillMaxWidth()
                 .height(52.dp)
                 .clip(SuitTheme.shapes.input)
-                .background(SuitColors.SurfaceLow)
+                .background(SuitColors.WarmBlack)
                 .border(1.dp, borderColor, SuitTheme.shapes.input)
                 .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,

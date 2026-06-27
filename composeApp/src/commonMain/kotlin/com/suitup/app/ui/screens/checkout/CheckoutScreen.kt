@@ -1,6 +1,5 @@
 package com.suitup.app.ui.screens.checkout
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,21 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.suitup.app.ui.components.SuitButton
-import com.suitup.app.ui.components.SuitCard
-import com.suitup.app.ui.components.SuitStepIndicator
+import com.suitup.app.ui.components.CheckoutStepIndicator
+import com.suitup.app.ui.components.PremiumCard
+import com.suitup.app.ui.components.PremiumTextField
+import com.suitup.app.ui.components.PremiumTopBar
+import com.suitup.app.ui.components.PrimaryGoldButton
+import com.suitup.app.ui.components.SectionHeader
 import com.suitup.app.ui.components.SuitSwitch
-import com.suitup.app.ui.components.SuitTextField
-import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 
-/**
- * Ecrã 09 — Checkout · Dados do Cliente.
- *
- * Step 1 de 4 do flow de checkout. Form pré-preenchido com dados do user
- * autenticado, opcional toggle "Usar medidas salvas".
- */
 @Composable
 fun CheckoutScreen(
     fullName: String,
@@ -48,96 +42,71 @@ fun CheckoutScreen(
     onToggleMeasurements: (Boolean) -> Unit = {},
     onContinue: () -> Unit = {},
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(SuitColors.Bone),
-    ) {
-        SuitTopBar(
-            onBack = onBack,
-            onCart = onCartClick,
-            cartBadgeCount = cartItemCount,
-            centerContent = { SuitStepIndicator(currentStep = 1, totalSteps = 5) },
-        )
-
+    Column(modifier = Modifier.fillMaxSize()) {
+        PremiumTopBar(title = "Checkout", onBack = onBack, onCart = onCartClick, cartBadgeCount = cartItemCount)
         Column(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            Text(
-                text = "Dados do Cliente",
-                style = SuitTextStyles.headlineMedium,
-                color = SuitColors.Ink,
+            CheckoutStepIndicator(currentStep = 1)
+            SectionHeader(
+                eyebrow = "DADOS DO CLIENTE",
+                title = "Como podemos contactá-lo?",
+                description = "Confirme os dados associados à sua encomenda.",
             )
-
-            // Form
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SuitTextField(
-                    value = fullName,
-                    onValueChange = onFullNameChange,
-                    label = "Nome completo",
-                    placeholder = "Ex: João da Silva",
-                    error = nameError,
-                )
-                SuitTextField(
-                    value = telefone,
-                    onValueChange = onPhoneChange,
-                    label = "Telefone",
-                    placeholder = "+258 84 000 0000",
-                    keyboardType = KeyboardType.Phone,
-                    error = phoneError,
-                )
-                SuitTextField(
-                    value = email,
-                    onValueChange = onEmailChange,
-                    label = "Email",
-                    placeholder = "seu@email.com",
-                    keyboardType = KeyboardType.Email,
-                    error = emailError,
-                )
-            }
-
-            // Medidas section
-            SuitCard(padding = 16.dp) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = "Medidas",
-                        style = SuitTextStyles.titleMedium,
-                        color = SuitColors.Ink,
+            PremiumCard {
+                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    PremiumTextField(
+                        value = fullName,
+                        onValueChange = onFullNameChange,
+                        label = "Nome completo",
+                        placeholder = "João da Silva",
+                        error = nameError,
                     )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
+                    PremiumTextField(
+                        value = telefone,
+                        onValueChange = onPhoneChange,
+                        label = "Telefone",
+                        placeholder = "+258 84 000 0000",
+                        keyboardType = KeyboardType.Phone,
+                        error = phoneError,
+                    )
+                    PremiumTextField(
+                        value = email,
+                        onValueChange = onEmailChange,
+                        label = "Email",
+                        placeholder = "seu@email.com",
+                        keyboardType = KeyboardType.Email,
+                        error = emailError,
+                    )
+                }
+            }
+            PremiumCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text("Usar medidas guardadas", style = SuitTextStyles.titleMedium, color = SuitColors.Pearl)
                         Text(
-                            text = "Usar medidas salvas",
-                            style = SuitTextStyles.bodyMedium,
+                            "Preenche automaticamente os valores do seu perfil.",
+                            style = SuitTextStyles.bodySmall,
                             color = SuitColors.Slate,
                         )
-                        SuitSwitch(
-                            checked = useSavedMeasurements,
-                            onCheckedChange = onToggleMeasurements,
-                        )
                     }
+                    SuitSwitch(checked = useSavedMeasurements, onCheckedChange = onToggleMeasurements)
                 }
             }
         }
-
-        // Bottom CTA fixed
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 14.dp),
-        ) {
-            SuitButton(
-                text = "Continuar",
-                onClick = onContinue,
-                enabled = fullName.isNotBlank() && telefone.isNotBlank() && email.isNotBlank(),
-            )
-        }
+        PrimaryGoldButton(
+            text = "Continuar para medidas",
+            onClick = onContinue,
+            enabled = fullName.isNotBlank() && telefone.isNotBlank() && email.isNotBlank(),
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+        )
     }
 }

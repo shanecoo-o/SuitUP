@@ -224,6 +224,7 @@ data class PagamentoUiState(
     val titularMpesa: String = "",
     val nomeFicheiroCarregado: String? = null,
     val numeroPedidoCriado: String? = null,
+    val totalPedidoMt: Int = 0,
     val contadorCarrinho: Int = 0,
 ) {
     val podeEnviar: Boolean get() = nomeFicheiroCarregado != null
@@ -252,6 +253,8 @@ class PagamentoScreenModel : ScreenModel {
                 it.copy(
                     numeroMpesa = MockData.numeroMpesa,
                     titularMpesa = MockData.titularMpesa,
+                    totalPedidoMt = MockOrderStore.cartItems.sumOf { it.precoUnitarioMt * it.quantidade } +
+                        if (MockOrderStore.cartItems.isEmpty()) 0 else MockData.taxaEntregaMt,
                     contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }

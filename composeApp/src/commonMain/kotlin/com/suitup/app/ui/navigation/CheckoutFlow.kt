@@ -9,6 +9,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
+import com.suitup.app.data.mock.MockOrderStore
 import com.suitup.app.domain.model.TipoEntrega
 import com.suitup.app.ui.screens.checkout.AddressScreen
 import com.suitup.app.ui.screens.checkout.CheckoutMedidasScreen
@@ -56,7 +57,7 @@ class CheckoutVoyagerScreen : Screen {
             phoneError = state.erroTelefone,
             emailError = state.erroEmail,
             onBack = { navigator.pop() },
-            onCartClick = {},
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
             onFullNameChange = { screenModel.onEvent(CheckoutUiEvent.NomeAlterado(it)) },
             onPhoneChange = { screenModel.onEvent(CheckoutUiEvent.TelefoneAlterado(it)) },
             onEmailChange = { screenModel.onEvent(CheckoutUiEvent.EmailAlterado(it)) },
@@ -94,7 +95,7 @@ class CheckoutMedidasVoyagerScreen(
             podeContinuar = state.podeContinuar,
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
-            onCartClick = {},
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
             onAlturaChange = { screenModel.onEvent(CheckoutMedidasUiEvent.AlturaAlterada(it)) },
             onPesoChange = { screenModel.onEvent(CheckoutMedidasUiEvent.PesoAlterado(it)) },
             onOmbrosChange = { screenModel.onEvent(CheckoutMedidasUiEvent.OmbrosAlterados(it)) },
@@ -125,7 +126,7 @@ class DeliveryTypeVoyagerScreen : Screen {
             selected = state.tipoSeleccionado,
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
-            onCartClick = {},
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
             onSelect = { screenModel.onEvent(TipoEntregaUiEvent.TipoSeleccionado(it)) },
             onContinue = { navigator.push(AddressVoyagerScreen(state.tipoSeleccionado)) }
         )
@@ -159,7 +160,7 @@ class AddressVoyagerScreen(private val modoInicial: TipoEntrega) : Screen {
             selectedPickupPoint = state.pontoSeleccionado,
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
-            onCartClick = {},
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
             onModeChange = { screenModel.onEvent(EnderecoUiEvent.ModoAlterado(it)) },
             onCityChange = { screenModel.onEvent(EnderecoUiEvent.CidadeAlterada(it)) },
             onNeighborhoodChange = { screenModel.onEvent(EnderecoUiEvent.BairroAlterado(it)) },
@@ -193,9 +194,10 @@ class PaymentVoyagerScreen : Screen {
             numeroMpesa = state.numeroMpesa,
             mpesaTitleHolder = state.titularMpesa,
             uploadedFileName = state.nomeFicheiroCarregado,
+            totalMzn = state.totalPedidoMt,
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
-            onCartClick = {},
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
             onPickFile = { screenModel.onEvent(PagamentoUiEvent.EscolherFicheiroClicado) },
             onRemoveFile = { screenModel.onEvent(PagamentoUiEvent.RemoverFicheiroClicado) },
             onSubmit = { screenModel.onEvent(PagamentoUiEvent.EnviarComprovativoClicado) }
@@ -214,6 +216,7 @@ class ConfirmationVoyagerScreen(private val numeroPedido: String) : Screen {
 
         ConfirmationScreen(
             orderNumber = numeroPedido,
+            order = MockOrderStore.getAllOrders().firstOrNull { it.numero == numeroPedido },
             onSeeOrders = {
                 navigator.popUntilRoot()
                 tabNavigator.current = OrdersTab

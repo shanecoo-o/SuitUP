@@ -36,10 +36,17 @@ class HomeVoyagerScreen : Screen {
         HomeScreen(
             pedidosRecentes = state.pedidosRecentes,
             cartItemCount = state.contadorCarrinho,
+            featuredModels = state.modelosDestaque,
+            userName = MockData.utilizadorActual.nome,
             onCreateNewSuit = { tabNavigator.current = ModelsTab },
+            onFeaturedModelClick = { model ->
+                MockOrderStore.startDraft(model)
+                navigator.push(Editor2DPartsVoyagerScreen(model.id))
+            },
             onOrderClick = { pedido -> navigator.push(TrackOrderVoyagerScreen(pedido.id)) },
             onSeeAllOrders = { tabNavigator.current = OrdersTab },
-            onCartClick = { navigator.push(CartVoyagerScreen()) }
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
+            onProfileClick = { tabNavigator.current = ProfileTab },
         )
     }
 }
@@ -87,7 +94,6 @@ class SelectModelVoyagerScreen : Screen {
             models = state.modelos,
             selectedCategory = state.categoriaSeleccionada,
             cartItemCount = state.contadorCarrinho,
-            onBack = {},
             onCategorySelect = { screenModel.onEvent(SelecionarModeloUiEvent.CategoriaSeleccionada(it)) },
             onModelClick = { modelo ->
                 screenModel.onEvent(SelecionarModeloUiEvent.ModeloClicado(modelo))
@@ -102,6 +108,7 @@ class ProfileVoyagerScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val tabNavigator = LocalTabNavigator.current
         val signOut = LocalSignOut.current
         val screenModel = rememberScreenModel { PerfilScreenModel() }
         val state by screenModel.state.collectAsState()
@@ -109,7 +116,9 @@ class ProfileVoyagerScreen : Screen {
         ProfileScreen(
             user = state.utilizador,
             cartItemCount = state.contadorCarrinho,
+            orderCount = state.contadorPedidos,
             onCartClick = { navigator.push(CartVoyagerScreen()) },
+            onOrders = { tabNavigator.current = OrdersTab },
             onSignOut = signOut
         )
     }

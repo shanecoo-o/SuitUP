@@ -15,14 +15,15 @@ import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.EnderecoEntrega
 import com.suitup.app.domain.model.TipoEntrega
 import com.suitup.app.domain.model.PontoLevantamento
-import com.suitup.app.ui.components.SuitCard
-import com.suitup.app.ui.components.SuitDropdown
+import com.suitup.app.ui.components.CheckoutStepIndicator
+import com.suitup.app.ui.components.PremiumCard
+import com.suitup.app.ui.components.PremiumDropdown
+import com.suitup.app.ui.components.PremiumTextField
+import com.suitup.app.ui.components.PremiumTopBar
+import com.suitup.app.ui.components.SectionHeader
 import com.suitup.app.ui.components.SuitDualBottomBar
 import com.suitup.app.ui.components.SuitSegmentedToggle
 import com.suitup.app.ui.components.SuitSelectableCard
-import com.suitup.app.ui.components.SuitStepIndicator
-import com.suitup.app.ui.components.SuitTextField
-import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.icons.PinIcon
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
@@ -60,11 +61,11 @@ fun AddressScreen(
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(
+        PremiumTopBar(
+            title = "Checkout",
             onBack = onBack,
             onCart = onCartClick,
             cartBadgeCount = cartItemCount,
-            centerContent = { SuitStepIndicator(currentStep = 3, totalSteps = 5) },
         )
 
         Column(
@@ -74,6 +75,12 @@ fun AddressScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
+            CheckoutStepIndicator(currentStep = 3)
+            SectionHeader(
+                eyebrow = "LOCAL",
+                title = if (mode == TipoEntrega.Entrega) "Endereço de entrega" else "Ponto de levantamento",
+                description = "Confirme onde a encomenda deverá ser entregue.",
+            )
             // Toggle Entregar / Levantar
             SuitSegmentedToggle(
                 options = listOf(TipoEntrega.Entrega, TipoEntrega.Levantamento),
@@ -144,7 +151,7 @@ private fun DeliveryForm(
                 style = SuitTextStyles.labelMedium,
                 color = SuitColors.Slate,
             )
-            SuitDropdown(
+            PremiumDropdown(
                 options = cities,
                 selectedOption = endereco.cidade.ifBlank { cities.first() },
                 onSelect = onCityChange,
@@ -160,7 +167,7 @@ private fun DeliveryForm(
                 style = SuitTextStyles.labelMedium,
                 color = SuitColors.Slate,
             )
-            SuitDropdown(
+            PremiumDropdown(
                 options = neighborhoods,
                 selectedOption = endereco.bairro.ifBlank { neighborhoods.first() },
                 onSelect = onNeighborhoodChange,
@@ -170,7 +177,7 @@ private fun DeliveryForm(
         }
 
         // Rua / Av.
-        SuitTextField(
+        PremiumTextField(
             value = endereco.rua,
             onValueChange = onStreetChange,
             label = "Rua / Av.",
@@ -178,7 +185,7 @@ private fun DeliveryForm(
         )
 
         // Referência (opcional)
-        SuitTextField(
+        PremiumTextField(
             value = endereco.referencia.orEmpty(),
             onValueChange = onReferenceChange,
             label = "Referência (opcional)",
@@ -202,7 +209,7 @@ private fun PickupForm(
         )
 
         if (points.isEmpty()) {
-            SuitCard(modifier = Modifier.fillMaxWidth(), padding = 16.dp) {
+            PremiumCard(modifier = Modifier.fillMaxWidth(), padding = 16.dp) {
                 Text(
                     text = "Sem pontos disponíveis na sua área.",
                     style = SuitTextStyles.bodyMedium,

@@ -8,12 +8,14 @@ import com.suitup.app.domain.model.Utilizador
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class PerfilUiState(
     val utilizador: Utilizador = MockData.utilizadorActual,
     val contadorCarrinho: Int = 0,
+    val contadorPedidos: Int = 0,
 )
 
 sealed class PerfilUiEvent {
@@ -28,11 +30,13 @@ class PerfilScreenModel : ScreenModel {
 
     init {
         screenModelScope.launch {
-            MockOrderStore.cart.collect { cart ->
+            combine(MockOrderStore.cart, MockOrderStore.orders) { cart, orders -> cart to orders }
+                .collect { (cart, orders) ->
                 _state.update {
                     it.copy(
                         utilizador = MockData.utilizadorActual,
                         contadorCarrinho = cart.sumOf { item -> item.quantidade },
+                        contadorPedidos = orders.size,
                     )
                 }
             }

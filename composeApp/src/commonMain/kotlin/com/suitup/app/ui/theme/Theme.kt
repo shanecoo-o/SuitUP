@@ -29,7 +29,7 @@ fun SuitTheme(
         LocalSuitMotion provides SuitMotion(),
     ) {
         MaterialTheme(
-            colorScheme = SuitLightColorScheme,
+            colorScheme = SuitDarkColorScheme,
             typography = suitMaterialTypography(),
             shapes = SuitMaterialShapes,
             content = content

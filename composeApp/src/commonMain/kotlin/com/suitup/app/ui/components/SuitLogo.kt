@@ -94,7 +94,7 @@ fun SuitLogoStack(
         if (showWordmark) {
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "Suit Up",
+                text = "SuitUP",
                 style = SuitTextStyles.brand.copy(fontWeight = FontWeight.Normal),
                 color = tint,
             )

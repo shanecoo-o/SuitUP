@@ -15,44 +15,59 @@ import androidx.compose.ui.graphics.Color
  * containers and Charcoal/Black for dark fills.
  */
 object SuitColors {
-    val Black = Color(0xFF0E0E0E)
-    val Charcoal = Color(0xFF131313)
-    val SurfaceLow = Color(0xFF1C1B1B)
-    val Surface = Color(0xFF201F1F)
-    val SurfaceHigh = Color(0xFF2A2A2A)
-    val SurfaceHighest = Color(0xFF353534)
+    val InkBlack = Color(0xFF0A0A0C)
+    val Charcoal = Color(0xFF111216)
+    val WarmBlack = Color(0xFF15171B)
+    val SlateSurface = Color(0xFF1C1F24)
+    val MutedGray = Color(0xFF2B2E34)
+    val BoneText = Color(0xFFEDE8DE)
+    val PearlText = Color(0xFFF6F5F3)
+    val GoldPrimary = Color(0xFFD4AF37)
+    val GoldChampagne = Color(0xFFE6C97A)
+    val BronzeSubtle = Color(0xFFB78C4A)
+    val Success = Color(0xFF2ECC71)
+    val Warning = Color(0xFFFFC107)
+    val Error = Color(0xFFE74C3C)
+    val Info = Color(0xFF3DA9FC)
 
-    val Ink = Color(0xFFE5E2E1)
-    val Bone = Color(0xFF131313)
-    val Pearl = Color(0xFFE5E2E1)
-    val SurfaceWhite = Color(0xFFE5E2E1)
+    // Compatibility aliases used throughout the current screens.
+    val Black = InkBlack
+    val SurfaceLow = WarmBlack
+    val Surface = SlateSurface
+    val SurfaceHigh = MutedGray
+    val SurfaceHighest = Color(0xFF343840)
 
-    val Slate = Color(0xFFD0C5AF)
-    val Smoke = Color(0xFF99907C)
-    val Mist = Color(0xFF4D4635)
+    val Ink = PearlText
+    val Bone = InkBlack
+    val Pearl = PearlText
+    val SurfaceWhite = PearlText
 
-    val Gold = Color(0xFFF2CA50)
-    val GoldDeep = Color(0xFFD4AF37)
-    val GoldInk = Color(0xFF3C2F00)
+    val Slate = BoneText
+    val Smoke = Color(0xFFA6A29A)
+    val Mist = BronzeSubtle.copy(alpha = 0.42f)
+
+    val Gold = GoldPrimary
+    val GoldDeep = BronzeSubtle
+    val GoldInk = InkBlack
 
     val Navy = Color(0xFF1A2A44)
     val Olive = Color(0xFF3D4434)
     val Burgundy = Color(0xFF4A1A1A)
     val Tan = Color(0xFFB5A68D)
 
-    val PaleGreen = Color(0xFF17351D)
-    val PaleGreenInk = Color(0xFFB8E3BC)
-    val PaleAmber = Color(0xFF3E310A)
-    val PaleAmberInk = Color(0xFFFFDD78)
-    val PaleRed = Color(0xFF3B1618)
-    val PaleRedInk = Color(0xFFFFB7B8)
+    val PaleGreen = Color(0xFF123321)
+    val PaleGreenInk = Success
+    val PaleAmber = Color(0xFF3A2E08)
+    val PaleAmberInk = Warning
+    val PaleRed = Color(0xFF3A1717)
+    val PaleRedInk = Error
     val PaleBlue = Color(0xFF102B3D)
-    val PaleBlueInk = Color(0xFFA9D8F8)
+    val PaleBlueInk = Info
 
     val Overlay = Color(0xCC000000)
 }
 
-val SuitLightColorScheme: ColorScheme = darkColorScheme(
+val SuitDarkColorScheme: ColorScheme = darkColorScheme(
     primary = SuitColors.Gold,
     onPrimary = SuitColors.GoldInk,
     primaryContainer = SuitColors.GoldDeep,
@@ -83,13 +98,19 @@ val SuitLightColorScheme: ColorScheme = darkColorScheme(
     onErrorContainer = SuitColors.PaleRedInk,
 )
 
+val SuitLightColorScheme: ColorScheme = SuitDarkColorScheme
+
 @Immutable
 data class SuitColorTokens(
+    val inkBlack: Color = SuitColors.InkBlack,
     val ink: Color = SuitColors.Ink,
     val charcoal: Color = SuitColors.Charcoal,
+    val warmBlack: Color = SuitColors.WarmBlack,
     val bone: Color = SuitColors.Bone,
     val pearl: Color = SuitColors.Pearl,
     val gold: Color = SuitColors.Gold,
+    val goldChampagne: Color = SuitColors.GoldChampagne,
+    val bronzeSubtle: Color = SuitColors.BronzeSubtle,
     val goldDeep: Color = SuitColors.GoldDeep,
     val goldInk: Color = SuitColors.GoldInk,
     val surfaceLow: Color = SuitColors.SurfaceLow,

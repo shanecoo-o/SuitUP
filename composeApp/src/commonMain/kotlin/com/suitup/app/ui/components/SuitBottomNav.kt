@@ -37,7 +37,7 @@ fun SuitBottomNav(
     onSelect: (SuitTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth().background(SuitColors.Black)) {
+    Column(modifier = modifier.fillMaxWidth().background(SuitColors.Charcoal)) {
         HorizontalDivider(thickness = 1.dp, color = SuitColors.Mist)
         Row(
             modifier = Modifier
