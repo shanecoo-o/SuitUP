@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..950;1,400..950&family=JetBrains+Mono:wght@400;500;600;750&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --color-gold-premium: #C8A96A;
+  --color-black-deep: #0D0D0D;
+  --color-white-soft: #F5F5F5;
+  --color-gray-dark: #2C2C2C;
+}
+
+body {
+  background-color: #0D0D0D;
+  color: #F5F5F5;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom fade animations and transitions */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Bold Typography Theme Styles */
+.brand-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 36px;
+  font-weight: 950;
+  letter-spacing: -1.5px;
+  color: #C8A96A;
+  line-height: 1;
+}
+
+.section-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #888888;
+  display: block;
+  font-weight: 700;
+}
+
+.price-tag {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 950;
+  font-size: 48px;
+  letter-spacing: -1px;
+  color: #C8A96A;
+  line-height: 1;
+}
+
+.option-card {
+  background: #2C2C2C;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.option-card:hover {
+  border-color: rgba(200, 169, 106, 0.3);
+  background: #363636;
+}
+
+.option-card.selected {
+  border-color: #C8A96A;
+  background: rgba(200, 169, 106, 0.08);
+}
+
+.badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  background: #C8A96A;
+  color: #0D0D0D;
+  font-weight: 900;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+

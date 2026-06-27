@@ -1,0 +1,6 @@
+{
+  "name": "SuitUP",
+  "description": "Plataforma Móvel de Personalização de Fatos com Visualização 2D/3D interativa, Editor, Checkout e Dashboard de encomendas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
