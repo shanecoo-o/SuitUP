@@ -1,0 +1,15 @@
+package com.suitup.backend.user.dto;
+
+import com.suitup.backend.user.RoleCode;
+import java.util.Set;
+import java.util.UUID;
+
+public record UserSummaryResponse(
+    UUID id,
+    String fullName,
+    String email,
+    String phone,
+    boolean enabled,
+    Set<RoleCode> roles
+) {
+}

@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: suitup-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: suitup_db
+      POSTGRES_USER: suitup_user
+      POSTGRES_PASSWORD: suitup_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - suitup_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U suitup_user -d suitup_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  suitup_postgres_data:
