@@ -27,6 +27,7 @@ Human-readable OpenAPI-style contract for the currently implemented Spring Boot 
 - `403 Forbidden`: authenticated user lacks the required role.
 - `404 Not Found`: resource missing, inactive public catalog model, or customer ownership check failed.
 - `409 Conflict`: duplicate email, transaction reference, idempotency conflict, or database uniqueness conflict.
+- `413 Payload Too Large`: multipart file exceeds 10 MB.
 
 Structured error example:
 
@@ -153,6 +154,7 @@ Suit model response:
 | PUT | `/api/admin/suit-models/{id}` | ADMIN | Replace editable model fields | Update model example | `200`, Suit model response | `400`, `401`, `403`, `404`, `409` |
 | PATCH | `/api/admin/suit-models/{id}/activate` | ADMIN | Activate model | None | `200`, Suit model response with `active=true` | `400`, `401`, `403`, `404` |
 | PATCH | `/api/admin/suit-models/{id}/deactivate` | ADMIN | Deactivate model | None | `200`, Suit model response with `active=false` | `400`, `401`, `403`, `404` |
+| POST | `/api/admin/suit-models/{id}/image` | ADMIN | Upload and link primary suit image | Multipart `file` (PNG/JPEG) | `201`, Stored file response | `400`, `401`, `403`, `404`, `413` |
 
 Create model request (`currency` defaults to `MZN`, `active` defaults to `true`):
 
@@ -310,6 +312,7 @@ Order response:
 | GET | `/api/orders/{orderId}/payments` | Owner or ADMIN | List all attempts newest first | UUID path | `200`, array of Payment responses | `400`, `401`, `403`, `404` |
 | GET | `/api/orders/{orderId}/payment-timeline` | Owner or ADMIN | Read latest payment timeline | UUID path | `200`, array of Payment status history responses | `400`, `401`, `403`, `404` |
 | POST | `/api/orders/{orderId}/payment-proof-metadata` | Owner or ADMIN | Register proof metadata without bytes | Proof metadata example | `201`, Uploaded file metadata response | `400`, `401`, `403`, `404`, `409` |
+| POST | `/api/orders/{orderId}/payment/proof` | Owner or ADMIN | Upload proof for latest pending payment | Multipart `file` | `201`, Stored file response | `400`, `401`, `403`, `404`, `413` |
 
 Payment request:
 
@@ -385,6 +388,10 @@ Uploaded file metadata response:
 }
 ```
 
+The metadata-only route remains for backward compatibility. The physical proof
+route requires an existing pending payment and links the new `uploaded_files`
+record through `payments.proof_file_id`.
+
 ## 8. Admin Payments
 
 | Method | Path | Auth | Purpose | Request | Success body | Common errors |
@@ -445,6 +452,38 @@ Any client-supplied reviewer ID is ignored; the authenticated ADMIN becomes the 
 }
 ```
 
+## 10. Private Files
+
+| Method | Path | Auth | Purpose | Request | Success body | Common errors |
+|---|---|---|---|---|---|---|
+| POST | `/api/files/upload` | CUSTOMER or ADMIN | Store an owned file | Multipart `file`, `purpose` | `201`, Stored file response | `400`, `401`, `413` |
+| GET | `/api/files/{fileId}` | Owner or ADMIN | Retrieve physical bytes | UUID path | `200`, binary body | `400`, `401`, `404` |
+
+Allowed purposes are `SUIT_IMAGE`, `PAYMENT_PROOF`, `PROFILE`, and `OTHER`.
+Allowed media types are `image/png`, `image/jpeg`, and `application/pdf` with a
+10 MB maximum. `SUIT_IMAGE` and `PROFILE` reject PDF. Declared MIME type and
+file signature must match. Empty files and path-like original filenames are
+rejected.
+
+Stored file response:
+
+```json
+{
+  "fileId": "42000000-0000-0000-0000-000000000001",
+  "originalFilename": "comprovativo.png",
+  "contentType": "image/png",
+  "sizeBytes": 204800,
+  "purpose": "PAYMENT_PROOF",
+  "createdAt": "2026-06-30T10:04:00Z",
+  "url": "/api/files/42000000-0000-0000-0000-000000000001"
+}
+```
+
+Physical responses never include `storedName` or `storagePath`. Image retrieval
+uses inline content disposition; PDF retrieval uses attachment. Foreign and
+missing file IDs both return `404`. Catalog image bytes are not public by
+default even when `primaryImageFileId` appears in the public catalog response.
+
 ## Business Rules and Lifecycles
 
 ### Order status
@@ -490,9 +529,10 @@ Only pending payments can be reviewed. Confirmation/rejection updates both payme
 
 ## Known Limitations
 
-- Payment proof records are metadata only; physical bytes are not uploaded or verified.
+- The legacy metadata-only proof route remains available and cannot verify external bytes.
+- Local file storage is single-instance; production should use S3, MinIO, or managed object storage.
+- Catalog image binary retrieval requires authentication; no separate public image route exists yet.
 - Mobile still uses `MockCatalogStore` and `MockOrderStore`; no Ktor API client is connected.
-- PostgreSQL/Flyway integration remains pending on a machine with Docker/PostgreSQL.
 - Lists do not yet support advanced filters or pagination.
 - Refresh tokens are not persisted or revocable.
 - Offline synchronization and SQLDelight are not implemented.

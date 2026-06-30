@@ -1,7 +1,7 @@
 # SuitUP Spring Boot Backend
 
 Independent REST API for SuitUP authentication, catalog, checkout/orders,
-payments, proof metadata, timelines, and administration. It is intentionally
+payments, secure file uploads, timelines, and administration. It is intentionally
 not included in the Kotlin Multiplatform root `settings.gradle.kts`, so backend
 work cannot silently change the mobile build.
 
@@ -26,8 +26,8 @@ backend/
 |   |-- user/          users and CUSTOMER/ADMIN roles
 |   |-- catalog/       public and administrative suit catalog
 |   |-- order/         checkout, measurements, fulfillment, timelines
-|   |-- payment/       submission, review, proof metadata integration
-|   |-- upload/        file metadata only
+|   |-- payment/       submission, review, proof upload integration
+|   |-- upload/        local storage, validation, metadata, retrieval
 |   |-- dashboard/     administrative metrics and recent activity
 |   |-- security/      JWT, BCrypt, CORS, filters, 401/403 handlers
 |   `-- common/        errors, money, persistence bases, idempotency
@@ -66,6 +66,7 @@ JWT_SECRET=<at-least-32-random-bytes>
 JWT_ACCESS_TOKEN_MINUTES=15
 JWT_REFRESH_TOKEN_DAYS=14
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8081
+FILE_STORAGE_ROOT=./storage/uploads
 ```
 
 Override them through environment variables outside local development. The
@@ -94,10 +95,8 @@ With PostgreSQL running and environment variables configured, from `backend/`:
 The API starts at `http://localhost:8080`. Flyway applies pending migrations
 before Hibernate validates the mapped schema.
 
-Docker is not installed on the current development PC. Consequently, the API
-cannot currently be validated against the Docker Compose PostgreSQL instance;
-that validation is explicitly deferred to Prompt 17. Non-database MVC and unit
-tests remain fully runnable.
+PostgreSQL 16, Flyway, Hibernate validation, and Testcontainers are validated on
+the Docker-enabled development machine.
 
 ## Run tests
 
@@ -208,6 +207,7 @@ POST  /api/admin/suit-models
 PUT   /api/admin/suit-models/{id}
 PATCH /api/admin/suit-models/{id}/activate
 PATCH /api/admin/suit-models/{id}/deactivate
+POST  /api/admin/suit-models/{id}/image
 ```
 
 All admin routes require a bearer token with the `ADMIN` role. Example creation:
@@ -238,11 +238,32 @@ Example response:
 ```
 
 `currency` defaults to `MZN`, `active` defaults to `true` on creation, and
-prices are persisted and returned by the server. Filters and pagination are
-deferred until catalog volume requires them. Physical image upload and the
-image-metadata endpoint are also deferred; `imageKey` and an existing uploaded
-file identifier remain the current metadata strategies. The mobile application
-continues to use its mock stores and is not connected to these endpoints yet.
+prices are persisted and returned by the server. The image upload endpoint
+accepts PNG/JPEG multipart files, stores them with purpose `SUIT_IMAGE`, and
+updates `primaryImageFileId`. Public binary image serving remains deferred;
+`GET /api/files/{fileId}` requires authentication. Filters and pagination remain
+deferred until catalog volume requires them.
+
+## Physical file storage
+
+Authenticated users can upload and retrieve owned files:
+
+```text
+POST /api/files/upload       multipart parts: file, purpose
+GET  /api/files/{fileId}
+```
+
+Supported purposes are `SUIT_IMAGE`, `PAYMENT_PROOF`, `PROFILE`, and `OTHER`.
+Accepted types are PNG, JPEG, and PDF, with a maximum file size of 10 MB.
+`SUIT_IMAGE` and `PROFILE` accept images only. The service validates both the
+declared MIME type and the file signature, rejects empty files and path-like
+original names, and generates a UUID stored filename. API responses never expose
+the stored filename or filesystem path.
+
+Files are stored below `FILE_STORAGE_ROOT` (default `./storage/uploads`), which
+is gitignored. This local filesystem implementation is appropriate for one
+application instance. Production and horizontally scaled deployments should use
+S3, MinIO, or another managed object store with equivalent authorization rules.
 
 ## Orders and checkout API
 
@@ -304,6 +325,7 @@ GET  /api/orders/{orderId}/payment
 GET  /api/orders/{orderId}/payments
 GET  /api/orders/{orderId}/payment-timeline
 POST /api/orders/{orderId}/payment-proof-metadata
+POST /api/orders/{orderId}/payment/proof
 ```
 
 `GET /api/orders/{orderId}/payment` returns the latest payment, while
@@ -325,11 +347,10 @@ and BANK_TRANSFER require a transaction reference; CASH_ON_PICKUP does not.
 References are unique per payment method and duplicates return `409`. New
 payments start as `PENDING` and also set the order payment status to `PENDING`.
 
-Proof metadata accepts `image/png`, `image/jpeg`, or `application/pdf` up to 10
-MB. It records names, MIME type, size, and an optional external path/URL, then
-returns a `proofFileId` for payment submission. It does not receive or store
-physical file bytes. Missing stored names and paths are replaced with unique
-metadata-only identifiers.
+The direct proof endpoint accepts PNG, JPEG, or PDF up to 10 MB and attaches the
+stored file to the latest pending payment. The customer must own the order; a
+foreign order returns `404`. Submit the payment before calling this endpoint.
+The legacy metadata-only endpoint remains available for backward compatibility.
 
 Admin routes require `ADMIN`:
 
@@ -394,7 +415,7 @@ mappers, structured exceptions, and transactional services for:
 - order creation with server-calculated prices and immutable snapshots;
 - measurement snapshots and order status transitions;
 - payment submission, confirmation, rejection, and status history;
-- upload metadata and administrative dashboard metrics.
+- physical upload metadata/storage and administrative dashboard metrics.
 
 Entities are internal persistence models and are never returned directly by API
 controllers. Every HTTP response uses a dedicated DTO record.
@@ -408,7 +429,7 @@ controllers. Every HTTP response uses a dedicated DTO record.
 - Orders begin as `RECEIVED`; payments begin as `PENDING`.
 - Production cannot begin before payment confirmation.
 - `Idempotency-Key` prevents duplicate order creation for 24 hours.
-- Customers can access only their own orders, payments, and proof metadata.
+- Customers can access only their own orders, payments, and uploaded files.
 - Payment amount must equal the order total; electronic references are unique.
 - Only pending payments can be confirmed or rejected by ADMIN.
 - Dashboard revenue sums confirmed payments only.
@@ -427,7 +448,6 @@ behaviour.
 
 ## Not implemented in this phase
 
-- Physical upload and file storage
 - Mobile Ktor integration
 - SQLDelight or offline synchronization
 - Advanced pagination and filters
@@ -438,7 +458,7 @@ behaviour.
 PostgreSQL 16/Testcontainers validation runs the complete Flyway V1-V5 chain with
 Hibernate `ddl-auto=validate`; both integration tests pass without being skipped.
 
-1. Prompt 18: implement secure physical file upload and storage abstraction.
-2. Prompt 19: add the Ktor API client and remote repositories to KMP common code.
-3. Prompt 20 and later: migrate mobile flows incrementally from mock to API data.
+1. Prompt 19: add the Ktor API client and remote repositories to KMP common code.
+2. Prompt 20 and later: migrate mobile flows incrementally from mock to API data.
+3. Later: replace local storage with S3/MinIO for multi-instance production deployments.
 4. Later: add SQLDelight caching and offline synchronization.

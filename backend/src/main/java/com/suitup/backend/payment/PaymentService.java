@@ -14,6 +14,8 @@ import com.suitup.backend.payment.dto.SubmitPaymentRequest;
 import com.suitup.backend.upload.UploadedFileEntity;
 import com.suitup.backend.upload.UploadedFilePurpose;
 import com.suitup.backend.upload.UploadedFileRepository;
+import com.suitup.backend.upload.FileStorageService;
+import com.suitup.backend.upload.dto.StoredFileResponse;
 import com.suitup.backend.user.UserEntity;
 import com.suitup.backend.user.UserRepository;
 import java.time.OffsetDateTime;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class PaymentService {
@@ -31,19 +34,22 @@ public class PaymentService {
     private final UserRepository userRepository;
     private final UploadedFileRepository uploadedFileRepository;
     private final PaymentMapper paymentMapper;
+    private final FileStorageService fileStorageService;
 
     public PaymentService(
         PaymentRepository paymentRepository,
         OrderRepository orderRepository,
         UserRepository userRepository,
         UploadedFileRepository uploadedFileRepository,
-        PaymentMapper paymentMapper
+        PaymentMapper paymentMapper,
+        FileStorageService fileStorageService
     ) {
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.uploadedFileRepository = uploadedFileRepository;
         this.paymentMapper = paymentMapper;
+        this.fileStorageService = fileStorageService;
     }
 
     @Transactional
@@ -97,6 +103,33 @@ public class PaymentService {
         order.setPaymentStatus(PaymentStatus.PENDING);
         orderRepository.save(order);
         return paymentMapper.toResponse(paymentRepository.save(payment));
+    }
+
+    @Transactional
+    public StoredFileResponse uploadProof(
+        UUID orderId,
+        MultipartFile file,
+        UUID currentUserId,
+        boolean admin
+    ) {
+        OrderEntity order = requireAccessibleOrder(orderId, currentUserId, admin);
+        PaymentEntity payment = paymentRepository.findByOrderIdOrderByCreatedAtDesc(orderId).stream()
+            .findFirst()
+            .orElseThrow(() -> new InvalidStateException(
+                "Submeta o pagamento antes de carregar o comprovativo"
+            ));
+        requirePending(payment);
+        UUID ownerId = order.getCustomerUser() == null
+            ? currentUserId
+            : order.getCustomerUser().getId();
+        UploadedFileEntity proof = fileStorageService.store(
+            file,
+            UploadedFilePurpose.PAYMENT_PROOF,
+            ownerId
+        );
+        payment.setProofFile(proof);
+        paymentRepository.save(payment);
+        return StoredFileResponse.from(proof);
     }
 
     @Transactional

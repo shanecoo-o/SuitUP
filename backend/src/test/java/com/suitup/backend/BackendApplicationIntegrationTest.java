@@ -10,6 +10,19 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import com.suitup.backend.upload.FileStorageService;
+import com.suitup.backend.upload.UploadedFileEntity;
+import com.suitup.backend.upload.UploadedFilePurpose;
+import com.suitup.backend.upload.UploadedFileRepository;
+import com.suitup.backend.user.RoleCode;
+import com.suitup.backend.user.RoleRepository;
+import com.suitup.backend.user.UserEntity;
+import com.suitup.backend.user.UserRepository;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.UUID;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.mock.web.MockMultipartFile;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -28,11 +41,15 @@ class BackendApplicationIntegrationTest {
             .withUsername("suitup_test")
             .withPassword("suitup_test");
 
+    @TempDir
+    static Path storageRoot;
+
     @DynamicPropertySource
     static void configurePostgres(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);
+        registry.add("app.storage.root", () -> storageRoot.toString());
     }
 
     @Autowired
@@ -40,6 +57,18 @@ class BackendApplicationIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    @Autowired
+    private UploadedFileRepository uploadedFileRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Test
     void contextLoadsWithPostgres() {
@@ -74,5 +103,32 @@ class BackendApplicationIntegrationTest {
         );
 
         assertThat(tableCount).isEqualTo(EXPECTED_TABLE_COUNT);
+    }
+
+    @Test
+    void persistsPhysicalFileMetadataAndBytes() {
+        UserEntity owner = new UserEntity(
+            "Upload Integration",
+            "upload-" + UUID.randomUUID() + "@example.com",
+            null,
+            "test-hash"
+        );
+        owner.addRole(roleRepository.findByCode(RoleCode.CUSTOMER).orElseThrow());
+        owner = userRepository.saveAndFlush(owner);
+        byte[] png = new byte[] {
+            (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x01
+        };
+
+        UploadedFileEntity stored = fileStorageService.store(
+            new MockMultipartFile("file", "profile.png", "image/png", png),
+            UploadedFilePurpose.PROFILE,
+            owner.getId()
+        );
+
+        UploadedFileEntity persisted = uploadedFileRepository.findById(stored.getId()).orElseThrow();
+        assertThat(persisted.getOriginalName()).isEqualTo("profile.png");
+        assertThat(persisted.getStoragePath()).doesNotContain("profile.png");
+        assertThat(storageRoot.resolve(persisted.getStoragePath())).isRegularFile();
+        assertThat(Files.exists(storageRoot.resolve(persisted.getStoragePath()))).isTrue();
     }
 }

@@ -10,6 +10,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,6 +34,7 @@ import com.suitup.backend.upload.UploadMetadataService;
 import com.suitup.backend.upload.UploadedFilePurpose;
 import com.suitup.backend.upload.dto.CreateUploadedFileMetadataRequest;
 import com.suitup.backend.upload.dto.UploadedFileResponse;
+import com.suitup.backend.upload.dto.StoredFileResponse;
 import com.suitup.backend.user.RoleCode;
 import com.suitup.backend.user.RoleEntity;
 import com.suitup.backend.user.UserEntity;
@@ -50,6 +52,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockMultipartFile;
 
 @WebMvcTest({OrderPaymentController.class, AdminPaymentController.class})
 @Import({
@@ -239,6 +242,36 @@ class PaymentControllerTest {
         verify(uploadMetadataService).createMetadata(captor.capture());
         assertThat(captor.getValue().ownerUserId()).isEqualTo(customer.getId());
         assertThat(captor.getValue().purpose()).isEqualTo(UploadedFilePurpose.PAYMENT_PROOF);
+    }
+
+    @Test
+    void customerCanUploadPhysicalProofForOwnedOrder() throws Exception {
+        CustomUserDetails customer = userDetails(RoleCode.CUSTOMER);
+        UUID orderId = UUID.randomUUID();
+        UUID fileId = UUID.randomUUID();
+        MockMultipartFile file = new MockMultipartFile(
+            "file", "proof.pdf", "application/pdf", "%PDF-test".getBytes()
+        );
+        when(paymentService.uploadProof(orderId, file, customer.getId(), false)).thenReturn(
+            new StoredFileResponse(
+                fileId,
+                "proof.pdf",
+                "application/pdf",
+                file.getSize(),
+                UploadedFilePurpose.PAYMENT_PROOF,
+                OffsetDateTime.now(ZoneOffset.UTC),
+                "/api/files/" + fileId
+            )
+        );
+
+        mockMvc.perform(multipart("/api/orders/{id}/payment/proof", orderId)
+                .file(file)
+                .with(user(customer)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.fileId").value(fileId.toString()))
+            .andExpect(jsonPath("$.purpose").value("PAYMENT_PROOF"));
+
+        verify(paymentService).uploadProof(orderId, file, customer.getId(), false);
     }
 
     private SubmitPaymentRequest submitRequest() {

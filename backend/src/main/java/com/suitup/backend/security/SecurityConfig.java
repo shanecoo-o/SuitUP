@@ -56,6 +56,7 @@ public class SecurityConfig {
                     "/api/suit-models",
                     "/api/suit-models/**"
                 ).permitAll()
+                .requestMatchers("/api/files/**").authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/orders/**").hasAnyRole("CUSTOMER", "ADMIN")
                 .anyRequest().authenticated()

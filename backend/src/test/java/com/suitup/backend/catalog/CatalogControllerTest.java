@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,6 +24,12 @@ import com.suitup.backend.security.JwtService;
 import com.suitup.backend.security.RestAccessDeniedHandler;
 import com.suitup.backend.security.RestAuthenticationEntryPoint;
 import com.suitup.backend.security.SecurityConfig;
+import com.suitup.backend.security.CustomUserDetails;
+import com.suitup.backend.upload.UploadedFilePurpose;
+import com.suitup.backend.upload.dto.StoredFileResponse;
+import com.suitup.backend.user.RoleCode;
+import com.suitup.backend.user.RoleEntity;
+import com.suitup.backend.user.UserEntity;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +42,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockMultipartFile;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @WebMvcTest({CatalogController.class, AdminCatalogController.class})
 @Import({
@@ -164,6 +175,43 @@ class CatalogControllerTest {
         verify(catalogService).deactivate(id);
     }
 
+    @Test
+    void adminCanUploadSuitImage() throws Exception {
+        CustomUserDetails admin = userDetails(RoleCode.ADMIN);
+        UUID modelId = UUID.randomUUID();
+        UUID fileId = UUID.randomUUID();
+        MockMultipartFile file = new MockMultipartFile(
+            "file", "fato.png", "image/png", new byte[] {(byte) 0x89, 0x50, 0x4E, 0x47}
+        );
+        when(catalogService.uploadImage(modelId, file, admin.getId())).thenReturn(
+            new StoredFileResponse(
+                fileId,
+                "fato.png",
+                "image/png",
+                file.getSize(),
+                UploadedFilePurpose.SUIT_IMAGE,
+                OffsetDateTime.now(ZoneOffset.UTC),
+                "/api/files/" + fileId
+            )
+        );
+
+        mockMvc.perform(multipart("/api/admin/suit-models/{id}/image", modelId)
+                .file(file)
+                .with(user(admin)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.fileId").value(fileId.toString()));
+    }
+
+    @Test
+    @WithMockUser(roles = "CUSTOMER")
+    void customerCannotUploadSuitImage() throws Exception {
+        mockMvc.perform(multipart("/api/admin/suit-models/{id}/image", UUID.randomUUID())
+                .file(new MockMultipartFile("file", "fato.png", "image/png", new byte[] {1})))
+            .andExpect(status().isForbidden());
+
+        verifyNoInteractions(catalogService);
+    }
+
     private CreateSuitModelRequest validCreateRequest() {
         return new CreateSuitModelRequest(
             "Fato ClÃ¡ssico Preto",
@@ -195,5 +243,19 @@ class CatalogControllerTest {
             null,
             null
         );
+    }
+
+    private CustomUserDetails userDetails(RoleCode roleCode) {
+        RoleEntity role = new RoleEntity(roleCode, roleCode.name());
+        role.setId(UUID.randomUUID());
+        UserEntity userEntity = new UserEntity(
+            "Utilizador",
+            roleCode.name().toLowerCase() + "@example.com",
+            null,
+            "hash"
+        );
+        userEntity.setId(UUID.randomUUID());
+        userEntity.addRole(role);
+        return CustomUserDetails.from(userEntity);
     }
 }

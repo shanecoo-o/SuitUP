@@ -8,10 +8,13 @@ import com.suitup.backend.common.ResourceNotFoundException;
 import com.suitup.backend.upload.UploadedFileEntity;
 import com.suitup.backend.upload.UploadedFilePurpose;
 import com.suitup.backend.upload.UploadedFileRepository;
+import com.suitup.backend.upload.FileStorageService;
+import com.suitup.backend.upload.dto.StoredFileResponse;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class CatalogService {
@@ -19,15 +22,18 @@ public class CatalogService {
     private final SuitModelRepository suitModelRepository;
     private final UploadedFileRepository uploadedFileRepository;
     private final CatalogMapper catalogMapper;
+    private final FileStorageService fileStorageService;
 
     public CatalogService(
         SuitModelRepository suitModelRepository,
         UploadedFileRepository uploadedFileRepository,
-        CatalogMapper catalogMapper
+        CatalogMapper catalogMapper,
+        FileStorageService fileStorageService
     ) {
         this.suitModelRepository = suitModelRepository;
         this.uploadedFileRepository = uploadedFileRepository;
         this.catalogMapper = catalogMapper;
+        this.fileStorageService = fileStorageService;
     }
 
     @Transactional(readOnly = true)
@@ -81,6 +87,19 @@ public class CatalogService {
         SuitModelEntity entity = requireById(id);
         entity.setActive(false);
         return catalogMapper.toResponse(suitModelRepository.save(entity));
+    }
+
+    @Transactional
+    public StoredFileResponse uploadImage(UUID id, MultipartFile file, UUID adminUserId) {
+        SuitModelEntity entity = requireById(id);
+        UploadedFileEntity image = fileStorageService.store(
+            file,
+            UploadedFilePurpose.SUIT_IMAGE,
+            adminUserId
+        );
+        entity.setPrimaryImageFile(image);
+        suitModelRepository.save(entity);
+        return StoredFileResponse.from(image);
     }
 
     @Transactional(readOnly = true)

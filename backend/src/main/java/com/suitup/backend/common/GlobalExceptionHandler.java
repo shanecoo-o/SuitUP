@@ -14,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +79,20 @@ public class GlobalExceptionHandler {
             HttpStatus.CONFLICT,
             ErrorCode.CONFLICT.name(),
             "A operação entra em conflito com dados já existentes",
+            request,
+            Map.of()
+        );
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiErrorResponse> handleMaxUploadSize(
+        MaxUploadSizeExceededException exception,
+        HttpServletRequest request
+    ) {
+        return response(
+            HttpStatus.PAYLOAD_TOO_LARGE,
+            ErrorCode.BAD_REQUEST.name(),
+            "O ficheiro excede o limite de 10 MB",
             request,
             Map.of()
         );

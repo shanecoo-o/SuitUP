@@ -3,6 +3,9 @@ package com.suitup.backend.catalog;
 import com.suitup.backend.catalog.dto.CreateSuitModelRequest;
 import com.suitup.backend.catalog.dto.SuitModelResponse;
 import com.suitup.backend.catalog.dto.UpdateSuitModelRequest;
+import com.suitup.backend.auth.InvalidCredentialsException;
+import com.suitup.backend.security.CustomUserDetails;
+import com.suitup.backend.upload.dto.StoredFileResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -16,6 +19,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/admin/suit-models")
@@ -62,5 +69,22 @@ public class AdminCatalogController {
     @PatchMapping("/{id}/deactivate")
     public SuitModelResponse deactivate(@PathVariable UUID id) {
         return catalogService.deactivate(id);
+    }
+
+    @PostMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<StoredFileResponse> uploadImage(
+        @PathVariable UUID id,
+        @RequestPart("file") MultipartFile file,
+        Authentication authentication
+    ) {
+        CustomUserDetails admin = currentUser(authentication);
+        return ResponseEntity.status(201).body(catalogService.uploadImage(id, file, admin.getId()));
+    }
+
+    private CustomUserDetails currentUser(Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails user)) {
+            throw new InvalidCredentialsException("Sessao invalida");
+        }
+        return user;
     }
 }

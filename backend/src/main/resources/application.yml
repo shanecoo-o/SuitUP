@@ -27,7 +27,7 @@ spring:
   servlet:
     multipart:
       max-file-size: 10MB
-      max-request-size: 10MB
+      max-request-size: 11MB
 
 logging:
   level:
@@ -35,6 +35,8 @@ logging:
     org.flywaydb: INFO
 
 app:
+  storage:
+    root: ${FILE_STORAGE_ROOT:./storage/uploads}
   security:
     jwt:
       secret: ${JWT_SECRET:}

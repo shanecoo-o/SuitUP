@@ -24,6 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+import com.suitup.backend.upload.dto.StoredFileResponse;
 
 @RestController
 @RequestMapping("/api/orders/{orderId}")
@@ -108,6 +112,22 @@ public class OrderPaymentController {
                 storagePath,
                 request.publicUrl()
             )
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping(path = "/payment/proof", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<StoredFileResponse> uploadProof(
+        @PathVariable UUID orderId,
+        @RequestPart("file") MultipartFile file,
+        Authentication authentication
+    ) {
+        CustomUserDetails user = currentUser(authentication);
+        StoredFileResponse response = paymentService.uploadProof(
+            orderId,
+            file,
+            user.getId(),
+            isAdmin(user)
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

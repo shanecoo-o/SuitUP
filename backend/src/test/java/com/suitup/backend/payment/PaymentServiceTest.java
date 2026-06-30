@@ -16,6 +16,9 @@ import com.suitup.backend.payment.dto.PaymentResponse;
 import com.suitup.backend.payment.dto.RejectPaymentRequest;
 import com.suitup.backend.payment.dto.SubmitPaymentRequest;
 import com.suitup.backend.upload.UploadedFileRepository;
+import com.suitup.backend.upload.FileStorageService;
+import com.suitup.backend.upload.UploadedFileEntity;
+import com.suitup.backend.upload.UploadedFilePurpose;
 import com.suitup.backend.user.UserRepository;
 import com.suitup.backend.user.UserEntity;
 import java.math.BigDecimal;
@@ -26,23 +29,29 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockMultipartFile;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class PaymentServiceTest {
 
     private PaymentRepository paymentRepository;
     private OrderRepository orderRepository;
     private PaymentService service;
+    private FileStorageService fileStorageService;
 
     @BeforeEach
     void setUp() {
         paymentRepository = mock(PaymentRepository.class);
         orderRepository = mock(OrderRepository.class);
+        fileStorageService = mock(FileStorageService.class);
         service = new PaymentService(
             paymentRepository,
             orderRepository,
             mock(UserRepository.class),
             mock(UploadedFileRepository.class),
-            new PaymentMapper()
+            new PaymentMapper(),
+            fileStorageService
         );
         when(paymentRepository.save(any(PaymentEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(orderRepository.save(any(OrderEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -216,6 +225,50 @@ class PaymentServiceTest {
         assertThat(new PaymentMapper().toResponse(payment).statusHistory())
             .extracting(history -> history.note())
             .containsExactly("Primeiro", "Segundo");
+    }
+
+    @Test
+    void customerUploadsProofForOwnPendingPayment() {
+        UUID orderId = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+        OrderEntity order = order();
+        order.setCustomerUser(user(customerId));
+        PaymentEntity payment = pendingPayment(order);
+        MockMultipartFile file = new MockMultipartFile(
+            "file", "proof.pdf", "application/pdf", "%PDF-test".getBytes()
+        );
+        UploadedFileEntity stored = new UploadedFileEntity();
+        stored.setId(UUID.randomUUID());
+        stored.setPurpose(UploadedFilePurpose.PAYMENT_PROOF);
+        stored.setOriginalName("proof.pdf");
+        stored.setContentType("application/pdf");
+        stored.setSizeBytes(file.getSize());
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(paymentRepository.findByOrderIdOrderByCreatedAtDesc(orderId)).thenReturn(List.of(payment));
+        when(fileStorageService.store(file, UploadedFilePurpose.PAYMENT_PROOF, customerId))
+            .thenReturn(stored);
+
+        service.uploadProof(orderId, file, customerId, false);
+
+        assertThat(payment.getProofFile()).isSameAs(stored);
+        verify(paymentRepository).save(payment);
+    }
+
+    @Test
+    void customerCannotUploadProofForForeignOrder() {
+        UUID orderId = UUID.randomUUID();
+        OrderEntity order = order();
+        order.setCustomerUser(user(UUID.randomUUID()));
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> service.uploadProof(
+            orderId,
+            new MockMultipartFile("file", "proof.pdf", "application/pdf", "%PDF-test".getBytes()),
+            UUID.randomUUID(),
+            false
+        )).isInstanceOf(com.suitup.backend.common.ResourceNotFoundException.class);
+
+        verifyNoInteractions(fileStorageService);
     }
 
     private OrderEntity order() {
