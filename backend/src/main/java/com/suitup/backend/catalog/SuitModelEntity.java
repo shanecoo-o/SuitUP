@@ -26,7 +26,7 @@ public class SuitModelEntity extends AuditableEntity {
     @Column(nullable = false, precision = 14, scale = 2)
     private BigDecimal price;
 
-    @Column(nullable = false, length = 3, columnDefinition = "char(3)")
+    @Column(nullable = false, length = 3)
     private String currency = "MZN";
 
     @Column(name = "fabric_type", nullable = false, length = 100)

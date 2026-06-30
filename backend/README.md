@@ -419,6 +419,7 @@ controllers. Every HTTP response uses a dedicated DTO record.
 - `V2__indexes_and_constraints.sql`: integrity checks, indexes, and timestamp triggers.
 - `V3__dev_seed_data.sql`: required role codes plus seed data guarded by `SEED_DEV`.
 - `V4__configure_dev_admin_credentials.sql`: local-only BCrypt admin credentials.
+- `V5__normalize_currency_columns_to_varchar.sql`: normalizes `suit_models`, `orders`, and `payments` currency columns to `VARCHAR(3)` so the PostgreSQL schema matches the JPA mappings.
 
 Never add destructive reset statements to versioned migrations. Development
 database resets must be explicit Docker volume operations, not application boot
@@ -429,14 +430,15 @@ behaviour.
 - Physical upload and file storage
 - Mobile Ktor integration
 - SQLDelight or offline synchronization
-- Real PostgreSQL/Flyway validation on this PC
 - Advanced pagination and filters
 - Persisted refresh-token revocation
 
 ## Next steps
 
-1. Prompt 17: validate migrations, repositories, and integration tests against real PostgreSQL.
-2. Prompt 18: implement secure physical file upload and storage abstraction.
-3. Prompt 19: add the Ktor API client and remote repositories to KMP common code.
-4. Prompt 20 and later: migrate mobile flows incrementally from mock to API data.
-5. Later: add SQLDelight caching and offline synchronization.
+PostgreSQL 16/Testcontainers validation runs the complete Flyway V1-V5 chain with
+Hibernate `ddl-auto=validate`; both integration tests pass without being skipped.
+
+1. Prompt 18: implement secure physical file upload and storage abstraction.
+2. Prompt 19: add the Ktor API client and remote repositories to KMP common code.
+3. Prompt 20 and later: migrate mobile flows incrementally from mock to API data.
+4. Later: add SQLDelight caching and offline synchronization.

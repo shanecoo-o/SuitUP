@@ -70,7 +70,7 @@ public class OrderEntity extends AuditableEntity {
     @Column(name = "total_amount", nullable = false, precision = 14, scale = 2)
     private BigDecimal totalAmount;
 
-    @Column(nullable = false, length = 3, columnDefinition = "char(3)")
+    @Column(nullable = false, length = 3)
     private String currency = "MZN";
 
     @Column(name = "idempotency_key", unique = true, length = 150)

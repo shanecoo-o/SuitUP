@@ -40,10 +40,11 @@ PostgreSQL is the target database. Flyway is the only schema owner and Hibernate
 - `V2__indexes_and_constraints.sql`: enum checks, money/measurement integrity, lifecycle checks, uniqueness, lookup indexes, and update triggers.
 - `V3__dev_seed_data.sql`: required roles plus optional local admin and six catalog models under `SEED_DEV`.
 - `V4__configure_dev_admin_credentials.sql`: local-only BCrypt password for `admin@suitup.local`.
+- `V5__normalize_currency_columns_to_varchar.sql`: normalizes the `suit_models`, `orders`, and `payments` currency columns to `VARCHAR(3)` to match their JPA mappings.
 
 Versioned migrations contain no destructive table drops or production resets. Java role, order-status, payment-status, payment-method, fulfillment, and upload-purpose values match database constraints.
 
-Real migration execution against PostgreSQL remains pending because Docker is unavailable on the current machine. Testcontainers tests are prepared and skip safely when Docker cannot be reached.
+The complete V1-V5 migration chain has been validated against PostgreSQL 16 through Testcontainers. Hibernate schema validation passes after the V5 currency normalization.
 
 ## 5. Security
 
@@ -102,24 +103,23 @@ Current expected result:
 57 tests
 0 failures
 0 errors
-2 skipped PostgreSQL/Testcontainers tests when Docker is unavailable
+0 skipped
 ```
 
-Controller tests use Spring MVC and Spring Security test support. Service tests mock repositories and validate pricing, ownership, status transitions, duplicate handling, histories, and aggregation without requiring PostgreSQL.
+Controller tests use Spring MVC and Spring Security test support. Service tests mock repositories and validate pricing, ownership, status transitions, duplicate handling, histories, and aggregation. Both PostgreSQL/Testcontainers integration tests run and pass with Flyway at version 5.
 
 ## 9. Limitations
 
 - No physical file storage or multipart upload workflow.
 - No mobile Ktor client or remote repository implementation.
 - No SQLDelight cache or offline synchronization.
-- No real PostgreSQL/Flyway execution on this PC.
 - No advanced pagination or filtering for large administrative lists.
 - No persisted refresh-token revocation or server-side logout.
 - No production secrets or production admin provisioning workflow.
 
 ## 10. Risks
 
-- Derived Spring Data queries and all Flyway migrations still require validation against real PostgreSQL.
+- Future schema and derived-query changes must continue to run against PostgreSQL/Testcontainers to prevent database/JPA drift.
 - Metadata-only proof records do not guarantee that external file bytes exist or are safe.
 - Stateless refresh tokens remain valid until expiration if copied or stolen.
 - Non-paginated lists may become expensive as data volume grows.
@@ -127,8 +127,7 @@ Controller tests use Spring MVC and Spring Security test support. Service tests 
 
 ## 11. Next Phases
 
-1. Prompt 17: run Flyway, repositories, and integration tests against real PostgreSQL when Docker is available.
-2. Prompt 18: implement secure multipart upload, storage abstraction, validation, and file-serving policy.
-3. Prompt 19: add Ktor client configuration, remote DTOs, mappers, and remote repositories to KMP common code.
-4. Prompt 20 and later: migrate mobile screens incrementally from mock to remote repositories with loading/error/empty states.
-5. Later offline phase: SQLDelight cache, sync queue, conflict rules, and retry policy.
+1. Prompt 18: implement secure multipart upload, storage abstraction, validation, and file-serving policy.
+2. Prompt 19: add Ktor client configuration, remote DTOs, mappers, and remote repositories to KMP common code.
+3. Prompt 20 and later: migrate mobile screens incrementally from mock to remote repositories with loading/error/empty states.
+4. Later offline phase: SQLDelight cache, sync queue, conflict rules, and retry policy.

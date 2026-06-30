@@ -48,7 +48,7 @@ class BackendApplicationIntegrationTest {
 
     @Test
     void appliesAllMigrationsAndCreatesCoreTables() {
-        assertThat(flyway.info().current().getVersion().toString()).isEqualTo("3");
+        assertThat(flyway.info().current().getVersion().toString()).isEqualTo("5");
 
         Integer tableCount = jdbcTemplate.queryForObject(
             """

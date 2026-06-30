@@ -24,7 +24,7 @@ class JwtServiceTest {
         properties.getJwt().setAccessTokenMinutes(15);
         properties.getJwt().setRefreshTokenDays(14);
 
-        SecurityConfig config = new SecurityConfig(null, null, null);
+        JwtConfig config = new JwtConfig();
         jwtService = new JwtService(
             config.jwtEncoder(properties),
             config.jwtDecoder(properties),
