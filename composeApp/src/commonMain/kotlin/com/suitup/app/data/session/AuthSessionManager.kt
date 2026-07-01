@@ -37,7 +37,12 @@ class AuthSessionManager(
             is ApiResult.Failure -> {
                 if (current.error is ApiError.Unauthorized && hasRefreshToken) {
                     when (val refreshed = repository.refresh()) {
-                        is ApiResult.Success -> authenticate(refreshed.value)
+                        is ApiResult.Success -> {
+                            when (val validated = repository.currentUser()) {
+                                is ApiResult.Success -> authenticate(validated.value)
+                                is ApiResult.Failure -> clearExpiredSession(validated.error)
+                            }
+                        }
                         is ApiResult.Failure -> clearExpiredSession(refreshed.error)
                     }
                 } else if (current.error is ApiError.NetworkUnavailable) {
@@ -114,8 +119,20 @@ fun authErrorMessage(error: ApiError, sessionCheck: Boolean = false): String = w
 }
 
 object AuthRuntime {
-    val remoteModule: SuitUpRemoteModule by lazy { SuitUpRemoteModule() }
-    val sessionManager: AuthSessionManager by lazy {
-        AuthSessionManager(remoteModule.authRepository, remoteModule.tokenStore)
+    private var module: SuitUpRemoteModule? = null
+    private var manager: AuthSessionManager? = null
+
+    val remoteModule: SuitUpRemoteModule
+        get() = checkNotNull(module) { "AuthRuntime deve ser inicializado antes de usar a API" }
+
+    val sessionManager: AuthSessionManager
+        get() = checkNotNull(manager) { "AuthRuntime deve ser inicializado antes de usar a sessão" }
+
+    fun initialize(tokenStore: TokenStore) {
+        if (manager != null) return
+
+        val remoteModule = SuitUpRemoteModule(tokenStore = tokenStore)
+        module = remoteModule
+        manager = AuthSessionManager(remoteModule.authRepository, remoteModule.tokenStore)
     }
 }

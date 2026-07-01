@@ -34,13 +34,13 @@ It provides:
 - logout and token clearing;
 - observable authenticated, unauthenticated, and checking states.
 
-`AuthRuntime` owns one lazily created `SuitUpRemoteModule` and one session manager for the current app process.
+`AuthRuntime` owns one `SuitUpRemoteModule` and session manager initialized with the platform token store at app startup.
 
 ## Token Behavior
 
 Successful login and registration store access and refresh tokens in `TokenStore`. Logout and failed expired-session recovery clear both tokens and invalidate the Ktor bearer cache. The Ktor auth plugin can refresh an expired access token through `/api/auth/refresh`.
 
-The current implementation remains `InMemoryTokenStore`. Tokens survive navigation but are lost when the application process ends. Encrypted persistent storage is intentionally still pending.
+Android now uses `AndroidEncryptedTokenStore`, backed by AES-256-GCM and Android Keystore. Previews and non-Android entry points retain `InMemoryTokenStore`. See `MOBILE_TOKEN_STORAGE_REPORT.md` for the storage and physical-device validation details.
 
 Tokens and passwords are not logged by the mobile code.
 
@@ -94,11 +94,11 @@ No backend catalog, order, payment, upload, or dashboard repository is wired to 
 
 ## Remaining Limitations
 
-- Authentication tokens are not persisted securely across process restarts.
+- Physical-device restart and logout persistence still require manual validation on the target handset.
 - Social-login buttons remain visual only and do not bypass backend authentication.
 - Physical-device UI interaction must still be exercised on the Android handset.
-- Offline startup with an in-memory token cannot be reproduced after a process restart because the token no longer exists.
+- Development traffic still uses HTTP on the trusted LAN and must move to HTTPS for production.
 
 ## Recommended Next Phase
 
-Prompt 21 - Add secure persistent multiplatform token storage and authenticated app startup validation on a physical Android device.
+Prompt 22 - Connect the customer catalog to `RemoteCatalogRepository` behind an explicit mock/API data-source switch while preserving the local editor and checkout flow.
