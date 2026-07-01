@@ -1,6 +1,7 @@
 package com.suitup.app.data.mapper
 
 import com.suitup.app.data.remote.auth.UserDto
+import com.suitup.app.data.remote.auth.UserRoleDto
 import com.suitup.app.data.remote.catalog.SuitModelDto
 import com.suitup.app.data.remote.dashboard.AdminDashboardDto
 import com.suitup.app.data.remote.orders.FulfillmentTypeDto
@@ -14,6 +15,8 @@ import com.suitup.app.data.remote.payments.PaymentStatusDto
 import com.suitup.app.domain.model.AdminDashboardSummary
 import com.suitup.app.domain.model.AdminOrderSummary
 import com.suitup.app.domain.model.AdminPaymentSummary
+import com.suitup.app.domain.model.AppUserRole
+import com.suitup.app.domain.model.AuthenticatedUser
 import com.suitup.app.domain.model.CorFato
 import com.suitup.app.domain.model.DadosClientePedido
 import com.suitup.app.domain.model.DesignFato
@@ -40,6 +43,16 @@ fun UserDto.toDomain(): Utilizador = Utilizador(
     nome = fullName,
     email = email,
     telefone = phone.orEmpty(),
+)
+
+fun UserDto.toAuthenticatedUser(): AuthenticatedUser = AuthenticatedUser(
+    profile = toDomain(),
+    roles = roles.mapTo(mutableSetOf()) { role ->
+        when (role) {
+            UserRoleDto.ADMIN -> AppUserRole.ADMIN
+            UserRoleDto.CUSTOMER -> AppUserRole.CUSTOMER
+        }
+    },
 )
 
 fun SuitModelDto.toDomain(): SuitModel = SuitModel(

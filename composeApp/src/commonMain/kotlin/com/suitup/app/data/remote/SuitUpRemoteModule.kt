@@ -22,7 +22,7 @@ import io.ktor.client.plugins.auth.authProvider
 import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 
 class SuitUpRemoteModule(
-    val config: ApiConfig = ApiConfig.androidEmulator(),
+    val config: ApiConfig = ApiConfig.current(),
     val tokenStore: TokenStore = InMemoryTokenStore(),
 ) {
     val httpClient: HttpClient = HttpClientFactory.create(config, tokenStore, RemoteJson.instance)

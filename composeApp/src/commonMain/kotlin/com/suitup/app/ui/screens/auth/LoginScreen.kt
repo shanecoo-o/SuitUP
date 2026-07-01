@@ -41,6 +41,7 @@ fun LoginScreen(
     isLoading: Boolean = false,
     emailError: String? = null,
     passwordError: String? = null,
+    generalError: String? = null,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,
@@ -49,7 +50,7 @@ fun LoginScreen(
     onGoogleLogin: () -> Unit = {},
     onAppleLogin: () -> Unit = {},
     onCreateAccount: () -> Unit = {},
-    onAdminLogin: () -> Unit = {},
+    onAdminLogin: (() -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier
@@ -97,6 +98,14 @@ fun LoginScreen(
                     error = emailError,
                 )
 
+                if (generalError != null) {
+                    Text(
+                        text = generalError,
+                        style = SuitTextStyles.bodySmall,
+                        color = SuitColors.Error,
+                    )
+                }
+
                 PremiumTextField(
                     value = password,
                     onValueChange = onPasswordChange,
@@ -133,10 +142,13 @@ fun LoginScreen(
                     enabled = !isLoading && email.isNotBlank() && password.isNotBlank(),
                 )
 
-                SecondaryDarkButton(
-                    text = "Entrar como Administrador",
-                    onClick = onAdminLogin,
-                )
+                if (onAdminLogin != null) {
+                    SecondaryDarkButton(
+                        text = "Entrar como Administrador",
+                        onClick = onAdminLogin,
+                        enabled = !isLoading,
+                    )
+                }
             }
         }
 

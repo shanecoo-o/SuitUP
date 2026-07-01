@@ -18,5 +18,4 @@ sealed class LoginUiEvent {
     data class PalavraPasseAlterada(val valor: String) : LoginUiEvent()
     data object AlternarVisibilidadePalavraPasse : LoginUiEvent()
     data object EntrarClicado : LoginUiEvent()
-    data object EntrarDemoClicado : LoginUiEvent()
 }

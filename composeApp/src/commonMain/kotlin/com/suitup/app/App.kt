@@ -9,10 +9,8 @@ import com.suitup.app.ui.theme.SuitTheme
 /**
  * App raiz.
  *
- * Step 2: Voyager Navigator. Entry: SplashVoyagerScreen → Onboarding → Login → MainShell.
- *
- * Step 5 vai adicionar uma RootScreen que verifica auth state (token guardado) e
- * decide entre forward para Splash (1ª vez) ou MainShellScreen direto (já logado).
+ * Voyager Navigator. O Splash restaura a sessão e encaminha para Login,
+ * MainShell ou AdminDashboard conforme o estado e os papéis do backend.
  */
 @Composable
 fun App() {

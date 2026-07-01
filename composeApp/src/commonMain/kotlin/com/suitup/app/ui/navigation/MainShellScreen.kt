@@ -6,15 +6,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
+import com.suitup.app.data.session.AuthRuntime
 import com.suitup.app.ui.components.SuitBottomNav
 import com.suitup.app.ui.components.SuitTab
 import com.suitup.app.ui.theme.SuitColors
+import kotlinx.coroutines.launch
 
 /**
  * Main Shell — depois do login.
@@ -31,9 +34,13 @@ class MainShellScreen : Screen {
         // outerNavigator = o Navigator que está acima do MainShellScreen (do App()).
         // É este que precisa receber o replaceAll(SplashVoyagerScreen()) no logout.
         val outerNavigator = LocalNavigator.currentOrThrow
+        val coroutineScope = rememberCoroutineScope()
 
         val signOut: () -> Unit = {
-            outerNavigator.replaceAll(SplashVoyagerScreen())
+            coroutineScope.launch {
+                AuthRuntime.sessionManager.logout()
+                outerNavigator.replaceAll(LoginVoyagerScreen())
+            }
         }
 
         CompositionLocalProvider(LocalSignOut provides signOut) {

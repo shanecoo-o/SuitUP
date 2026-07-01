@@ -2,6 +2,12 @@ package com.suitup.app.ui.screens.auth
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.suitup.app.data.remote.http.ApiResult
+import com.suitup.app.data.session.AuthRuntime
+import com.suitup.app.data.session.AuthSessionManager
+import com.suitup.app.data.session.authErrorMessage
+import com.suitup.app.domain.model.AppUserRole
+import com.suitup.app.domain.model.AuthSessionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,39 +17,42 @@ import kotlinx.coroutines.launch
 /**
  * ScreenModel do ecrã de Login.
  *
- * Valida campos localmente, expõe [navegarParaShell] como one-shot
- * que o [LoginVoyagerScreen] observa para chamar navigator.replaceAll.
- *
- * Step 4 vai substituir a lógica demo por AuthRepository.login(email, pass) → JWT.
+ * Valida os campos, autentica no backend e expõe o destino derivado
+ * do papel ADMIN ou CUSTOMER devolvido pelo servidor.
  */
-class LoginScreenModel : ScreenModel {
+class LoginScreenModel(
+    private val sessionManager: AuthSessionManager = AuthRuntime.sessionManager,
+) : ScreenModel {
 
-    private val _state = MutableStateFlow(LoginUiState())
+    private val _state = MutableStateFlow(
+        LoginUiState(
+            erroGeral = (sessionManager.state.value as? AuthSessionState.Unauthenticated)?.message,
+        )
+    )
     val state: StateFlow<LoginUiState> = _state.asStateFlow()
 
     // One-shot: true indica que a navegação para o shell deve acontecer.
     // Resetado após ser consumido pelo VoyagerScreen.
-    private val _navegarParaShell = MutableStateFlow(false)
-    val navegarParaShell: StateFlow<Boolean> = _navegarParaShell.asStateFlow()
+    private val _navigationTarget = MutableStateFlow<AuthNavigationTarget?>(null)
+    val navigationTarget: StateFlow<AuthNavigationTarget?> = _navigationTarget.asStateFlow()
 
     fun onEvent(event: LoginUiEvent) {
         when (event) {
             is LoginUiEvent.EmailAlterado -> {
-                _state.update { it.copy(email = event.valor, erroEmail = null) }
+                _state.update { it.copy(email = event.valor, erroEmail = null, erroGeral = null) }
             }
             is LoginUiEvent.PalavraPasseAlterada -> {
-                _state.update { it.copy(palavraPasse = event.valor, erroPalavraPasse = null) }
+                _state.update { it.copy(palavraPasse = event.valor, erroPalavraPasse = null, erroGeral = null) }
             }
             is LoginUiEvent.AlternarVisibilidadePalavraPasse -> {
                 _state.update { it.copy(palavraPasseVisivel = !it.palavraPasseVisivel) }
             }
             is LoginUiEvent.EntrarClicado -> tentarEntrar()
-            is LoginUiEvent.EntrarDemoClicado -> entrarDemo()
         }
     }
 
     fun navegacaoConsumida() {
-        _navegarParaShell.value = false
+        _navigationTarget.value = null
     }
 
     private fun tentarEntrar() {
@@ -66,17 +75,26 @@ class LoginScreenModel : ScreenModel {
 
         if (!valido) return
 
-        // Demo: simula carregamento breve + navega.
-        // Step 4: substituir por AuthRepository.login(email, pass).
         screenModelScope.launch {
-            _state.update { it.copy(carregando = true) }
-            kotlinx.coroutines.delay(600)
-            _state.update { it.copy(carregando = false) }
-            _navegarParaShell.value = true
+            _state.update { it.copy(carregando = true, erroGeral = null) }
+            when (val result = sessionManager.login(s.email, s.palavraPasse)) {
+                is ApiResult.Success -> {
+                    _state.update { it.copy(carregando = false) }
+                    _navigationTarget.value = if (result.value.primaryRole == AppUserRole.ADMIN) {
+                        AuthNavigationTarget.AdminDashboard
+                    } else {
+                        AuthNavigationTarget.CustomerHome
+                    }
+                }
+                is ApiResult.Failure -> {
+                    _state.update {
+                        it.copy(
+                            carregando = false,
+                            erroGeral = authErrorMessage(result.error),
+                        )
+                    }
+                }
+            }
         }
-    }
-
-    private fun entrarDemo() {
-        _navegarParaShell.value = true
     }
 }

@@ -4,6 +4,9 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.suitup.app.data.mock.MockData
 import com.suitup.app.data.mock.MockOrderStore
+import com.suitup.app.data.session.AuthRuntime
+import com.suitup.app.data.session.AuthSessionManager
+import com.suitup.app.domain.model.AuthSessionState
 import com.suitup.app.domain.model.Utilizador
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,18 +26,27 @@ sealed class PerfilUiEvent {
     data object SairClicado : PerfilUiEvent()
 }
 
-class PerfilScreenModel : ScreenModel {
+class PerfilScreenModel(
+    private val sessionManager: AuthSessionManager = AuthRuntime.sessionManager,
+) : ScreenModel {
 
     private val _state = MutableStateFlow(PerfilUiState())
     val state: StateFlow<PerfilUiState> = _state.asStateFlow()
 
     init {
         screenModelScope.launch {
-            combine(MockOrderStore.cart, MockOrderStore.orders) { cart, orders -> cart to orders }
-                .collect { (cart, orders) ->
+            combine(
+                MockOrderStore.cart,
+                MockOrderStore.orders,
+                sessionManager.state,
+            ) { cart, orders, session -> Triple(cart, orders, session) }
+                .collect { (cart, orders, session) ->
                 _state.update {
                     it.copy(
-                        utilizador = MockData.utilizadorActual,
+                        utilizador = (session as? AuthSessionState.Authenticated)
+                            ?.account
+                            ?.profile
+                            ?: MockData.utilizadorActual,
                         contadorCarrinho = cart.sumOf { item -> item.quantidade },
                         contadorPedidos = orders.size,
                     )
