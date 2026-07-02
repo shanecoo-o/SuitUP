@@ -2,7 +2,7 @@
 
 ## Status
 
-Prompt 19 adds a complete Ktor-based remote data layer to the Kotlin Multiplatform mobile project. No screen, ScreenModel, Voyager route, `MockCatalogStore`, or `MockOrderStore` was changed. The application continues to run entirely with mock data until a later prompt explicitly injects remote repositories.
+Prompt 19 added the Ktor-based remote data layer. Auth and customer/admin catalog now use the backend through controlled source modes. Prompt 24 adds backend-first customer order creation/history/detail while preserving local editor/cart/checkout draft state and explicit mock fallback. Payments and admin dashboard/order/payment data remain local.
 
 ## Dependencies
 
@@ -111,14 +111,9 @@ Android file-picker and URI-to-byte conversion are not included in this phase.
 
 ## Composition and Current App Behavior
 
-`SuitUpRemoteModule` constructs the client, APIs, token store, and remote repositories. It is deliberately not instantiated by the current application root. This prevents network availability from affecting startup or the existing customer/admin demo.
+`SuitUpRemoteModule` constructs the client, APIs, token store, and remote repositories. The application root initializes it with the platform token store. Auth uses it directly, while customer catalog access is isolated behind `CustomerCatalogRepository` and its fallback mode.
 
-Current defaults remain:
-
-- `MockCatalogStore`
-- `MockOrderStore`
-- existing mock login/admin access
-- existing Voyager flows and ScreenModels
+Current local defaults remain for `MockOrderStore` and admin dashboard/order/payment data. `MockCatalogStore` remains an explicit listing fallback. Voyager navigation and the local editor/checkout flow remain intact.
 
 ## Next Phase
 
