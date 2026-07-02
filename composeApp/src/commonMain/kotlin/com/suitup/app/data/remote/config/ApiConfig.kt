@@ -2,7 +2,7 @@ package com.suitup.app.data.remote.config
 
 enum class ApiEnvironment(val defaultBaseUrl: String) {
     AndroidEmulator("http://10.0.2.2:8080"),
-    PhysicalDevice("http://192.168.168.41:8080"),
+    PhysicalDevice("http://192.168.168.57:8080"),
     Desktop("http://localhost:8080"),
 }
 

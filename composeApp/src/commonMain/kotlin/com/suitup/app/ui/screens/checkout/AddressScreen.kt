@@ -21,6 +21,7 @@ import com.suitup.app.ui.components.PremiumDropdown
 import com.suitup.app.ui.components.PremiumTextField
 import com.suitup.app.ui.components.PremiumTopBar
 import com.suitup.app.ui.components.SectionHeader
+import com.suitup.app.ui.components.SecondaryDarkButton
 import com.suitup.app.ui.components.SuitDualBottomBar
 import com.suitup.app.ui.components.SuitSegmentedToggle
 import com.suitup.app.ui.components.SuitSelectableCard
@@ -46,6 +47,9 @@ fun AddressScreen(
     pontosLevantamento: List<PontoLevantamento>,
     selectedPickupPoint: PontoLevantamento?,
     cartItemCount: Int = 0,
+    isSubmitting: Boolean = false,
+    errorMessage: String? = null,
+    showDemoFallback: Boolean = false,
     onBack: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onModeChange: (TipoEntrega) -> Unit = {},
@@ -55,6 +59,7 @@ fun AddressScreen(
     onReferenceChange: (String) -> Unit = {},
     onPickupPointSelect: (PontoLevantamento) -> Unit = {},
     onContinue: () -> Unit = {},
+    onContinueDemo: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -110,6 +115,30 @@ fun AddressScreen(
                     onSelect = onPickupPointSelect,
                 )
             }
+
+            if (errorMessage != null) {
+                PremiumCard(modifier = Modifier.fillMaxWidth(), padding = 14.dp) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = errorMessage,
+                            style = SuitTextStyles.bodySmall,
+                            color = SuitColors.Error,
+                        )
+                        if (showDemoFallback) {
+                            Text(
+                                "Pode continuar localmente; este pedido ficará marcado como demonstração.",
+                                style = SuitTextStyles.bodySmall,
+                                color = SuitColors.Slate,
+                            )
+                            SecondaryDarkButton(
+                                text = "Continuar em modo demo",
+                                onClick = onContinueDemo,
+                                fullWidth = false,
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         val canContinue = when (mode) {
@@ -118,10 +147,10 @@ fun AddressScreen(
         }
 
         SuitDualBottomBar(
-            primaryText = "Continuar",
+            primaryText = if (isSubmitting) "A criar pedido..." else "Continuar",
             onPrimaryClick = onContinue,
             onSecondaryClick = onBack,
-            primaryEnabled = canContinue,
+            primaryEnabled = canContinue && !isSubmitting,
         )
     }
 }

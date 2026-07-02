@@ -47,6 +47,11 @@ data class MockCheckoutDraft(
     val pontoLevantamento: PontoLevantamento? = null,
 )
 
+data class CheckoutOrderItemDraft(
+    val design: DesignFato,
+    val quantity: Int,
+)
+
 private data class CartEntry(
     val id: String,
     val design: DesignFato,
@@ -81,6 +86,9 @@ object MockOrderStore {
 
     fun getPendingPayments(): List<Pedido> =
         _orders.value.filter { it.pagamento.status == PaymentStatus.PENDING }
+
+    fun getCheckoutOrderItems(): List<CheckoutOrderItemDraft> =
+        _cartEntries.value.map { CheckoutOrderItemDraft(it.design, it.quantity) }
 
     fun startDraft(modelo: ModeloFato): MockDesignDraft {
         val existing = _draft.value
@@ -228,9 +236,17 @@ object MockOrderStore {
         )
         _orders.update { listOf(order) + it }
         _cartEntries.value = emptyList()
+        _draft.value = null
         syncCart()
         clearCheckoutDraft()
         return order
+    }
+
+    fun completeRemoteCheckout() {
+        _cartEntries.value = emptyList()
+        _draft.value = null
+        syncCart()
+        clearCheckoutDraft()
     }
 
     fun confirmPayment(orderId: String) {

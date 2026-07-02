@@ -1,12 +1,11 @@
 package com.suitup.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -16,15 +15,14 @@ import com.suitup.app.data.session.AuthRuntime
 import com.suitup.app.domain.model.EstadoPedido
 import com.suitup.app.domain.model.PaymentStatus
 import com.suitup.app.ui.screens.admin.AdminCatalogScreen
+import com.suitup.app.ui.screens.admin.AdminCatalogScreenModel
 import com.suitup.app.ui.screens.admin.AdminDashboardScreen
 import com.suitup.app.ui.screens.admin.AdminDashboardStats
 import com.suitup.app.ui.screens.admin.AdminOrderDetailsScreen
 import com.suitup.app.ui.screens.admin.AdminOrdersScreen
 import com.suitup.app.ui.screens.admin.AdminPaymentsScreen
 import com.suitup.app.ui.screens.admin.AdminSuitFormScreen
-import com.suitup.app.ui.screens.admin.AdminSuitFormState
-import com.suitup.app.ui.screens.admin.toAdminFormState
-import com.suitup.app.ui.screens.admin.toSuitModel
+import com.suitup.app.ui.screens.admin.AdminSuitFormScreenModel
 import kotlinx.coroutines.launch
 
 class AdminDashboardVoyagerScreen : Screen {
@@ -136,15 +134,30 @@ class AdminCatalogVoyagerScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val models by MockCatalogStore.suitModels.collectAsState()
+        val screenModel = rememberScreenModel { AdminCatalogScreenModel() }
+        val state by screenModel.state.collectAsState()
+
+        LaunchedEffect(state.sessionExpired) {
+            if (state.sessionExpired) {
+                screenModel.consumeSessionExpired()
+                AuthRuntime.sessionManager.logout()
+                navigator.replaceAll(LoginVoyagerScreen())
+            }
+        }
 
         AdminCatalogScreen(
-            models = models,
+            models = state.models,
+            isLoading = state.isLoading,
+            errorMessage = state.errorMessage,
+            successMessage = state.successMessage,
+            isUsingMockFallback = state.isUsingMockFallback,
+            pendingModelId = state.pendingModelId,
             onBack = { navigator.pop() },
             onAddSuit = { navigator.push(AdminSuitFormVoyagerScreen()) },
             onEditSuit = { id -> navigator.push(AdminSuitFormVoyagerScreen(id)) },
-            onDeactivate = { MockCatalogStore.deactivateSuitModel(it) },
-            onReactivate = { MockCatalogStore.reactivateSuitModel(it) },
+            onDeactivate = { screenModel.setAvailability(it, active = false) },
+            onReactivate = { screenModel.setAvailability(it, active = true) },
+            onRetry = screenModel::refresh,
         )
     }
 }
@@ -155,27 +168,34 @@ class AdminSuitFormVoyagerScreen(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val original = modelId?.let { MockCatalogStore.getSuitModelById(it) }
-        val isEditMode = original != null
-        var formState by remember(modelId) {
-            mutableStateOf(original?.toAdminFormState() ?: AdminSuitFormState())
+        val screenModel = rememberScreenModel { AdminSuitFormScreenModel(modelId) }
+        val state by screenModel.state.collectAsState()
+        val navigateBack by screenModel.navigateBack.collectAsState()
+
+        LaunchedEffect(navigateBack) {
+            if (navigateBack) {
+                screenModel.navigationConsumed()
+                navigator.pop()
+            }
+        }
+
+        LaunchedEffect(state.sessionExpired) {
+            if (state.sessionExpired) {
+                screenModel.consumeSessionExpired()
+                AuthRuntime.sessionManager.logout()
+                navigator.replaceAll(LoginVoyagerScreen())
+            }
         }
 
         AdminSuitFormScreen(
-            title = if (isEditMode) "Editar Fato" else "Adicionar Fato",
-            state = formState,
-            isEditMode = isEditMode,
-            onStateChange = { formState = it },
+            title = if (state.isEditMode) "Editar Fato" else "Adicionar Fato",
+            state = state.form,
+            isEditMode = state.isEditMode,
+            isSaving = state.isSaving,
+            errorMessage = state.errorMessage,
+            onStateChange = screenModel::updateForm,
             onCancel = { navigator.pop() },
-            onSave = {
-                if (isEditMode) {
-                    MockCatalogStore.updateSuitModel(formState.toSuitModel())
-                } else {
-                    val id = "admin-${MockCatalogStore.getAllSuitModels().size + 1}"
-                    MockCatalogStore.addSuitModel(formState.toSuitModel(generatedId = id))
-                }
-                navigator.pop()
-            },
+            onSave = screenModel::save,
         )
     }
 }

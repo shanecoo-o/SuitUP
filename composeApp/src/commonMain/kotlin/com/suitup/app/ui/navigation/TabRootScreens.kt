@@ -1,11 +1,9 @@
 package com.suitup.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -13,7 +11,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import com.suitup.app.data.mock.MockData
 import com.suitup.app.data.mock.MockOrderStore
-import com.suitup.app.domain.model.CategoriaFato
 import com.suitup.app.ui.screens.cart.CartScreen
 import com.suitup.app.ui.screens.cart.CarrinhoScreenModel
 import com.suitup.app.ui.screens.cart.CarrinhoUiEvent
@@ -30,8 +27,16 @@ class HomeVoyagerScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val tabNavigator = LocalTabNavigator.current
+        val signOut = LocalSignOut.current
         val screenModel = rememberScreenModel { HomeScreenModel() }
         val state by screenModel.state.collectAsState()
+
+        LaunchedEffect(state.sessaoExpirada) {
+            if (state.sessaoExpirada) {
+                screenModel.sessaoExpiradaConsumida()
+                signOut()
+            }
+        }
 
         HomeScreen(
             pedidosRecentes = state.pedidosRecentes,
@@ -94,11 +99,15 @@ class SelectModelVoyagerScreen : Screen {
             models = state.modelos,
             selectedCategory = state.categoriaSeleccionada,
             cartItemCount = state.contadorCarrinho,
+            isLoading = state.carregando,
+            errorMessage = state.erroCatalogo,
+            isUsingMockFallback = state.usandoFallbackMock,
             onCategorySelect = { screenModel.onEvent(SelecionarModeloUiEvent.CategoriaSeleccionada(it)) },
             onModelClick = { modelo ->
                 screenModel.onEvent(SelecionarModeloUiEvent.ModeloClicado(modelo))
                 navigator.push(Editor2DPartsVoyagerScreen(modelo.id))
             },
+            onRetry = { screenModel.onEvent(SelecionarModeloUiEvent.TentarNovamente) },
             onCartClick = { navigator.push(CartVoyagerScreen()) }
         )
     }
@@ -112,6 +121,13 @@ class ProfileVoyagerScreen : Screen {
         val signOut = LocalSignOut.current
         val screenModel = rememberScreenModel { PerfilScreenModel() }
         val state by screenModel.state.collectAsState()
+
+        LaunchedEffect(state.sessaoExpirada) {
+            if (state.sessaoExpirada) {
+                screenModel.sessaoExpiradaConsumida()
+                signOut()
+            }
+        }
 
         ProfileScreen(
             user = state.utilizador,

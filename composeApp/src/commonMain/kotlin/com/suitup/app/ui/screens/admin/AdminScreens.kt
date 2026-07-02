@@ -89,6 +89,8 @@ data class AdminSuitFormState(
     val color: String = "",
     val available: Boolean = true,
     val imageKey: String = AdminCatalogOptions.imageKeys.first(),
+    val currency: String = "MZN",
+    val primaryImageFileId: String? = null,
 )
 
 object AdminCatalogOptions {
@@ -217,11 +219,17 @@ private fun StatCard(label: String, value: String, modifier: Modifier = Modifier
 @Composable
 fun AdminCatalogScreen(
     models: List<SuitModel>,
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    successMessage: String? = null,
+    isUsingMockFallback: Boolean = false,
+    pendingModelId: String? = null,
     onBack: () -> Unit = {},
     onAddSuit: () -> Unit = {},
     onEditSuit: (String) -> Unit = {},
     onDeactivate: (String) -> Unit = {},
     onReactivate: (String) -> Unit = {},
+    onRetry: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -244,13 +252,55 @@ fun AdminCatalogScreen(
                 )
             }
 
+            if (successMessage != null) {
+                item {
+                    PremiumCard(padding = 14.dp) {
+                        Text(successMessage, style = SuitTextStyles.bodyMedium, color = SuitColors.Success)
+                    }
+                }
+            }
+
+            if (errorMessage != null && models.isNotEmpty()) {
+                item {
+                    PremiumCard(padding = 14.dp) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(errorMessage, style = SuitTextStyles.bodyMedium, color = SuitColors.Error)
+                            if (isUsingMockFallback) {
+                                Text(
+                                    "A mostrar o catálogo local em modo demo. As alterações remotas estão indisponíveis.",
+                                    style = SuitTextStyles.bodySmall,
+                                    color = SuitColors.Slate,
+                                )
+                            }
+                            SecondaryDarkButton(
+                                text = "Tentar novamente",
+                                onClick = onRetry,
+                                fullWidth = false,
+                            )
+                        }
+                    }
+                }
+            }
+
             if (models.isEmpty()) {
                 item {
                     EmptyStateCard(
-                        title = "Nenhum modelo encontrado",
-                        description = "Adicione o primeiro fato para iniciar o catálogo.",
-                        actionLabel = "Adicionar primeiro fato",
-                        onAction = onAddSuit,
+                        title = when {
+                            isLoading -> "A carregar modelos..."
+                            errorMessage != null -> errorMessage
+                            else -> "Nenhum modelo cadastrado."
+                        },
+                        description = when {
+                            isLoading -> "A obter o catálogo administrativo."
+                            errorMessage != null -> "Verifique a ligação e tente novamente."
+                            else -> "Adicione o primeiro fato para iniciar o catálogo."
+                        },
+                        actionLabel = when {
+                            isLoading -> null
+                            errorMessage != null -> "Tentar novamente"
+                            else -> "Adicionar primeiro fato"
+                        },
+                        onAction = if (errorMessage != null) onRetry else onAddSuit,
                     )
                 }
             } else {
@@ -261,6 +311,7 @@ fun AdminCatalogScreen(
                         onToggleAvailability = {
                             if (model.available) onDeactivate(model.id) else onReactivate(model.id)
                         },
+                        enabled = pendingModelId == null,
                     )
                 }
             }
@@ -273,6 +324,7 @@ private fun AdminSuitCard(
     model: SuitModel,
     onEdit: () -> Unit,
     onToggleAvailability: () -> Unit,
+    enabled: Boolean = true,
 ) {
     PremiumCard(padding = 14.dp) {
         Row(
@@ -303,17 +355,20 @@ private fun AdminSuitCard(
                     SecondaryDarkButton(
                         text = "Editar",
                         onClick = onEdit,
+                        enabled = enabled,
                         fullWidth = false,
                         modifier = Modifier.weight(1f),
                     )
                     if (model.available) SecondaryDarkButton(
                         text = if (model.available) "Desactivar" else "Reactivar",
                         onClick = onToggleAvailability,
+                        enabled = enabled,
                         fullWidth = false,
                         modifier = Modifier.weight(1f),
                     ) else PrimaryGoldButton(
                         text = "Reactivar",
                         onClick = onToggleAvailability,
+                        enabled = enabled,
                         fullWidth = false,
                         modifier = Modifier.weight(1f),
                     )
@@ -328,6 +383,8 @@ fun AdminSuitFormScreen(
     title: String,
     state: AdminSuitFormState,
     isEditMode: Boolean,
+    isSaving: Boolean = false,
+    errorMessage: String? = null,
     onStateChange: (AdminSuitFormState) -> Unit,
     onCancel: () -> Unit = {},
     onSave: () -> Unit = {},
@@ -407,7 +464,7 @@ fun AdminSuitFormScreen(
                     CatalogImage(state.imageKey, state.name.ifBlank { "Foto seleccionada" }, size = 132)
                     Text("Foto seleccionada: ${state.imageKey}", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
                     Text(
-                        "A imagem será ligada ao catálogo local de demonstração.",
+                        "A imagem local é usada como placeholder. Upload de ficheiro fica para uma próxima fase.",
                         style = SuitTextStyles.bodySmall,
                         color = SuitColors.Smoke,
                     )
@@ -421,6 +478,15 @@ fun AdminSuitFormScreen(
             }
         }
 
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                style = SuitTextStyles.bodySmall,
+                color = SuitColors.Error,
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -430,13 +496,18 @@ fun AdminSuitFormScreen(
             SecondaryDarkButton(
                 text = "Cancelar",
                 onClick = onCancel,
+                enabled = !isSaving,
                 fullWidth = false,
                 modifier = Modifier.weight(1f),
             )
             PrimaryGoldButton(
-                text = if (isEditMode) "Actualizar fato" else "Guardar fato",
+                text = when {
+                    isSaving -> "A guardar..."
+                    isEditMode -> "Actualizar fato"
+                    else -> "Guardar fato"
+                },
                 onClick = onSave,
-                enabled = state.name.isNotBlank() &&
+                enabled = !isSaving && state.name.isNotBlank() &&
                     state.description.isNotBlank() &&
                     state.basePrice.toIntOrNull()?.let { it > 0 } == true &&
                     state.color.isNotBlank(),
@@ -900,6 +971,8 @@ fun SuitModel.toAdminFormState(): AdminSuitFormState = AdminSuitFormState(
     color = color,
     available = available,
     imageKey = imageKey,
+    currency = currency,
+    primaryImageFileId = primaryImageFileId,
 )
 
 fun AdminSuitFormState.toSuitModel(generatedId: String = id): SuitModel = SuitModel(
@@ -912,4 +985,6 @@ fun AdminSuitFormState.toSuitModel(generatedId: String = id): SuitModel = SuitMo
     fabricType = fabricType,
     color = color.trim(),
     available = available,
+    currency = currency,
+    primaryImageFileId = primaryImageFileId,
 )

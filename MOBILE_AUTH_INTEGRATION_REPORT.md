@@ -9,7 +9,7 @@ Prompt 20 connects the mobile Splash, Login, Registration, session restoration, 
 The active configuration is centralized in `ApiConfig.current()` and currently targets the physical-device LAN backend:
 
 ```text
-http://192.168.168.41:8080
+http://192.168.168.57:8080
 ```
 
 Available alternatives remain centralized:
@@ -72,7 +72,7 @@ Login and Registration disable submission while a request is running.
 
 ## Backend Smoke Test
 
-Validated against `http://192.168.168.41:8080`:
+Validated previously against the then-active backend; the current configured URL is `http://192.168.168.57:8080`:
 
 - health returned `UP`;
 - wrong admin password returned HTTP `401`;
@@ -86,11 +86,11 @@ No token value was printed during validation.
 
 ## Modules Still Using Mocks
 
-- `MockCatalogStore` remains active for customer and admin catalog screens.
+- Customer and admin catalog now prefer `RemoteCatalogRepository` with explicit mock listing fallback.
 - `MockOrderStore` remains active for cart, checkout, payments, orders, tracking, and admin order/payment screens.
 - Admin dashboard metrics remain local/mock.
 
-No backend catalog, order, payment, upload, or dashboard repository is wired to a screen in this phase.
+No backend order, payment, image-upload UI, or dashboard repository is wired to a screen yet.
 
 ## Remaining Limitations
 
@@ -101,4 +101,4 @@ No backend catalog, order, payment, upload, or dashboard repository is wired to 
 
 ## Recommended Next Phase
 
-Prompt 22 - Connect the customer catalog to `RemoteCatalogRepository` behind an explicit mock/API data-source switch while preserving the local editor and checkout flow.
+Prompt 24 - Connect customer checkout, order creation, order history, and tracking to `RemoteOrderRepository` behind a safe data-source switch.

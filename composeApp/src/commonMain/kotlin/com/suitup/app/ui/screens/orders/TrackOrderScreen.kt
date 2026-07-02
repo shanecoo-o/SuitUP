@@ -32,6 +32,7 @@ import com.suitup.app.ui.util.formatMzn
 fun TrackOrderScreen(
     order: Pedido,
     cartItemCount: Int = 0,
+    noticeMessage: String? = null,
     onBack: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onContactSupport: (() -> Unit)? = null,
@@ -50,10 +51,15 @@ fun TrackOrderScreen(
                 .padding(horizontal = 20.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
+            if (noticeMessage != null) {
+                PremiumCard {
+                    Text(noticeMessage, style = SuitTextStyles.bodySmall, color = SuitColors.Error)
+                }
+            }
             SectionHeader(
                 eyebrow = "PEDIDO #${order.numero}",
                 title = order.estado.label,
-                description = "Actualizado em ${order.actualizadoEm}",
+                description = "Criado em ${order.criadoEm} · actualizado em ${order.actualizadoEm}",
             )
             PaymentStatusCard(status = order.pagamento.status)
             if (order.pagamento.status == PaymentStatus.REJECTED) {
@@ -74,7 +80,14 @@ fun TrackOrderScreen(
             PremiumCard {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("Resumo do pedido", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
-                    SummaryLine("Fato", order.designsFato.firstOrNull()?.nome ?: "Fato personalizado")
+                    val design = order.designsFato.firstOrNull()
+                    SummaryLine("Fato", design?.nome ?: "Fato personalizado")
+                    design?.let {
+                        SummaryLine("Tecido", it.tecido.nome)
+                        SummaryLine("Cor", it.cor.nome)
+                        SummaryLine("Lapela", it.partes.lapela.label)
+                        SummaryLine("Botões", it.partes.botoes.label)
+                    }
                     SummaryLine("Cliente", order.cliente?.nome ?: "Cliente SuitUP")
                     SummaryLine(
                         "Recepção",
@@ -82,7 +95,22 @@ fun TrackOrderScreen(
                             ?: order.pontoLevantamento?.nome
                             ?: order.tipoEntrega.label,
                     )
+                    SummaryLine("Subtotal", formatMzn(order.subtotal))
+                    SummaryLine("Entrega", formatMzn(order.taxaEntrega))
                     SummaryLine("Total", formatMzn(order.total))
+                }
+            }
+            order.medidas?.let { medidas ->
+                PremiumCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Medidas", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+                        MeasurementLine("Altura", medidas.alturaCm)
+                        MeasurementLine("Peito", medidas.peitoCm)
+                        MeasurementLine("Cintura", medidas.cinturaCm)
+                        MeasurementLine("Ombros", medidas.ombrosCm)
+                        MeasurementLine("Manga", medidas.mangaCm)
+                        MeasurementLine("Calça", medidas.calcaCm)
+                    }
                 }
             }
         }
@@ -117,4 +145,9 @@ private fun SummaryLine(label: String, value: String) {
         Text(label, style = SuitTextStyles.bodySmall, color = SuitColors.Smoke)
         Text(value, style = SuitTextStyles.bodyMedium, color = SuitColors.Pearl)
     }
+}
+
+@Composable
+private fun MeasurementLine(label: String, value: String) {
+    if (value.isNotBlank()) SummaryLine(label, "$value cm")
 }

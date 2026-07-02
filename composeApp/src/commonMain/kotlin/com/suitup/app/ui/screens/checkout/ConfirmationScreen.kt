@@ -26,6 +26,7 @@ import com.suitup.app.ui.util.formatMzn
 fun ConfirmationScreen(
     orderNumber: String,
     order: Pedido? = null,
+    isDemo: Boolean = false,
     onSeeOrders: () -> Unit = {},
     onBackToHome: () -> Unit = {},
 ) {
@@ -41,13 +42,17 @@ fun ConfirmationScreen(
         ) {
             SuitSuccessBadge(size = 80.dp)
             Text(
-                "Pedido recebido",
+                "Pedido criado com sucesso",
                 style = SuitTextStyles.headlineLarge,
                 color = SuitColors.Pearl,
                 textAlign = TextAlign.Center,
             )
             Text(
-                "Pagamento enviado. Aguardando confirmação do administrador.",
+                if (isDemo) {
+                    "Pedido guardado em modo demo. Não foi enviado ao servidor."
+                } else {
+                    "A encomenda foi registada. A integração do pagamento será concluída na próxima etapa."
+                },
                 style = SuitTextStyles.bodyMedium,
                 color = SuitColors.Slate,
                 textAlign = TextAlign.Center,
@@ -62,7 +67,11 @@ fun ConfirmationScreen(
             order?.let {
                 PaymentStatusCard(
                     status = it.pagamento.status,
-                    description = "O próximo passo é a validação do comprovativo pela equipa SuitUP.",
+                    description = if (isDemo) {
+                        "Pagamento mantido apenas no fluxo local de demonstração."
+                    } else {
+                        "O pagamento ainda não foi submetido ao backend nesta etapa."
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

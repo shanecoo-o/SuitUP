@@ -66,6 +66,8 @@ data class SuitModel(
     val fabricType: String,
     val color: String,
     val available: Boolean = true,
+    val currency: String = "MZN",
+    val primaryImageFileId: String? = null,
 )
 
 enum class CategoriaFato(val label: String) {

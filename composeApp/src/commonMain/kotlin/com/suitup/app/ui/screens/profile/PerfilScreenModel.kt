@@ -4,6 +4,8 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.suitup.app.data.mock.MockData
 import com.suitup.app.data.mock.MockOrderStore
+import com.suitup.app.data.order.CustomerOrderRepository
+import com.suitup.app.data.order.OrderRuntime
 import com.suitup.app.data.session.AuthRuntime
 import com.suitup.app.data.session.AuthSessionManager
 import com.suitup.app.domain.model.AuthSessionState
@@ -19,6 +21,7 @@ data class PerfilUiState(
     val utilizador: Utilizador = MockData.utilizadorActual,
     val contadorCarrinho: Int = 0,
     val contadorPedidos: Int = 0,
+    val sessaoExpirada: Boolean = false,
 )
 
 sealed class PerfilUiEvent {
@@ -28,6 +31,7 @@ sealed class PerfilUiEvent {
 
 class PerfilScreenModel(
     private val sessionManager: AuthSessionManager = AuthRuntime.sessionManager,
+    private val orderRepository: CustomerOrderRepository = OrderRuntime.repository,
 ) : ScreenModel {
 
     private val _state = MutableStateFlow(PerfilUiState())
@@ -37,9 +41,9 @@ class PerfilScreenModel(
         screenModelScope.launch {
             combine(
                 MockOrderStore.cart,
-                MockOrderStore.orders,
+                orderRepository.state,
                 sessionManager.state,
-            ) { cart, orders, session -> Triple(cart, orders, session) }
+            ) { cart, ordersState, session -> Triple(cart, ordersState.orders, session) }
                 .collect { (cart, orders, session) ->
                 _state.update {
                     it.copy(
@@ -49,9 +53,15 @@ class PerfilScreenModel(
                             ?: MockData.utilizadorActual,
                         contadorCarrinho = cart.sumOf { item -> item.quantidade },
                         contadorPedidos = orders.size,
+                        sessaoExpirada = orderRepository.state.value.sessionExpired,
                     )
                 }
             }
         }
+        screenModelScope.launch { orderRepository.refreshOrders() }
+    }
+
+    fun sessaoExpiradaConsumida() {
+        orderRepository.consumeSessionExpired()
     }
 }

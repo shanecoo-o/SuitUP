@@ -3,9 +3,11 @@ package com.suitup.app
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.FadeTransition
+import com.suitup.app.data.catalog.CatalogRuntime
 import com.suitup.app.data.remote.auth.InMemoryTokenStore
 import com.suitup.app.data.remote.auth.TokenStore
 import com.suitup.app.data.session.AuthRuntime
+import com.suitup.app.data.order.OrderRuntime
 import com.suitup.app.ui.navigation.SplashVoyagerScreen
 import com.suitup.app.ui.theme.SuitTheme
 
@@ -18,6 +20,8 @@ import com.suitup.app.ui.theme.SuitTheme
 @Composable
 fun App(tokenStore: TokenStore = InMemoryTokenStore()) {
     AuthRuntime.initialize(tokenStore)
+    CatalogRuntime.initialize(AuthRuntime.remoteModule.catalogRepository)
+    OrderRuntime.initialize(AuthRuntime.remoteModule.orderRepository)
 
     SuitTheme {
         Navigator(SplashVoyagerScreen()) { navigator ->

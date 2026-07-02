@@ -4,6 +4,10 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.suitup.app.data.mock.MockData
 import com.suitup.app.data.mock.MockOrderStore
+import com.suitup.app.data.order.CreateCustomerOrderResult
+import com.suitup.app.data.order.CustomerOrderRepository
+import com.suitup.app.data.order.OrderRuntime
+import com.suitup.app.data.order.generateOrderIdempotencyKey
 import com.suitup.app.domain.model.EnderecoEntrega
 import com.suitup.app.domain.model.PontoLevantamento
 import com.suitup.app.domain.model.TipoEntrega
@@ -133,6 +137,11 @@ data class EnderecoUiState(
     val contadorCarrinho: Int = 0,
     val erroPonto: String? = null,
     val erroEndereco: String? = null,
+    val criandoPedido: Boolean = false,
+    val erroPedido: String? = null,
+    val pedidoCriadoId: String? = null,
+    val sessaoExpirada: Boolean = false,
+    val fallbackMockDisponivel: Boolean = false,
 )
 
 sealed class EnderecoUiEvent {
@@ -143,17 +152,26 @@ sealed class EnderecoUiEvent {
     data class ReferenciaAlterada(val valor: String) : EnderecoUiEvent()
     data class PontoSeleccionado(val ponto: PontoLevantamento) : EnderecoUiEvent()
     data object ContinuarClicado : EnderecoUiEvent()
+    data object ContinuarModoDemoClicado : EnderecoUiEvent()
 }
 
-class EnderecoScreenModel(private val modoInicial: TipoEntrega) : ScreenModel {
+class EnderecoScreenModel(
+    private val modoInicial: TipoEntrega,
+    private val orderRepository: CustomerOrderRepository = OrderRuntime.repository,
+) : ScreenModel {
 
     private val _state = MutableStateFlow(EnderecoUiState(modo = modoInicial))
     val state: StateFlow<EnderecoUiState> = _state.asStateFlow()
 
-    private val _podeAvancar = MutableStateFlow(false)
-    val podeAvancar: StateFlow<Boolean> = _podeAvancar.asStateFlow()
+    private var idempotencyKey: String? = null
 
-    fun avancarConsumido() { _podeAvancar.value = false }
+    fun pedidoCriadoConsumido() {
+        _state.update { it.copy(pedidoCriadoId = null) }
+    }
+
+    fun sessaoExpiradaConsumida() {
+        _state.update { it.copy(sessaoExpirada = false) }
+    }
 
     init {
         screenModelScope.launch {
@@ -171,19 +189,26 @@ class EnderecoScreenModel(private val modoInicial: TipoEntrega) : ScreenModel {
     fun onEvent(event: EnderecoUiEvent) {
         when (event) {
             is EnderecoUiEvent.ModoAlterado ->
-                _state.update { it.copy(modo = event.modo, erroPonto = null, erroEndereco = null) }
+                updateCheckoutInput { it.copy(modo = event.modo, erroPonto = null, erroEndereco = null) }
             is EnderecoUiEvent.CidadeAlterada ->
-                _state.update { it.copy(endereco = it.endereco.copy(cidade = event.valor)) }
+                updateCheckoutInput { it.copy(endereco = it.endereco.copy(cidade = event.valor)) }
             is EnderecoUiEvent.BairroAlterado ->
-                _state.update { it.copy(endereco = it.endereco.copy(bairro = event.valor)) }
+                updateCheckoutInput { it.copy(endereco = it.endereco.copy(bairro = event.valor)) }
             is EnderecoUiEvent.RuaAlterada ->
-                _state.update { it.copy(endereco = it.endereco.copy(rua = event.valor)) }
+                updateCheckoutInput { it.copy(endereco = it.endereco.copy(rua = event.valor)) }
             is EnderecoUiEvent.ReferenciaAlterada ->
-                _state.update { it.copy(endereco = it.endereco.copy(referencia = event.valor)) }
+                updateCheckoutInput { it.copy(endereco = it.endereco.copy(referencia = event.valor)) }
             is EnderecoUiEvent.PontoSeleccionado ->
-                _state.update { it.copy(pontoSeleccionado = event.ponto, erroPonto = null) }
+                updateCheckoutInput { it.copy(pontoSeleccionado = event.ponto, erroPonto = null) }
             is EnderecoUiEvent.ContinuarClicado -> validarEAvancar()
+            EnderecoUiEvent.ContinuarModoDemoClicado -> criarPedidoDemo()
         }
+    }
+
+    private fun updateCheckoutInput(transform: (EnderecoUiState) -> EnderecoUiState) {
+        if (_state.value.criandoPedido) return
+        idempotencyKey = null
+        _state.update { transform(it).copy(erroPedido = null, fallbackMockDisponivel = false) }
     }
 
     private fun validarEAvancar() {
@@ -198,7 +223,7 @@ class EnderecoScreenModel(private val modoInicial: TipoEntrega) : ScreenModel {
                         enderecoEntrega = s.endereco,
                         pontoLevantamento = null,
                     )
-                    _podeAvancar.value = true
+                    criarPedido()
                 }
             }
             TipoEntrega.Levantamento -> {
@@ -210,7 +235,52 @@ class EnderecoScreenModel(private val modoInicial: TipoEntrega) : ScreenModel {
                         enderecoEntrega = null,
                         pontoLevantamento = s.pontoSeleccionado,
                     )
-                    _podeAvancar.value = true
+                    criarPedido()
+                }
+            }
+        }
+    }
+
+    private fun criarPedido() {
+        if (_state.value.criandoPedido) return
+        val key = idempotencyKey ?: generateOrderIdempotencyKey().also { idempotencyKey = it }
+        screenModelScope.launch {
+            _state.update { it.copy(criandoPedido = true, erroPedido = null) }
+            when (val result = orderRepository.createCurrentCheckout(key)) {
+                is CreateCustomerOrderResult.Success -> _state.update {
+                    it.copy(
+                        criandoPedido = false,
+                        pedidoCriadoId = result.order.id,
+                        contadorCarrinho = MockOrderStore.cartItemCount,
+                    )
+                }
+                is CreateCustomerOrderResult.Failure -> _state.update {
+                    it.copy(
+                        criandoPedido = false,
+                        erroPedido = result.message,
+                        sessaoExpirada = result.sessionExpired,
+                        fallbackMockDisponivel = result.canUseMockFallback,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun criarPedidoDemo() {
+        if (_state.value.criandoPedido || !_state.value.fallbackMockDisponivel) return
+        screenModelScope.launch {
+            _state.update { it.copy(criandoPedido = true, erroPedido = null) }
+            when (val result = orderRepository.createMockCheckout()) {
+                is CreateCustomerOrderResult.Success -> _state.update {
+                    it.copy(
+                        criandoPedido = false,
+                        pedidoCriadoId = result.order.id,
+                        contadorCarrinho = MockOrderStore.cartItemCount,
+                        fallbackMockDisponivel = false,
+                    )
+                }
+                is CreateCustomerOrderResult.Failure -> _state.update {
+                    it.copy(criandoPedido = false, erroPedido = result.message)
                 }
             }
         }
@@ -237,7 +307,10 @@ sealed class PagamentoUiEvent {
     data object EnviarComprovativoClicado : PagamentoUiEvent()
 }
 
-class PagamentoScreenModel : ScreenModel {
+class PagamentoScreenModel(
+    private val orderId: String? = null,
+    private val orderRepository: CustomerOrderRepository = OrderRuntime.repository,
+) : ScreenModel {
 
     private val _state = MutableStateFlow(PagamentoUiState())
     val state: StateFlow<PagamentoUiState> = _state.asStateFlow()
@@ -249,12 +322,14 @@ class PagamentoScreenModel : ScreenModel {
 
     init {
         screenModelScope.launch {
+            val backendOrder = orderId?.let(orderRepository::cachedOrder)
             _state.update {
                 it.copy(
                     numeroMpesa = MockData.numeroMpesa,
                     titularMpesa = MockData.titularMpesa,
-                    totalPedidoMt = MockOrderStore.cartItems.sumOf { it.precoUnitarioMt * it.quantidade } +
-                        if (MockOrderStore.cartItems.isEmpty()) 0 else MockData.taxaEntregaMt,
+                    totalPedidoMt = backendOrder?.total
+                        ?: MockOrderStore.cartItems.sumOf { item -> item.precoUnitarioMt * item.quantidade } +
+                            if (MockOrderStore.cartItems.isEmpty()) 0 else MockData.taxaEntregaMt,
                     contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }
@@ -272,10 +347,12 @@ class PagamentoScreenModel : ScreenModel {
                 { /* Step 5: Clipboard expect/actual */ }
             is PagamentoUiEvent.EnviarComprovativoClicado -> {
                 if (_state.value.podeEnviar && _state.value.numeroPedidoCriado == null) {
-                    val order = MockOrderStore.createOrder(comprovativo = _state.value.nomeFicheiroCarregado)
+                    val completedOrderId = orderId ?: MockOrderStore
+                        .createOrder(comprovativo = _state.value.nomeFicheiroCarregado)
+                        .id
                     _state.update {
                         it.copy(
-                            numeroPedidoCriado = order.numero,
+                            numeroPedidoCriado = completedOrderId,
                             contadorCarrinho = MockOrderStore.cartItemCount,
                         )
                     }

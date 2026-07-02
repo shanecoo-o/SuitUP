@@ -36,6 +36,9 @@ import com.suitup.app.domain.model.SuitModel
 import com.suitup.app.domain.model.Tecido
 import com.suitup.app.domain.model.TipoEntrega
 import com.suitup.app.domain.model.Utilizador
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.math.roundToInt
 
 fun UserDto.toDomain(): Utilizador = Utilizador(
@@ -65,6 +68,8 @@ fun SuitModelDto.toDomain(): SuitModel = SuitModel(
     fabricType = fabricType,
     color = color,
     available = active,
+    currency = currency,
+    primaryImageFileId = primaryImageFileId,
 )
 
 fun PaymentDto.toDomain(): PaymentRecord = PaymentRecord(
@@ -171,11 +176,30 @@ private fun OrderItemDto.toDomain(): DesignFato = DesignFato(
     id = id,
     idModeloBase = suitModelId.orEmpty(),
     nome = suitName,
-    partes = PartesFato(),
+    partes = designSnapshot.toPartesFato(),
     tecido = Tecido(id = fabric.lowercase().replace(' ', '_'), nome = fabric, hexAmostra = "#2B2B2B"),
     cor = CorFato(id = color.lowercase().replace(' ', '_'), nome = color, hex = "#1C1C1C"),
     preco = unitPrice.roundToInt(),
 )
+
+private fun kotlinx.serialization.json.JsonElement.toPartesFato(): PartesFato {
+    val snapshot = this as? JsonObject ?: return PartesFato()
+    val defaults = PartesFato()
+    fun value(key: String): String? = snapshot[key]?.jsonPrimitive?.contentOrNull
+    return PartesFato(
+        gola = enumValueOrDefault(value("collar"), defaults.gola),
+        lapela = enumValueOrDefault(value("lapel"), defaults.lapela),
+        bolso = enumValueOrDefault(value("pocket"), defaults.bolso),
+        botoes = enumValueOrDefault(value("buttons"), defaults.botoes),
+        mangas = enumValueOrDefault(value("sleeves"), defaults.mangas),
+        forro = enumValueOrDefault(value("lining"), defaults.forro),
+        costas = enumValueOrDefault(value("back"), defaults.costas),
+        ajusteLargura = value("widthAdjustment")?.toFloatOrNull() ?: defaults.ajusteLargura,
+    )
+}
+
+private inline fun <reified T : Enum<T>> enumValueOrDefault(value: String?, default: T): T =
+    enumValues<T>().firstOrNull { it.name == value } ?: default
 
 private fun MeasurementDto.toDomain(): Medidas = Medidas(
     alturaCm = heightCm.toFormValue(),
