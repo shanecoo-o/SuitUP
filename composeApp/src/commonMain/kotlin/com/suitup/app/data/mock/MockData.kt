@@ -24,14 +24,8 @@ object MockData {
         )
     )
 
-    val modelosFato = listOf(
-        ModeloFato("m1", "Clássico Preto", CategoriaFato.Classico, 3450, "https://picsum.photos/seed/suit1/400/600"),
-        ModeloFato("m2", "Slim Azul Marinho", CategoriaFato.CorteSlim, 3450, "https://picsum.photos/seed/suit2/400/600"),
-        ModeloFato("m3", "Cinza Grafite", CategoriaFato.Classico, 3650, "https://picsum.photos/seed/suit3/400/600"),
-        ModeloFato("m4", "Azul Escuro", CategoriaFato.Executivo, 4200, "https://picsum.photos/seed/suit4/400/600"),
-        ModeloFato("m5", "Preto Executivo", CategoriaFato.Executivo, 4500, "https://picsum.photos/seed/suit5/400/600"),
-        ModeloFato("m6", "Slim Antracite", CategoriaFato.CorteSlim, 3550, "https://picsum.photos/seed/suit6/400/600"),
-    )
+    val modelosFato: List<ModeloFato>
+        get() = MockCatalogStore.getActiveModeloFatos()
 
     val tecidos = listOf(
         Tecido("f1", "Lã Premium", "#1F2A44"),
@@ -75,7 +69,7 @@ object MockData {
             tipoEntrega = TipoEntrega.Entrega,
             enderecoEntrega = EnderecoEntrega("Maputo", "Polana", "Av. Julius Nyerere, 123", "Próximo ao Shopping Polana"),
             pontoLevantamento = null,
-            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda"),
+            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda", PaymentStatus.CONFIRMED),
             estado = EstadoPedido.EmProducao,
             linhaTempo = orderTimelineFor(EstadoPedido.EmProducao),
             criadoEm = "20/05/2024", actualizadoEm = "20/05/2024 10:30"
@@ -87,7 +81,7 @@ object MockData {
             tipoEntrega = TipoEntrega.Entrega,
             enderecoEntrega = EnderecoEntrega("Maputo", "Sommerschield", "Rua dos Lírios, 45", null),
             pontoLevantamento = null,
-            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda"),
+            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda", PaymentStatus.PENDING),
             estado = EstadoPedido.AguardandoPagamento,
             linhaTempo = orderTimelineFor(EstadoPedido.AguardandoPagamento),
             criadoEm = "18/05/2024", actualizadoEm = "18/05/2024 14:12"
@@ -99,7 +93,7 @@ object MockData {
             tipoEntrega = TipoEntrega.Levantamento,
             enderecoEntrega = null,
             pontoLevantamento = PontoLevantamento("p1", "Loja Polana", "Av. 24 de Julho, 1234"),
-            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda"),
+            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda", PaymentStatus.CONFIRMED),
             estado = EstadoPedido.Entregue,
             linhaTempo = orderTimelineFor(EstadoPedido.Entregue),
             criadoEm = "10/05/2024", actualizadoEm = "15/05/2024 16:45"
@@ -116,7 +110,7 @@ object MockData {
         tipoEntrega = TipoEntrega.Entrega,
         enderecoEntrega = EnderecoEntrega("Maputo", "Polana", "Av. Julius Nyerere, 123", "Próximo ao Shopping Polana"),
         pontoLevantamento = null,
-        pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda"),
+            pagamento = InfoPagamento(MetodoPagamento.MpesaManual, null, "84 123 4567", "SuitUP Lda", PaymentStatus.PENDING),
         estado = EstadoPedido.AguardandoPagamento,
         linhaTempo = orderTimelineFor(EstadoPedido.AguardandoPagamento),
         criadoEm = "20/05/2024", actualizadoEm = "20/05/2024 10:30"

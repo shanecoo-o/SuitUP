@@ -14,6 +14,7 @@ import com.suitup.app.ui.components.SuitStatusKind
 fun EstadoPedido.toBadgeKind(): SuitStatusKind = when (this) {
     EstadoPedido.AguardandoPagamento -> SuitStatusKind.Pendente
     EstadoPedido.PagamentoValidado -> SuitStatusKind.Info
+    EstadoPedido.PagamentoRejeitado -> SuitStatusKind.Error
     EstadoPedido.EmProducao -> SuitStatusKind.Info
     EstadoPedido.ProntoParaEntrega -> SuitStatusKind.Info
     EstadoPedido.Entregue -> SuitStatusKind.Success
@@ -25,7 +26,8 @@ fun EstadoPedido.toBadgeKind(): SuitStatusKind = when (this) {
  */
 fun EstadoPedido.shortLabel(): String = when (this) {
     EstadoPedido.AguardandoPagamento -> "Pagamento pendente"
-    EstadoPedido.PagamentoValidado -> "Pagamento validado"
+    EstadoPedido.PagamentoValidado -> "Pagamento confirmado"
+    EstadoPedido.PagamentoRejeitado -> "Pagamento rejeitado"
     EstadoPedido.EmProducao -> "Em produção"
     EstadoPedido.ProntoParaEntrega -> "Pronto para entrega"
     EstadoPedido.Entregue -> "Entregue"

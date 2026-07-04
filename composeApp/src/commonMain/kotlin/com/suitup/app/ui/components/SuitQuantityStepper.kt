@@ -46,6 +46,7 @@ fun SuitQuantityStepper(
         modifier = modifier
             .clip(SuitTheme.shapes.input)
             .border(1.dp, SuitColors.Mist, SuitTheme.shapes.input)
+            .background(SuitColors.SurfaceLow)
             .height(36.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -55,7 +56,7 @@ fun SuitQuantityStepper(
             onClick = { if (canDecrement) onQuantityChange(quantidade - 1) },
         ) {
             MinusIcon(
-                tint = if (canDecrement) SuitColors.Ink else SuitColors.Smoke,
+                tint = if (canDecrement) SuitColors.Gold else SuitColors.Smoke,
                 size = 14.dp,
             )
         }
@@ -78,7 +79,7 @@ fun SuitQuantityStepper(
             onClick = { if (canIncrement) onQuantityChange(quantidade + 1) },
         ) {
             PlusIcon(
-                tint = if (canIncrement) SuitColors.Ink else SuitColors.Smoke,
+                tint = if (canIncrement) SuitColors.Gold else SuitColors.Smoke,
                 size = 14.dp,
             )
         }
@@ -95,7 +96,7 @@ private fun StepperButton(
         modifier = Modifier
             .size(36.dp)
             .clickable(enabled = enabled, onClick = onClick)
-            .background(SuitColors.SurfaceWhite),
+            .background(SuitColors.SurfaceLow),
         contentAlignment = Alignment.Center,
     ) {
         content()

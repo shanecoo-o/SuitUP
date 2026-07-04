@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SuitUP - Model Catalog</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration (Design System) -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#d0c5af",
+                    "on-secondary": "#472a06",
+                    "on-primary-fixed-variant": "#574500",
+                    "secondary": "#eebd8e",
+                    "on-tertiary": "#313030",
+                    "on-surface": "#e5e2e1",
+                    "surface-container-high": "#2a2a2a",
+                    "on-tertiary-container": "#454544",
+                    "on-secondary-container": "#dfaf81",
+                    "surface-container-low": "#1c1b1b",
+                    "primary-container": "#d4af37",
+                    "surface": "#131313",
+                    "secondary-container": "#64421d",
+                    "tertiary-container": "#b4b2b2",
+                    "on-tertiary-fixed-variant": "#474746",
+                    "surface-container-lowest": "#0e0e0e",
+                    "secondary-fixed": "#ffdcbd",
+                    "primary-fixed": "#ffe088",
+                    "error-container": "#93000a",
+                    "on-background": "#e5e2e1",
+                    "outline-variant": "#4d4635",
+                    "primary-fixed-dim": "#e9c349",
+                    "on-secondary-fixed": "#2c1600",
+                    "surface-bright": "#393939",
+                    "surface-dim": "#131313",
+                    "on-primary": "#3c2f00",
+                    "error": "#ffb4ab",
+                    "surface-container-highest": "#353534",
+                    "outline": "#99907c",
+                    "background": "#131313",
+                    "secondary-fixed-dim": "#eebd8e",
+                    "on-primary-container": "#554300",
+                    "inverse-on-surface": "#313030",
+                    "tertiary": "#d0cdcd",
+                    "inverse-surface": "#e5e2e1",
+                    "tertiary-fixed": "#e5e2e1",
+                    "surface-container": "#201f1f",
+                    "on-tertiary-fixed": "#1c1b1b",
+                    "on-secondary-fixed-variant": "#61401b",
+                    "tertiary-fixed-dim": "#c8c6c5",
+                    "on-error-container": "#ffdad6",
+                    "primary": "#f2ca50",
+                    "on-primary-fixed": "#241a00",
+                    "surface-tint": "#e9c349",
+                    "on-error": "#690005",
+                    "surface-variant": "#353534",
+                    "inverse-primary": "#735c00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "48px",
+                    "lg": "32px",
+                    "sm": "16px",
+                    "margin-desktop": "64px",
+                    "xs": "8px",
+                    "md": "24px",
+                    "gutter": "16px",
+                    "margin-mobile": "20px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Playfair Display"],
+                    "headline-md": ["Playfair Display"],
+                    "label-sm": ["Hanken Grotesk"],
+                    "body-md": ["Hanken Grotesk"],
+                    "label-lg": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "headline-lg": ["Playfair Display"],
+                    "body-lg": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom scrollbar hiding and utilities */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Subtle Fade In Animation */
+        @keyframes subtleFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: subtleFadeIn 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen pb-24 selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar Shared Component -->
+<header class="bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 fixed top-0 w-full z-50 flex items-center justify-between px-margin-mobile h-16">
+<button class="text-primary hover:text-primary-fixed-dim transition-colors scale-95 active:opacity-80 flex items-center justify-center w-10 h-10">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<h1 class="font-display-lg text-display-lg tracking-widest text-primary uppercase text-[20px] leading-none">
+            BESPOKE ATELIER
+        </h1>
+<button class="text-primary hover:text-primary-fixed-dim transition-colors scale-95 active:opacity-80 flex items-center justify-center w-10 h-10 overflow-hidden rounded-full border border-outline-variant/20">
+<!-- Simulated Avatar Placeholder -->
+<div class="w-full h-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+</div>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20 px-margin-mobile flex flex-col gap-lg max-w-md mx-auto md:max-w-4xl md:px-margin-desktop">
+<!-- Search Section -->
+<section class="flex flex-col gap-sm">
+<div class="relative bg-surface-container-high rounded-t-DEFAULT border-b border-outline-variant focus-within:border-primary transition-colors flex items-center px-4 py-3">
+<span class="material-symbols-outlined text-on-surface-variant mr-3">search</span>
+<input class="bg-transparent border-none outline-none text-on-surface font-body-md w-full placeholder:text-on-surface-variant/50 focus:ring-0" placeholder="Search models, fabrics, styles..." type="text"/>
+</div>
+<!-- Filter Chips (Horizontal Scroll) -->
+<div class="flex gap-3 overflow-x-auto hide-scrollbar py-2">
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-primary bg-primary/5 text-primary font-label-lg transition-colors">
+                    Slim Fit
+                </button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-outline-variant/50 bg-surface-container text-on-surface-variant font-label-lg hover:border-primary/50 transition-colors">
+                    Classic
+                </button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-outline-variant/50 bg-surface-container text-on-surface-variant font-label-lg hover:border-primary/50 transition-colors">
+                    Wedding
+                </button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-outline-variant/50 bg-surface-container text-on-surface-variant font-label-lg hover:border-primary/50 transition-colors">
+                    Casual
+                </button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-outline-variant/50 bg-surface-container text-on-surface-variant font-label-lg hover:border-primary/50 transition-colors">
+                    Tuxedo
+                </button>
+</div>
+</section>
+<!-- Catalog Grid (Asymmetric layout) -->
+<section class="grid grid-cols-2 gap-4">
+<!-- Featured Full-Width Card (Spans 2 columns) -->
+<div class="col-span-2 group cursor-pointer animate-fade-in">
+<div class="bg-surface-container-low rounded-lg border border-outline-variant/20 overflow-hidden relative">
+<div class="aspect-[16/9] bg-surface-container relative">
+<img alt="SuitUP Model Catalog Reference" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AP1WRLsI-OGFH_wG0OIR2foz6fhPk-SHzxMLSIfaUfvMMu5h95oItfYMwKNmuswrf-q9hLpzYusRdlshxLjOIOZvG0B_g5f0pn42QmBmWGRyo8HbT1Z6zD19jUbqoFookdcUonlGdXKUGZGXT6eSf4V5rFwYMGfuE4560GuUUyKRWe8vgpSUNE_m-Ve4MjYWL1awwXMtlwsjHh-3gz-dEMg8fbjAio9oik_1coIlOZiTaajlC86roKxEPflg2LjV"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-md flex flex-col gap-1 w-full">
+<span class="font-label-sm text-primary uppercase tracking-widest">Featured Collection</span>
+<div class="flex justify-between items-end">
+<h2 class="font-headline-md text-on-surface">The Monaco Silhouette</h2>
+<p class="font-body-md text-on-surface-variant">From $1,850</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Grid Card 1 -->
+<div class="group cursor-pointer animate-fade-in delay-100 flex flex-col gap-xs">
+<div class="bg-surface-container-low rounded-lg border border-outline-variant/20 overflow-hidden relative aspect-[3/4]">
+<img alt="Savile Row Classic" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A striking digital installation art piece featuring a sharply tailored grey herringbone suit jacket on a modern, dark minimalist bust. The room is illuminated by highly focused, soft white lighting that creates a moody, high-end atelier aesthetic. The visual style relies on a sophisticated palette of deep blacks, charcoal greys, and pristine whites. The mood is serene, exclusive, and emphasizes the textured weave of the premium fabric." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCofZoGPHU_qdTY4_9Zh8MHrM86WPXOfiwTelRKl1Ad_ylvzD2CgeJfuW1urhVAxQr1NNBn3jr9VkkvOXP-_2CO4lGhOyF9eadC4SgK1zcKXUvsVit2nr8zozr3n3NWEncK-r-nm-rV88vsOG4SuAQwugsojJvE4VTQFdF9VW4RBUo2tfQpMHBegBpkPua8gkxT7531UF2nSiK-eC_9Hox_12dJCpmm59mtywRqgI7MynpAFt_-5j8sHxw4KI3cMwjMFHzhqPKf8yqy"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+</div>
+<div class="pt-2 px-1 flex flex-col">
+<h3 class="font-label-lg text-on-surface">Savile Row Classic</h3>
+<p class="font-label-sm text-on-surface-variant mt-0.5">From $1,200</p>
+</div>
+</div>
+<!-- Grid Card 2 -->
+<div class="group cursor-pointer animate-fade-in delay-200 flex flex-col gap-xs">
+<div class="bg-surface-container-low rounded-lg border border-outline-variant/20 overflow-hidden relative aspect-[3/4]">
+<img alt="Tuscan Linen" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A sophisticated close-up photograph of an unstructured beige linen suit jacket draped elegantly over a wooden hanger against a dark espresso-colored background. Soft, diffuse natural light highlights the natural wrinkles and organic texture of the lightweight summer fabric. The overall mood conveys relaxed, quiet luxury and effortless modern tailoring. The aesthetic uses warm earth tones contrasting with deep, rich shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP7O0SAAnIQY1tQ6cyMD2nDM4tb3-z9ZdXNY9J_ib9h32anf0HkAIn4YJVVBdWMd2CdxrT7Tu1_1Y7hn70NIIz6hgMzulHSWBKPK4EQ3WtXOEIvxQ309NrN-xH2i9-iDo328jjsvQY1DQzAW-HlT1SYa86o953GwUsjPaKDDFjDEcI03q4KXUPRhDGBLT7hzAUO2z1kbSicuJegod1EiGkUOiZ6fbOya74wBGWMCI1FBWoM7dZzFwXQuvZW77nPxlygZrff3run8hT"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+</div>
+<div class="pt-2 px-1 flex flex-col">
+<h3 class="font-label-lg text-on-surface">Tuscan Linen</h3>
+<p class="font-label-sm text-on-surface-variant mt-0.5">From $950</p>
+</div>
+</div>
+<!-- Grid Card 3 -->
+<div class="group cursor-pointer animate-fade-in delay-300 flex flex-col gap-xs">
+<div class="bg-surface-container-low rounded-lg border border-outline-variant/20 overflow-hidden relative aspect-[3/4]">
+<img alt="Executive Wool" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A highly stylized, dark and moody editorial shot of a pristine navy blue business suit with a crisp white shirt and subtle patterned tie. The suit is positioned against a nearly black background, illuminated by a sharp, dramatic spotlight that catches the subtle sheen of the worsted wool. The atmosphere is powerful, corporate, and highly exclusive, emphasizing sharp lines and flawless tailoring." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8v4K1kohZeufwCxRwlxg_npWGA2DJ_HQsNqA3FDlw5uNGE5K_zJAuVe_q1uJsSkBMObGAzPzmVP0N1F7c-d7fd6zCE3AFLyINwj1ESZjtNRuuqA1XEeLHh97wDVRc5860NITwCg1oyJLRGORj38GIt03Y_6Gbtxx2o7UzJoyPkNh5XQV69_ZkHixbN_LRY45iP6c5FPLp7-TreB4naAqW61X9z5Y0-bgGY34VUtWfPx5EsZJBzYDqpY9g90-hH2tOu49h0cBJx7gY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+</div>
+<div class="pt-2 px-1 flex flex-col">
+<h3 class="font-label-lg text-on-surface">Executive Wool</h3>
+<p class="font-label-sm text-on-surface-variant mt-0.5">From $1,450</p>
+</div>
+</div>
+<!-- Grid Card 4 -->
+<div class="group cursor-pointer animate-fade-in delay-300 flex flex-col gap-xs">
+<div class="bg-surface-container-low rounded-lg border border-outline-variant/20 overflow-hidden relative aspect-[3/4]">
+<div class="w-full h-full bg-surface-container flex items-center justify-center border border-outline-variant/10">
+<span class="material-symbols-outlined text-outline-variant text-[48px] font-extralight">add</span>
+</div>
+</div>
+<div class="pt-2 px-1 flex flex-col">
+<h3 class="font-label-lg text-primary">Custom Design</h3>
+<p class="font-label-sm text-on-surface-variant mt-0.5">Start from scratch</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Shared Component -->
+<nav class="bg-surface/90 backdrop-blur-2xl border-t border-outline-variant/20 shadow-[0_-4px_24px_rgba(212,175,55,0.05)] fixed bottom-0 w-full z-50 flex justify-around items-center h-20 pb-safe px-4 md:hidden">
+<!-- Active Tab: Catalog -->
+<button class="flex flex-col items-center justify-center text-primary font-bold gap-1 w-16 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">straighten</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Catalog</span>
+</button>
+<!-- Inactive Tab: Measurements -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant gap-1 w-16 hover:text-primary transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">architecture</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Measurements</span>
+</button>
+<!-- Inactive Tab: Orders -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant gap-1 w-16 hover:text-primary transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">shopping_bag</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Orders</span>
+</button>
+<!-- Inactive Tab: Profile -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant gap-1 w-16 hover:text-primary transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Profile</span>
+</button>
+</nav>
+</body></html>

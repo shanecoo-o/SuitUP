@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#e5e2e1",
+                    "on-error": "#690005",
+                    "on-secondary": "#472a06",
+                    "on-error-container": "#ffdad6",
+                    "primary": "#f2ca50",
+                    "tertiary-fixed-dim": "#c8c6c5",
+                    "surface-bright": "#393939",
+                    "on-secondary-container": "#dfaf81",
+                    "secondary-container": "#64421d",
+                    "tertiary": "#d0cdcd",
+                    "error-container": "#93000a",
+                    "primary-fixed": "#ffe088",
+                    "background": "#131313",
+                    "on-surface": "#e5e2e1",
+                    "on-tertiary-container": "#454544",
+                    "inverse-surface": "#e5e2e1",
+                    "outline-variant": "#4d4635",
+                    "surface-dim": "#131313",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-container-low": "#1c1b1b",
+                    "secondary-fixed-dim": "#eebd8e",
+                    "on-surface-variant": "#d0c5af",
+                    "secondary-fixed": "#ffdcbd",
+                    "on-secondary-fixed": "#2c1600",
+                    "on-primary-container": "#554300",
+                    "on-secondary-fixed-variant": "#61401b",
+                    "surface-container-high": "#2a2a2a",
+                    "on-primary": "#3c2f00",
+                    "primary-container": "#d4af37",
+                    "outline": "#99907c",
+                    "surface-tint": "#e9c349",
+                    "on-primary-fixed": "#241a00",
+                    "on-primary-fixed-variant": "#574500",
+                    "surface-variant": "#353534",
+                    "surface-container-highest": "#353534",
+                    "error": "#ffb4ab",
+                    "primary-fixed-dim": "#e9c349",
+                    "on-background": "#e5e2e1",
+                    "inverse-primary": "#735c00",
+                    "on-tertiary": "#313030",
+                    "secondary": "#eebd8e",
+                    "inverse-on-surface": "#313030",
+                    "tertiary-container": "#b4b2b2",
+                    "surface": "#131313",
+                    "on-tertiary-fixed": "#1c1b1b",
+                    "on-tertiary-fixed-variant": "#474746",
+                    "surface-container": "#201f1f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "16px",
+                    "base": "4px",
+                    "xs": "8px",
+                    "lg": "32px",
+                    "md": "24px",
+                    "margin-desktop": "64px",
+                    "xl": "48px",
+                    "gutter": "16px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Playfair Display"],
+                    "display-lg": ["Playfair Display"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-md": ["Playfair Display"],
+                    "label-lg": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "body-md": ["Hanken Grotesk"],
+                    "label-sm": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-ring {
+            box-shadow: 0 0 0 2px #f2ca50;
+        }
+        .suit-canvas-gradient {
+            background: radial-gradient(circle at center, #2a2a2a 0%, #131313 100%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-hidden h-screen flex flex-col">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-primary/20 flex justify-between items-center px-margin-mobile h-16">
+<button class="active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile uppercase tracking-widest text-primary">SuitUP</h1>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/30">
+<img alt="Perfil" data-alt="A professional close-up portrait of a stylish man in a high-end tailored suit, set against a dark, moody studio background with dramatic rim lighting. The aesthetic is sophisticated and luxurious, mirroring a premium fashion brand's editorial style. The image uses a palette of deep charcoals and warm skin tones, emphasizing exclusivity and high-end craftsmanship." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPlDaMqaLw3sl-ukQf14pyqJGlWwAvPZMLIlGxmUNqd4Xu5jorPoPz-8P1cn3W2G3Ms8x9wZaFwGfy13VMGgo_jAZy_KGJpiGj0fodB7DP7etJfv6WzUShfTv8NsXr97vezorcPUMoHlvthBlecRJiux9EE08P_eStvatRky443BXVhLRL_8FACBXSfNLGKdEZlXVwuHLQmqI7nAZWsINRqwJL4jx4Sftz3HIlVCGOcQTqnTXI_Ss3Zog4Z3VnD-Oi-EAiRN9PWXxV"/>
+</div>
+</header>
+<main class="flex-grow pt-16 flex relative">
+<!-- Side Navigation (Menu Lateral) -->
+<aside class="w-20 md:w-24 bg-surface-container-low border-r border-primary/10 flex flex-col py-lg items-center gap-xl z-20">
+<nav class="flex flex-col gap-lg w-full px-xs">
+<!-- Lapela (Ativo) -->
+<button class="flex flex-col items-center gap-xs group">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/40 group-active:scale-90 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">straighten</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">Lapela</span>
+</button>
+<!-- Botões -->
+<button class="flex flex-col items-center gap-xs group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-all group-active:scale-90">
+<span class="material-symbols-outlined">radio_button_checked</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Botões</span>
+</button>
+<!-- Bolsos -->
+<button class="flex flex-col items-center gap-xs group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-all group-active:scale-90">
+<span class="material-symbols-outlined">layers</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Bolsos</span>
+</button>
+<!-- Gola -->
+<button class="flex flex-col items-center gap-xs group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-all group-active:scale-90">
+<span class="material-symbols-outlined">architecture</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Gola</span>
+</button>
+<!-- Forro -->
+<button class="flex flex-col items-center gap-xs group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-all group-active:scale-90">
+<span class="material-symbols-outlined">texture</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Forro</span>
+</button>
+</nav>
+</aside>
+<!-- Main Workspace (Editor 2D) -->
+<section class="flex-grow flex flex-col suit-canvas-gradient relative">
+<!-- Contextual Options (Lapela Active State) -->
+<div class="absolute top-sm left-sm right-sm z-10">
+<div class="max-w-md mx-auto bg-surface-container-high/80 backdrop-blur-md rounded-2xl border border-primary/20 p-sm flex justify-between items-center shadow-2xl">
+<div class="flex-1 text-center px-xs">
+<button class="flex flex-col items-center gap-xs w-full py-xs rounded-xl bg-primary/20 border border-primary/50">
+<span class="material-symbols-outlined text-primary">bookmark</span>
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-tighter">Notch</span>
+</button>
+</div>
+<div class="flex-1 text-center px-xs">
+<button class="flex flex-col items-center gap-xs w-full py-xs rounded-xl hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">eject</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-tighter">Peak</span>
+</button>
+</div>
+<div class="flex-1 text-center px-xs">
+<button class="flex flex-col items-center gap-xs w-full py-xs rounded-xl hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">circle</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-tighter">Shawl</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Central Technical Illustration -->
+<div class="flex-grow flex items-center justify-center p-lg">
+<div class="relative w-full max-w-lg aspect-[0.7] transition-all duration-700 hover:scale-105">
+<img alt="Suit Illustration" class="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(242,202,80,0.1)]" src="https://lh3.googleusercontent.com/aida/AP1WRLuUqQucyCsa597JZPvAtOo0Hk1q6w3e5oVOR83zOSZiNZFAnsd4kZ43w5CoDsxVXbsyLSOvl5AbGSeUAL2ItzXQMsx_QbAwWpj_P7jeMIuYyLkyJlXOs3cMmXoxQkXG7Jzh4MiQkzPIsqMr3i49KPrJdk6NlgJFRgMnUxLiF13egw_g8Kec4mxPiZ4dZ--dWkNUaLRWnZmgXyDBt4GVhvgc_oCFQNK6sJuqCwSbT9t9xxh25AG_XM0dWnwB"/>
+<!-- Detail Zoom Indicator -->
+<div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-32 h-32 border-2 border-primary border-dashed rounded-full animate-pulse flex items-center justify-center opacity-40">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Fabric Color Selector (Bottom) -->
+<div class="px-margin-mobile pb-32">
+<div class="bg-surface-container-low/60 backdrop-blur-lg rounded-2xl border border-white/5 p-md">
+<h3 class="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-widest mb-sm">Selecione o Tecido</h3>
+<div class="flex gap-md overflow-x-auto pb-xs no-scrollbar">
+<!-- Charcoal -->
+<button class="flex-shrink-0 w-12 h-12 rounded-full bg-[#1e1e1e] border-2 border-primary active-ring ring-offset-4 ring-offset-background transition-all"></button>
+<!-- Navy -->
+<button class="flex-shrink-0 w-12 h-12 rounded-full bg-[#1a2a44] border-2 border-transparent hover:border-white/20 transition-all"></button>
+<!-- Olive -->
+<button class="flex-shrink-0 w-12 h-12 rounded-full bg-[#3d4434] border-2 border-transparent hover:border-white/20 transition-all"></button>
+<!-- Burgundy -->
+<button class="flex-shrink-0 w-12 h-12 rounded-full bg-[#4a1a1a] border-2 border-transparent hover:border-white/20 transition-all"></button>
+<!-- Tan -->
+<button class="flex-shrink-0 w-12 h-12 rounded-full bg-[#b5a68d] border-2 border-transparent hover:border-white/20 transition-all"></button>
+<!-- Patterned -->
+<button class="flex-shrink-0 w-12 h-12 rounded-full bg-[#2a2a2a] border-2 border-transparent hover:border-white/20 overflow-hidden">
+<div class="w-full h-full bg-[radial-gradient(#4d4635_1px,transparent_1px)] [background-size:4px_4px]"></div>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Action Bar -->
+<footer class="fixed bottom-0 w-full z-50 bg-surface/90 backdrop-blur-xl border-t border-primary/20 flex justify-between items-center py-sm px-margin-mobile">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Preço Estimado</span>
+<span class="font-headline-md text-primary">€1.250,00</span>
+</div>
+<button class="bg-primary text-on-primary font-label-lg text-label-lg px-xl py-md rounded-xl shadow-[0_4px_20px_rgba(212,175,55,0.3)] active:scale-95 transition-all uppercase tracking-widest">
+            Continuar
+        </button>
+</footer>
+<!-- Bottom Nav (Standard Shared Component Mapping) -->
+<div class="hidden md:flex fixed bottom-0 left-0 w-full justify-around items-center py-xs px-sm bg-surface/90 backdrop-blur-xl z-[60] border-t border-primary/20">
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="font-label-sm text-label-sm">Pedidos</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary font-bold bg-secondary-container/10 rounded-xl px-3 py-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">straighten</span>
+<span class="font-label-sm text-label-sm">Criar</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Perfil</span>
+</div>
+</div>
+<script>
+        // Micro-interactions for selections
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Haptic feedback simulation
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(5);
+                }
+            });
+        });
+
+        // Color selector interaction
+        const colorCircles = document.querySelectorAll('.rounded-full.w-12');
+        colorCircles.forEach(circle => {
+            circle.addEventListener('click', function() {
+                colorCircles.forEach(c => c.classList.remove('active-ring', 'ring-offset-4', 'ring-offset-background'));
+                this.classList.add('active-ring', 'ring-offset-4', 'ring-offset-background');
+            });
+        });
+    </script>
+</body></html>

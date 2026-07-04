@@ -1,7 +1,7 @@
 package com.suitup.app.ui.screens.editor
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,31 +20,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.suitup.app.domain.model.TipoLapela
 import com.suitup.app.domain.model.PartesFato
-import com.suitup.app.ui.components.SuitButton
-import com.suitup.app.ui.components.SuitButtonSize
+import com.suitup.app.domain.model.TipoLapela
+import com.suitup.app.ui.components.EditorStepIndicator
+import com.suitup.app.ui.components.PremiumCard
+import com.suitup.app.ui.components.PremiumDropdown
+import com.suitup.app.ui.components.PremiumTopBar
+import com.suitup.app.ui.components.PrimaryGoldButton
+import com.suitup.app.ui.components.SecondaryDarkButton
+import com.suitup.app.ui.components.SectionHeader
 import com.suitup.app.ui.components.SuitGarmentMini
 import com.suitup.app.ui.components.SuitSlider
-import com.suitup.app.ui.components.SuitStepIndicator
-import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
+import com.suitup.app.ui.theme.SuitTheme
+import com.suitup.app.ui.util.formatMzn
 
-/**
- * Ecrã 06 — Editor 2D · Partes.
- *
- * Layout split: lista de peças à esquerda, preview do fato à direita.
- * Em baixo: editor da peça selecionada (opções + slider) + botão Próximo.
- *
- * Stateless: recebe estado completo via [partes], [selectedPart], [garmentColor],
- * todas as alterações via callbacks.
- */
 @Composable
 fun Editor2DPartsScreen(
     partes: PartesFato,
     selectedPart: EditorPart,
     garmentColor: Color,
+    modelName: String = "",
+    basePriceMzn: Int = 0,
     cartItemCount: Int = 0,
     onBack: () -> Unit = {},
     onCartClick: () -> Unit = {},
@@ -56,126 +56,129 @@ fun Editor2DPartsScreen(
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(
+        PremiumTopBar(
+            title = "Editor 2D",
             onBack = onBack,
             onCart = onCartClick,
             cartBadgeCount = cartItemCount,
-            centerContent = { SuitStepIndicator(currentStep = 2) },
         )
 
-        // Split: peças (esquerda) + preview (direita)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(start = 20.dp, top = 18.dp, end = 20.dp, bottom = 28.dp),
+            verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
-            PartsList(
-                selected = selectedPart,
-                onSelect = onPartSelect,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(0.32f)
-                    .padding(start = 12.dp, top = 8.dp),
-            )
+            item {
+                SectionHeader(
+                    eyebrow = "PASSO 1 DE 3",
+                    title = "Personalize os detalhes",
+                    description = "Escolha cada acabamento do seu fato.",
+                )
+            }
+            item { EditorStepIndicator(currentStep = 1) }
+            item {
+                ProductPreview(
+                    modelName = modelName,
+                    basePriceMzn = basePriceMzn,
+                    garmentColor = garmentColor,
+                )
+            }
+            item {
+                PremiumCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Personalizar", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+                        PremiumDropdown(
+                            options = EditorPart.all(),
+                            selectedOption = selectedPart,
+                            onSelect = onPartSelect,
+                            optionLabel = { it.label },
+                        )
+                        Text(
+                            if (selectedPart == EditorPart.Lapela) {
+                                "Opções de lapela disponíveis para configuração."
+                            } else {
+                                "Pré-visualização. A edição completa será adicionada no próximo passe."
+                            },
+                            style = SuitTextStyles.bodySmall,
+                            color = SuitColors.Smoke,
+                        )
+                    }
+                }
+            }
+            item {
+                if (selectedPart == EditorPart.Lapela) {
+                    LapelEditor(
+                        selected = partes.lapela,
+                        width = partes.ajusteLargura,
+                        onLapelChange = onLapelChange,
+                        onWidthChange = onWidthChange,
+                    )
+                } else {
+                    FuturePartPanel(selectedPart)
+                }
+            }
+        }
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            PrimaryGoldButton(text = "Continuar para cores", onClick = onNext)
+            SecondaryDarkButton(text = "Voltar ao catálogo", onClick = onBack)
+        }
+    }
+}
 
+@Composable
+private fun ProductPreview(
+    modelName: String,
+    basePriceMzn: Int,
+    garmentColor: Color,
+) {
+    PremiumCard(padding = 0.dp) {
+        Column {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .weight(0.68f)
-                    .padding(end = 16.dp, start = 4.dp),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .height(220.dp)
+                    .background(SuitColors.WarmBlack),
+                contentAlignment = Alignment.Center,
             ) {
                 SuitGarmentMini(
-                    size = 200.dp,
+                    size = 184.dp,
                     garmentColor = garmentColor,
-                    background = Color.Transparent,
-                    showShirt = true,
+                    background = SuitColors.WarmBlack,
                 )
             }
-        }
-
-        // Editor da peça selecionada
-        HorizontalDivider(thickness = 1.dp, color = SuitColors.Mist)
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            when (selectedPart) {
-                EditorPart.Lapela -> LapelEditor(
-                    selected = partes.lapela,
-                    width = partes.ajusteLargura,
-                    onLapelChange = onLapelChange,
-                    onWidthChange = onWidthChange,
-                )
-                else -> PlaceholderEditor(part = selectedPart)
-            }
-
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                SuitButton(
-                    text = "Próximo",
-                    onClick = onNext,
-                    size = SuitButtonSize.Medium,
-                    fullWidth = false,
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(3.dp),
+                ) {
+                    Text(
+                        text = modelName.ifBlank { "Modelo seleccionado" },
+                        style = SuitTextStyles.titleLarge,
+                        color = SuitColors.Pearl,
+                    )
+                    Text(
+                        text = formatMzn(basePriceMzn),
+                        style = SuitTextStyles.bodyMedium,
+                        color = SuitColors.GoldChampagne,
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .background(garmentColor, SuitTheme.shapes.sm)
+                        .border(1.dp, SuitColors.Mist, SuitTheme.shapes.sm),
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun PartsList(
-    selected: EditorPart,
-    onSelect: (EditorPart) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier = modifier) {
-        Text(
-            text = "Peças",
-            style = SuitTextStyles.eyebrow,
-            color = SuitColors.Slate,
-            modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
-        )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(0.dp),
-        ) {
-            EditorPart.all().forEach { part ->
-                PartRow(
-                    part = part,
-                    isSelected = part == selected,
-                    onClick = { onSelect(part) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PartRow(
-    part: EditorPart,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 7.dp)
-    ) {
-        Text(
-            text = part.label,
-            style = if (isSelected) {
-                SuitTextStyles.titleMedium.copy(fontWeight = FontWeight.SemiBold)
-            } else {
-                SuitTextStyles.bodyMedium
-            },
-            color = if (isSelected) SuitColors.Ink else SuitColors.Slate,
-        )
     }
 }
 
@@ -186,72 +189,69 @@ private fun LapelEditor(
     onLapelChange: (TipoLapela) -> Unit,
     onWidthChange: (Float) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(
-            text = "Lapela",
-            style = SuitTextStyles.headlineMedium,
-            color = SuitColors.Ink,
-        )
-
-        // Tipo
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
-                text = "Tipo",
-                style = SuitTextStyles.labelMedium,
-                color = SuitColors.Slate,
-            )
+    PremiumCard {
+        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Lapela", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+                Text(
+                    "Escolha o corte e ajuste a largura.",
+                    style = SuitTextStyles.bodySmall,
+                    color = SuitColors.Smoke,
+                )
+            }
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 TipoLapela.entries.forEach { type ->
-                    LapelPreviewCard(
-                        type = type,
-                        selected = type == selected,
-                        onClick = { onLapelChange(type) },
-                        size = 52.dp,
-                    )
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(7.dp),
+                    ) {
+                        LapelPreviewCard(
+                            type = type,
+                            selected = type == selected,
+                            onClick = { onLapelChange(type) },
+                            size = 64.dp,
+                        )
+                        Text(
+                            text = type.label,
+                            style = SuitTextStyles.labelSmall,
+                            color = if (type == selected) SuitColors.GoldChampagne else SuitColors.Smoke,
+                        )
+                    }
                 }
             }
-        }
-
-        // Largura
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    text = "Largura",
-                    style = SuitTextStyles.labelMedium,
-                    color = SuitColors.Slate,
-                )
-                Text(
-                    text = widthLabel(width),
-                    style = SuitTextStyles.labelMedium,
-                    color = SuitColors.Ink,
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text("Largura", style = SuitTextStyles.labelMedium, color = SuitColors.Slate)
+                    Text(
+                        widthLabel(width),
+                        style = SuitTextStyles.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = SuitColors.GoldChampagne,
+                    )
+                }
+                SuitSlider(value = width, onValueChange = onWidthChange)
             }
-            SuitSlider(
-                value = width,
-                onValueChange = onWidthChange,
-            )
         }
     }
 }
 
 @Composable
-private fun PlaceholderEditor(part: EditorPart) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = part.label,
-            style = SuitTextStyles.headlineMedium,
-            color = SuitColors.Ink,
-        )
-        Text(
-            text = "Opções para \"${part.label}\" disponíveis em breve.",
-            style = SuitTextStyles.bodyMedium,
-            color = SuitColors.Slate,
-        )
+private fun FuturePartPanel(part: EditorPart) {
+    PremiumCard {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(part.label, style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+            Text(
+                "Esta opção está preparada para uma fase posterior. A configuração actual será mantida.",
+                style = SuitTextStyles.bodyMedium,
+                color = SuitColors.Smoke,
+            )
+        }
     }
 }
 

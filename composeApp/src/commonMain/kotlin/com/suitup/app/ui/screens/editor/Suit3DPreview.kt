@@ -172,7 +172,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFrontSilhouette
             lineTo(cx - w * 0.035f * widthFactor, h * 0.78f)
             close()
         }
-        drawPath(tie, SuitColors.Ink)
+        drawPath(tie, SuitColors.Black)
     }
 
     // Calça (parte de baixo, mesma cor da jaqueta)
@@ -219,7 +219,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawProfileSilhouet
         lineTo(cx + profileWidth * 0.5f, h * 0.92f)
         close()
     }
-    drawPath(shadow, SuitColors.Ink.copy(alpha = 0.4f))
+    drawPath(shadow, SuitColors.Black.copy(alpha = 0.4f))
 
     if (showLight) {
         drawPath(body, Color.White.copy(alpha = 0.08f))

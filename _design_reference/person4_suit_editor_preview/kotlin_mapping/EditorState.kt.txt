@@ -1,0 +1,73 @@
+// EditorState.kt — Estado completo do editor
+// Pacote sugerido: com.suitup.editor
+// Usar com StateFlow no EditorViewModel
+
+package com.suitup.editor
+
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
+data class EditorState(
+    val sessionId: String = "",
+    val selectedModel: SuitModel = SuitModel.CLASSIC_SUIT,
+    val currentAngle: PreviewAngle = PreviewAngle.FRONT,
+    val zoomLevel: Float = 1f,
+    val selectedColor: SuitColorOption = SuitColorOption.defaults().first(),
+    val selectedFabric: FabricOption = FabricOption.defaults().first(),
+    val sliders: Map<String, Float> = mapOf(
+        "lapela"      to 50f,
+        "comprimento" to 60f,
+        "ombro"       to 45f
+    ),
+    val layerVisibility: Map<String, Boolean> = emptyMap(),
+    val selectedLayerId: String? = null,
+    val compositionValidated: Boolean = false,
+    val estimatedPrice: Int = 12500
+)
+
+enum class SuitModel(val label: String, val basePrice: Int) {
+    CLASSIC_SUIT("Classic Suit", 12500),
+    SLIM_FIT("Slim Fit", 13500),
+    DOUBLE_BREAST("Double Breast", 15000),
+    TUXEDO("Tuxedo", 18000)
+}
+
+// ViewModel
+class EditorViewModel : ScreenModel {
+    private val _state = MutableStateFlow(EditorState())
+    val state: StateFlow<EditorState> = _state
+
+    fun applyColor(color: SuitColorOption) {
+        _state.update { it.copy(selectedColor = color) }
+    }
+
+    fun applyFabric(fabric: FabricOption) {
+        _state.update { it.copy(selectedFabric = fabric) }
+    }
+
+    fun setSlider(id: String, value: Float) {
+        val updated = _state.value.sliders.toMutableMap().apply { put(id, value) }
+        _state.update { it.copy(sliders = updated) }
+    }
+
+    fun setAngle(angle: PreviewAngle) {
+        _state.update { it.copy(currentAngle = angle) }
+    }
+
+    fun toggleLayerVisibility(layerId: String) {
+        val current = _state.value.layerVisibility.toMutableMap()
+        current[layerId] = !(current[layerId] ?: true)
+        _state.update { it.copy(layerVisibility = current) }
+    }
+
+    fun buildFinalConfiguration(): FinalSuitConfiguration {
+        val s = _state.value
+        return FinalSuitConfiguration(
+            modeloId    = s.selectedModel.name.lowercase(),
+            cor         = s.selectedColor,
+            tecido      = s.selectedFabric,
+            ajustes     = s.sliders,
+            precoTotal  = s.estimatedPrice
+        )
+    }
+}

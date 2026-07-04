@@ -46,7 +46,7 @@ fun SuitStatusBadge(
         SuitStatusKind.Pendente -> SuitColors.PaleAmber to SuitColors.PaleAmberInk
         SuitStatusKind.Error -> SuitColors.PaleRed to SuitColors.PaleRedInk
         SuitStatusKind.Info -> SuitColors.PaleBlue to SuitColors.PaleBlueInk
-        SuitStatusKind.Neutral -> SuitColors.Pearl to SuitColors.Slate
+        SuitStatusKind.Neutral -> SuitColors.SurfaceHigh to SuitColors.Slate
     }
 
     Text(

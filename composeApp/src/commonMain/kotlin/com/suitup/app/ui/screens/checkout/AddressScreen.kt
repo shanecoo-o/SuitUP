@@ -15,13 +15,16 @@ import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.EnderecoEntrega
 import com.suitup.app.domain.model.TipoEntrega
 import com.suitup.app.domain.model.PontoLevantamento
-import com.suitup.app.ui.components.SuitDropdown
+import com.suitup.app.ui.components.CheckoutStepIndicator
+import com.suitup.app.ui.components.PremiumCard
+import com.suitup.app.ui.components.PremiumDropdown
+import com.suitup.app.ui.components.PremiumTextField
+import com.suitup.app.ui.components.PremiumTopBar
+import com.suitup.app.ui.components.SectionHeader
+import com.suitup.app.ui.components.SecondaryDarkButton
 import com.suitup.app.ui.components.SuitDualBottomBar
 import com.suitup.app.ui.components.SuitSegmentedToggle
 import com.suitup.app.ui.components.SuitSelectableCard
-import com.suitup.app.ui.components.SuitStepIndicator
-import com.suitup.app.ui.components.SuitTextField
-import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.icons.PinIcon
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
@@ -44,6 +47,9 @@ fun AddressScreen(
     pontosLevantamento: List<PontoLevantamento>,
     selectedPickupPoint: PontoLevantamento?,
     cartItemCount: Int = 0,
+    isSubmitting: Boolean = false,
+    errorMessage: String? = null,
+    showDemoFallback: Boolean = false,
     onBack: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onModeChange: (TipoEntrega) -> Unit = {},
@@ -53,17 +59,18 @@ fun AddressScreen(
     onReferenceChange: (String) -> Unit = {},
     onPickupPointSelect: (PontoLevantamento) -> Unit = {},
     onContinue: () -> Unit = {},
+    onContinueDemo: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(
+        PremiumTopBar(
+            title = "Checkout",
             onBack = onBack,
             onCart = onCartClick,
             cartBadgeCount = cartItemCount,
-            centerContent = { SuitStepIndicator(currentStep = 3, totalSteps = 5) },
         )
 
         Column(
@@ -73,6 +80,12 @@ fun AddressScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
+            CheckoutStepIndicator(currentStep = 3)
+            SectionHeader(
+                eyebrow = "LOCAL",
+                title = if (mode == TipoEntrega.Entrega) "Endereço de entrega" else "Ponto de levantamento",
+                description = "Confirme onde a encomenda deverá ser entregue.",
+            )
             // Toggle Entregar / Levantar
             SuitSegmentedToggle(
                 options = listOf(TipoEntrega.Entrega, TipoEntrega.Levantamento),
@@ -102,6 +115,30 @@ fun AddressScreen(
                     onSelect = onPickupPointSelect,
                 )
             }
+
+            if (errorMessage != null) {
+                PremiumCard(modifier = Modifier.fillMaxWidth(), padding = 14.dp) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = errorMessage,
+                            style = SuitTextStyles.bodySmall,
+                            color = SuitColors.Error,
+                        )
+                        if (showDemoFallback) {
+                            Text(
+                                "Pode continuar localmente; este pedido ficará marcado como demonstração.",
+                                style = SuitTextStyles.bodySmall,
+                                color = SuitColors.Slate,
+                            )
+                            SecondaryDarkButton(
+                                text = "Continuar em modo demo",
+                                onClick = onContinueDemo,
+                                fullWidth = false,
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         val canContinue = when (mode) {
@@ -110,10 +147,10 @@ fun AddressScreen(
         }
 
         SuitDualBottomBar(
-            primaryText = "Continuar",
+            primaryText = if (isSubmitting) "A criar pedido..." else "Continuar",
             onPrimaryClick = onContinue,
             onSecondaryClick = onBack,
-            primaryEnabled = canContinue,
+            primaryEnabled = canContinue && !isSubmitting,
         )
     }
 }
@@ -143,7 +180,7 @@ private fun DeliveryForm(
                 style = SuitTextStyles.labelMedium,
                 color = SuitColors.Slate,
             )
-            SuitDropdown(
+            PremiumDropdown(
                 options = cities,
                 selectedOption = endereco.cidade.ifBlank { cities.first() },
                 onSelect = onCityChange,
@@ -159,7 +196,7 @@ private fun DeliveryForm(
                 style = SuitTextStyles.labelMedium,
                 color = SuitColors.Slate,
             )
-            SuitDropdown(
+            PremiumDropdown(
                 options = neighborhoods,
                 selectedOption = endereco.bairro.ifBlank { neighborhoods.first() },
                 onSelect = onNeighborhoodChange,
@@ -169,7 +206,7 @@ private fun DeliveryForm(
         }
 
         // Rua / Av.
-        SuitTextField(
+        PremiumTextField(
             value = endereco.rua,
             onValueChange = onStreetChange,
             label = "Rua / Av.",
@@ -177,7 +214,7 @@ private fun DeliveryForm(
         )
 
         // Referência (opcional)
-        SuitTextField(
+        PremiumTextField(
             value = endereco.referencia.orEmpty(),
             onValueChange = onReferenceChange,
             label = "Referência (opcional)",
@@ -201,11 +238,13 @@ private fun PickupForm(
         )
 
         if (points.isEmpty()) {
-            Text(
-                text = "Sem pontos disponíveis na sua área.",
-                style = SuitTextStyles.bodyMedium,
-                color = SuitColors.Slate,
-            )
+            PremiumCard(modifier = Modifier.fillMaxWidth(), padding = 16.dp) {
+                Text(
+                    text = "Sem pontos disponíveis na sua área.",
+                    style = SuitTextStyles.bodyMedium,
+                    color = SuitColors.Slate,
+                )
+            }
         } else {
             points.forEach { point ->
                 SuitSelectableCard(

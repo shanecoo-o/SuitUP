@@ -42,7 +42,7 @@ fun <T> SuitSegmentedToggle(
             .fillMaxWidth()
             .height(44.dp)
             .clip(SuitTheme.shapes.md)
-            .background(SuitColors.SurfaceWhite)
+            .background(SuitColors.SurfaceLow)
             .border(1.dp, SuitColors.Mist, SuitTheme.shapes.md)
             .padding(3.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -50,12 +50,12 @@ fun <T> SuitSegmentedToggle(
         options.forEach { option ->
             val isSelected = option == selectedOption
             val bg by animateColorAsState(
-                targetValue = if (isSelected) SuitColors.Ink else SuitColors.SurfaceWhite,
+                targetValue = if (isSelected) SuitColors.Gold else SuitColors.SurfaceLow,
                 animationSpec = SuitAnim.normal(),
                 label = "seg-bg"
             )
             val fg by animateColorAsState(
-                targetValue = if (isSelected) SuitColors.SurfaceWhite else SuitColors.Slate,
+                targetValue = if (isSelected) SuitColors.GoldInk else SuitColors.Slate,
                 animationSpec = SuitAnim.normal(),
                 label = "seg-fg"
             )

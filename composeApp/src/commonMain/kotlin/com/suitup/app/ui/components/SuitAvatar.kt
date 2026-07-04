@@ -28,8 +28,8 @@ fun SuitAvatar(
     iniciais: String,
     modifier: Modifier = Modifier,
     size: Dp = 44.dp,
-    background: Color = SuitColors.Ink,
-    foreground: Color = SuitColors.SurfaceWhite,
+    background: Color = SuitColors.Gold,
+    foreground: Color = SuitColors.GoldInk,
 ) {
     // Escala da font baseada no tamanho (rule: ~38% do diameter)
     val fontScale = (size.value * 0.38f).sp

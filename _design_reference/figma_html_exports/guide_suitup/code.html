@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Measurement Guide - Bespoke Atelier</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#d0c5af",
+                    "on-secondary": "#472a06",
+                    "on-primary-fixed-variant": "#574500",
+                    "secondary": "#eebd8e",
+                    "on-tertiary": "#313030",
+                    "on-surface": "#e5e2e1",
+                    "surface-container-high": "#2a2a2a",
+                    "on-tertiary-container": "#454544",
+                    "on-secondary-container": "#dfaf81",
+                    "surface-container-low": "#1c1b1b",
+                    "primary-container": "#d4af37",
+                    "surface": "#131313",
+                    "secondary-container": "#64421d",
+                    "tertiary-container": "#b4b2b2",
+                    "on-tertiary-fixed-variant": "#474746",
+                    "surface-container-lowest": "#0e0e0e",
+                    "secondary-fixed": "#ffdcbd",
+                    "primary-fixed": "#ffe088",
+                    "error-container": "#93000a",
+                    "on-background": "#e5e2e1",
+                    "outline-variant": "#4d4635",
+                    "primary-fixed-dim": "#e9c349",
+                    "on-secondary-fixed": "#2c1600",
+                    "surface-bright": "#393939",
+                    "surface-dim": "#131313",
+                    "on-primary": "#3c2f00",
+                    "error": "#ffb4ab",
+                    "surface-container-highest": "#353534",
+                    "outline": "#99907c",
+                    "background": "#131313",
+                    "secondary-fixed-dim": "#eebd8e",
+                    "on-primary-container": "#554300",
+                    "inverse-on-surface": "#313030",
+                    "tertiary": "#d0cdcd",
+                    "inverse-surface": "#e5e2e1",
+                    "tertiary-fixed": "#e5e2e1",
+                    "surface-container": "#201f1f",
+                    "on-tertiary-fixed": "#1c1b1b",
+                    "on-secondary-fixed-variant": "#61401b",
+                    "tertiary-fixed-dim": "#c8c6c5",
+                    "on-error-container": "#ffdad6",
+                    "primary": "#f2ca50",
+                    "on-primary-fixed": "#241a00",
+                    "surface-tint": "#e9c349",
+                    "on-error": "#690005",
+                    "surface-variant": "#353534",
+                    "inverse-primary": "#735c00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "48px",
+                    "lg": "32px",
+                    "sm": "16px",
+                    "margin-desktop": "64px",
+                    "xs": "8px",
+                    "md": "24px",
+                    "gutter": "16px",
+                    "margin-mobile": "20px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "display-lg": [
+                            "Playfair Display"
+                    ],
+                    "headline-md": [
+                            "Playfair Display"
+                    ],
+                    "label-sm": [
+                            "Hanken Grotesk"
+                    ],
+                    "body-md": [
+                            "Hanken Grotesk"
+                    ],
+                    "label-lg": [
+                            "Hanken Grotesk"
+                    ],
+                    "headline-lg-mobile": [
+                            "Playfair Display"
+                    ],
+                    "headline-lg": [
+                            "Playfair Display"
+                    ],
+                    "body-lg": [
+                            "Hanken Grotesk"
+                    ]
+            },
+            "fontSize": {
+                    "display-lg": [
+                            "40px",
+                            {
+                                    "lineHeight": "48px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-lg": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .measurement-line {
+            stroke-dasharray: 4 4;
+            animation: dash 2s linear infinite, pulseOpacity 2s ease-in-out infinite;
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -8;
+            }
+        }
+        @keyframes pulseOpacity {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        /* Carousel Transitions */
+        .carousel-item {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .carousel-item.hidden-left {
+            opacity: 0;
+            transform: translateX(-20px) scale(0.95);
+            pointer-events: none;
+            position: absolute;
+        }
+        .carousel-item.hidden-right {
+            opacity: 0;
+            transform: translateX(20px) scale(0.95);
+            pointer-events: none;
+            position: absolute;
+        }
+        .carousel-item.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            position: relative;
+        }
+
+        /* Ambient Glows */
+        .glow-overlay {
+            background: radial-gradient(circle at 50% 40%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md antialiased overflow-x-hidden pb-32">
+<!-- TopAppBar -->
+<header class="bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 fixed top-0 w-full z-50 flex items-center justify-between px-margin-mobile h-16">
+<button aria-label="Menu" class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors scale-95 active:opacity-80 transition-all flex items-center justify-center w-10 h-10 rounded-full">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-display-lg text-display-lg tracking-widest text-primary uppercase text-center text-xl" style="font-size: 1.25rem; line-height: 1.5rem;">BESPOKE ATELIER</h1>
+<button aria-label="User Profile" class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors scale-95 active:opacity-80 transition-all flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<!-- Simulated Avatar -->
+<span class="material-symbols-outlined text-outline">person</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 px-margin-mobile max-w-md mx-auto md:max-w-4xl relative">
+<!-- Header Context -->
+<div class="mb-lg text-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2">How to Measure</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm mx-auto">Follow these steps to ensure a perfect fit for your bespoke garment.</p>
+</div>
+<!-- 3D Preview Container / Measurement Visual -->
+<div class="relative w-full aspect-[3/4] md:aspect-[16/9] bg-surface-container-low rounded-xl border border-outline-variant/30 overflow-hidden mb-xl shadow-[0_0_40px_rgba(212,175,55,0.03)] flex flex-col justify-end">
+<div class="absolute inset-0 glow-overlay z-0"></div>
+<!-- Reference Image Background -->
+<div class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 mix-blend-luminosity" style="background-image: url('https://lh3.googleusercontent.com/aida/AP1WRLsO4m2G_WK29j5sJlYOtQjvdXgGPUmjwBVmPlgDck4-6_q4S565ujyUEKddbSptbtZwWkPOp9F-xTN8LSMUa7D3SwuDkFLdcEOSNGN6REHdRcFrRxb0btKOsIGNf8esNKk3gfGaoWWHvNOR-_AaDicdFqoX7AiaUPkmkjNVv4NdSMIeLTu0RQ5R2MH_A7msP5NuiPpRq5WpPMxV4fh3kWoA3zfgGa4Q7ZGPLtj8g9ixz7eLmyJwvfhRbA7c');"></div>
+<!-- Stylistic Overlay (SVG for precise pulsing lines over an abstract figure) -->
+<div class="absolute inset-0 z-10 flex items-center justify-center p-8">
+<svg class="w-full h-full max-h-full drop-shadow-lg" preserveaspectratio="xMidYMid meet" viewbox="0 0 200 400">
+<!-- Abstract Torso Silhouette -->
+<path d="M70,50 C70,30 130,30 130,50 C140,80 160,100 160,150 L150,250 C140,300 140,350 140,380 L60,380 C60,350 60,300 50,250 L40,150 C40,100 60,80 70,50 Z" fill="#1E1E1E" stroke="#4D4635" stroke-width="1"></path>
+<!-- Neck Line -->
+<line class="measurement-line" data-step="0" stroke="#D4AF37" stroke-width="2" x1="85" x2="115" y1="65" y2="65"></line>
+<circle class="transition-all duration-300" cx="115" cy="65" data-step="0" fill="#D4AF37" r="3"></circle>
+<text class="opacity-0 transition-opacity duration-300" data-label="0" fill="#D4AF37" font-family="Hanken Grotesk" font-size="10" x="125" y="68">Neck</text>
+<!-- Chest Line -->
+<line class="measurement-line" data-step="1" opacity="0.3" stroke="#D4AF37" stroke-width="2" x1="50" x2="150" y1="120" y2="120"></line>
+<circle class="transition-all duration-300" cx="150" cy="120" data-step="1" fill="#D4AF37" opacity="0.3" r="3"></circle>
+<text class="opacity-0 transition-opacity duration-300" data-label="1" fill="#D4AF37" font-family="Hanken Grotesk" font-size="10" x="160" y="123">Chest</text>
+<!-- Waist Line -->
+<line class="measurement-line" data-step="2" opacity="0.3" stroke="#D4AF37" stroke-width="2" x1="60" x2="140" y1="190" y2="190"></line>
+<circle class="transition-all duration-300" cx="140" cy="190" data-step="2" fill="#D4AF37" opacity="0.3" r="3"></circle>
+<text class="opacity-0 transition-opacity duration-300" data-label="2" fill="#D4AF37" font-family="Hanken Grotesk" font-size="10" x="150" y="193">Waist</text>
+</svg>
+</div>
+<!-- Progress Rail Indicator (In-preview) -->
+<div class="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-3">
+<div class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(212,175,55,0.8)] nav-dot" data-index="0"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-outline-variant nav-dot transition-colors duration-300" data-index="1"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-outline-variant nav-dot transition-colors duration-300" data-index="2"></div>
+</div>
+</div>
+<!-- Instructional Carousel Area -->
+<div class="relative bg-surface-container-high rounded-xl p-6 border border-outline-variant/20 shadow-lg mb-8 overflow-hidden">
+<!-- Carousel Track -->
+<div class="relative w-full min-h-[140px]" id="carousel-track">
+<!-- Step 1: Neck -->
+<div class="carousel-item active w-full flex flex-col items-center text-center" data-step-content="0">
+<div class="flex items-center gap-2 mb-3">
+<span class="w-6 h-6 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-label-lg text-label-lg">1</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">The Neck</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm mb-6">Wrap the tape measure around the base of your neck, leaving room for two fingers to ensure a comfortable collar fit.</p>
+<button class="next-btn w-full md:w-auto px-8 py-3 bg-primary text-on-primary font-label-lg text-label-lg uppercase tracking-wider rounded flex items-center justify-center gap-2 hover:bg-primary-fixed-dim transition-colors">
+                        Next Step <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- Step 2: Chest -->
+<div class="carousel-item hidden-right w-full flex flex-col items-center text-center" data-step-content="1">
+<div class="flex items-center gap-2 mb-3">
+<span class="w-6 h-6 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-label-lg text-label-lg">2</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">The Chest</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm mb-6">Measure around the fullest part of your chest, keeping the tape level under your arms and across your back.</p>
+<div class="flex gap-4 w-full md:w-auto justify-center">
+<button class="prev-btn px-4 py-3 border border-outline text-on-surface font-label-lg text-label-lg uppercase tracking-wider rounded hover:border-primary hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+</button>
+<button class="next-btn flex-1 md:flex-none px-8 py-3 bg-primary text-on-primary font-label-lg text-label-lg uppercase tracking-wider rounded flex items-center justify-center gap-2 hover:bg-primary-fixed-dim transition-colors">
+                            Next Step
+                        </button>
+</div>
+</div>
+<!-- Step 3: Waist -->
+<div class="carousel-item hidden-right w-full flex flex-col items-center text-center" data-step-content="2">
+<div class="flex items-center gap-2 mb-3">
+<span class="w-6 h-6 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-label-lg text-label-lg">3</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">The Waist</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm mb-6">Measure around your natural waistline, roughly at the level of your navel. Do not suck in your stomach.</p>
+<div class="flex gap-4 w-full md:w-auto justify-center">
+<button class="prev-btn px-4 py-3 border border-outline text-on-surface font-label-lg text-label-lg uppercase tracking-wider rounded hover:border-primary hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+</button>
+<button class="finish-btn flex-1 md:flex-none px-8 py-3 bg-primary text-on-primary font-label-lg text-label-lg uppercase tracking-wider rounded flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:bg-primary-fixed-dim transition-all">
+                            Got it <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface/90 backdrop-blur-2xl border-t border-outline-variant/20 fixed bottom-0 w-full z-50 shadow-[0_-4px_24px_rgba(212,175,55,0.05)] flex justify-around items-center h-20 pb-safe px-4 md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant gap-1 hover:text-primary transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined text-[24px]">straighten</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Catalog</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold gap-1 hover:text-primary transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">architecture</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Measurements</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant gap-1 hover:text-primary transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined text-[24px]">shopping_bag</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant gap-1 hover:text-primary transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+<!-- Interactive Logic -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const steps = 3;
+            let currentStep = 0;
+
+            const carouselItems = document.querySelectorAll('.carousel-item');
+            const svgLines = document.querySelectorAll('line[data-step]');
+            const svgCircles = document.querySelectorAll('circle[data-step]');
+            const svgLabels = document.querySelectorAll('text[data-label]');
+            const navDots = document.querySelectorAll('.nav-dot');
+
+            function updateUI(newStep, direction) {
+                // Update Carousel
+                carouselItems[currentStep].classList.remove('active');
+                carouselItems[currentStep].classList.add(direction === 'next' ? 'hidden-left' : 'hidden-right');
+                
+                carouselItems[newStep].classList.remove('hidden-left', 'hidden-right');
+                
+                // Force reflow for transition
+                void carouselItems[newStep].offsetWidth;
+                
+                carouselItems[newStep].classList.add('active');
+
+                // Update SVG Visualization
+                svgLines.forEach((line, index) => {
+                    if (index === newStep) {
+                        line.setAttribute('opacity', '1');
+                        line.classList.add('measurement-line');
+                    } else {
+                        line.setAttribute('opacity', '0.3');
+                        line.classList.remove('measurement-line');
+                    }
+                });
+
+                svgCircles.forEach((circle, index) => {
+                    circle.setAttribute('opacity', index === newStep ? '1' : '0.3');
+                    circle.setAttribute('r', index === newStep ? '4' : '3');
+                });
+
+                svgLabels.forEach((label, index) => {
+                    if (index === newStep) {
+                        label.classList.remove('opacity-0');
+                        label.classList.add('opacity-100');
+                    } else {
+                        label.classList.remove('opacity-100');
+                        label.classList.add('opacity-0');
+                    }
+                });
+
+                // Update Progress Rail
+                navDots.forEach((dot, index) => {
+                    if (index === newStep) {
+                        dot.classList.remove('bg-outline-variant');
+                        dot.classList.add('bg-primary', 'shadow-[0_0_8px_rgba(212,175,55,0.8)]');
+                    } else {
+                        dot.classList.add('bg-outline-variant');
+                        dot.classList.remove('bg-primary', 'shadow-[0_0_8px_rgba(212,175,55,0.8)]');
+                    }
+                });
+
+                currentStep = newStep;
+            }
+
+            // Event Listeners for Buttons
+            document.querySelectorAll('.next-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (currentStep < steps - 1) {
+                        updateUI(currentStep + 1, 'next');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.prev-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (currentStep > 0) {
+                        updateUI(currentStep - 1, 'prev');
+                    }
+                });
+            });
+            
+            // Initialization for labels
+            svgLabels[0].classList.remove('opacity-0');
+            svgLabels[0].classList.add('opacity-100');
+        });
+    </script>
+</body></html>

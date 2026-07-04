@@ -1,0 +1,37 @@
+-- Este ficheiro define o esquema SQLite gerado nativamente pelo compilador do SQLDelight
+-- para fazer persistência transparente offline em Android e iOS.
+
+CREATE TABLE SuitOrderEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    model TEXT NOT NULL,
+    lapel TEXT NOT NULL,
+    fabricColor TEXT NOT NULL,
+    liningPattern TEXT NOT NULL,
+    fitType TEXT NOT NULL,
+    shoulders REAL NOT NULL,
+    chest REAL NOT NULL,
+    sleeves REAL NOT NULL,
+    waist REAL NOT NULL,
+    mpesaTransactionId TEXT NOT NULL,
+    status TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    syncPending INTEGER NOT NULL DEFAULT 0 -- 0 para falso, 1 para verdadeiro (SQLite não tem booleano nativo)
+);
+
+-- Queries autocriadas em KMP pelo compilador
+selectAllOrders:
+SELECT * FROM SuitOrderEntity ORDER BY timestamp DESC;
+
+insertOrder:
+INSERT OR REPLACE INTO SuitOrderEntity(
+    id, model, lapel, fabricColor, liningPattern, fitType, shoulders, chest, sleeves, waist, mpesaTransactionId, status, timestamp, syncPending
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+selectPendingOrders:
+SELECT * FROM SuitOrderEntity WHERE syncPending = 1;
+
+markAsSynced:
+UPDATE SuitOrderEntity SET syncPending = 0, status = 'Sincronizado' WHERE id = ?;
+
+deleteOrder:
+DELETE FROM SuitOrderEntity WHERE id = ?;

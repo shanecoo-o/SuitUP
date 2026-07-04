@@ -6,26 +6,47 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.core.model.rememberScreenModel
+import com.suitup.app.data.session.AuthRuntime
+import com.suitup.app.domain.model.AppUserRole
+import com.suitup.app.domain.model.AuthSessionState
+import com.suitup.app.ui.screens.auth.AuthNavigationTarget
 import com.suitup.app.ui.screens.auth.LoginScreen
 import com.suitup.app.ui.screens.auth.LoginScreenModel
 import com.suitup.app.ui.screens.auth.LoginUiEvent
 import com.suitup.app.ui.screens.auth.OnboardingScreen
 import com.suitup.app.ui.screens.auth.OnboardingScreenModel
 import com.suitup.app.ui.screens.auth.OnboardingUiEvent
+import com.suitup.app.ui.screens.auth.RegisterScreen
+import com.suitup.app.ui.screens.auth.RegisterScreenModel
 import com.suitup.app.ui.screens.auth.SplashScreen
 
 class SplashVoyagerScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
+        val sessionManager = AuthRuntime.sessionManager
+        val sessionState by sessionManager.state.collectAsState()
 
-        SplashScreen(
-            onTimeout = {
-                navigator?.replace(OnboardingVoyagerScreen())
+        LaunchedEffect(Unit) {
+            sessionManager.restoreSession()
+        }
+
+        LaunchedEffect(sessionState) {
+            when (val session = sessionState) {
+                AuthSessionState.Checking -> Unit
+                is AuthSessionState.Unauthenticated -> navigator?.replace(LoginVoyagerScreen())
+                is AuthSessionState.Authenticated -> {
+                    if (session.account.primaryRole == AppUserRole.ADMIN) {
+                        navigator?.replaceAll(AdminDashboardVoyagerScreen())
+                    } else {
+                        navigator?.replaceAll(MainShellScreen())
+                    }
+                }
             }
-        )
+        }
+
+        SplashScreen(onTimeout = {})
     }
 }
 
@@ -62,12 +83,19 @@ class LoginVoyagerScreen : Screen {
         val navigator = LocalNavigator.current
         val screenModel = rememberScreenModel { LoginScreenModel() }
         val state by screenModel.state.collectAsState()
-        val navegarParaShell by screenModel.navegarParaShell.collectAsState()
+        val navigationTarget by screenModel.navigationTarget.collectAsState()
 
-        LaunchedEffect(navegarParaShell) {
-            if (navegarParaShell) {
-                screenModel.navegacaoConsumida()
-                navigator?.replaceAll(MainShellScreen())
+        LaunchedEffect(navigationTarget) {
+            when (navigationTarget) {
+                AuthNavigationTarget.CustomerHome -> {
+                    screenModel.navegacaoConsumida()
+                    navigator?.replaceAll(MainShellScreen())
+                }
+                AuthNavigationTarget.AdminDashboard -> {
+                    screenModel.navegacaoConsumida()
+                    navigator?.replaceAll(AdminDashboardVoyagerScreen())
+                }
+                null -> Unit
             }
         }
 
@@ -78,6 +106,7 @@ class LoginVoyagerScreen : Screen {
             isLoading = state.carregando,
             emailError = state.erroEmail,
             passwordError = state.erroPalavraPasse,
+            generalError = state.erroGeral,
             onEmailChange = {
                 screenModel.onEvent(LoginUiEvent.EmailAlterado(it))
             },
@@ -91,14 +120,38 @@ class LoginVoyagerScreen : Screen {
                 screenModel.onEvent(LoginUiEvent.EntrarClicado)
             },
             onCreateAccount = {
-                screenModel.onEvent(LoginUiEvent.EntrarDemoClicado)
+                navigator?.push(RegisterVoyagerScreen())
             },
-            onGoogleLogin = {
-                screenModel.onEvent(LoginUiEvent.EntrarDemoClicado)
-            },
-            onAppleLogin = {
-                screenModel.onEvent(LoginUiEvent.EntrarDemoClicado)
+        )
+    }
+}
+
+class RegisterVoyagerScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.current
+        val screenModel = rememberScreenModel { RegisterScreenModel() }
+        val state by screenModel.state.collectAsState()
+        val navigationTarget by screenModel.navigationTarget.collectAsState()
+
+        LaunchedEffect(navigationTarget) {
+            when (navigationTarget) {
+                AuthNavigationTarget.CustomerHome -> {
+                    screenModel.navegacaoConsumida()
+                    navigator?.replaceAll(MainShellScreen())
+                }
+                AuthNavigationTarget.AdminDashboard -> {
+                    screenModel.navegacaoConsumida()
+                    navigator?.replaceAll(AdminDashboardVoyagerScreen())
+                }
+                null -> Unit
             }
+        }
+
+        RegisterScreen(
+            state = state,
+            onEvent = screenModel::onEvent,
+            onBack = { navigator?.pop() },
         )
     }
 }

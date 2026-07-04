@@ -33,8 +33,8 @@ import com.suitup.app.ui.theme.SuitColors
 fun SuitSuccessBadge(
     modifier: Modifier = Modifier,
     size: Dp = 80.dp,
-    background: Color = SuitColors.Ink,
-    iconTint: Color = SuitColors.SurfaceWhite,
+    background: Color = SuitColors.Gold,
+    iconTint: Color = SuitColors.GoldInk,
     animateEntry: Boolean = true,
 ) {
     var visible by remember { mutableStateOf(!animateEntry) }

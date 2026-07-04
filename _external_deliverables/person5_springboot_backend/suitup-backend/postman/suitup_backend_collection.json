@@ -1,0 +1,320 @@
+{
+  "info": {
+    "_postman_id": "eb34fd40-9fbb-49af-ba0a-202d512a9e14",
+    "name": "SuitUP Backend - Suite de Testes",
+    "description": "Lista de requisições REST para validação de fluxos de alfaiataria Bespoke, M-Pesa, Sincronização offline e Administração.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Autenticação",
+      "item": [
+        {
+          "name": "Criar Usuário (CLIENT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Carlos Macuácua\",\n  \"email\": \"carlos@unizambeze.ac.mz\",\n  \"phone\": \"+258841234567\",\n  \"password\": \"p @ssword123\",\n  \"role\": \"CLIENT\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Iniciar Sessão (Login)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"carlos@unizambeze.ac.mz\",\n  \"password\": \"p @ssword123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obter meu Perfil (/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "me"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Encomendas",
+      "item": [
+        {
+          "name": "Submeter e Criar Encomenda Única",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientName\": \"Carlos Macuácua\",\n  \"clientPhone\": \"+258841234567\",\n  \"clientEmail\": \"carlos@unizambeze.ac.mz\",\n  \"model\": \"Zambeze Imperial Slim-Fit\",\n  \"lapel\": \"Pico (Peak Lapel)\",\n  \"sleeves\": \"4 Botões Beijados\",\n  \"buttons\": \"Abotoamento Simples (1 Botão)\",\n  \"pockets\": \"Bolsos em Aba Slanted\",\n  \"lining\": \"Forro de Seda Maroon\",\n  \"fabric\": \"Lã Merino Super 120s Navy Blue\",\n  \"colorHex\": \"#1A365D\",\n  \"fitType\": \"Slim Fit\",\n  \"shoulders\": 46.5,\n  \"chest\": 102.0,\n  \"waist\": 88.0,\n  \"hips\": 96.0,\n  \"sleeveLength\": 64.0,\n  \"trouserLength\": 104.0,\n  \"height\": 1.78,\n  \"weight\": 76.0,\n  \"notes\": \"Bordar as iniciais C.M. no forro interno esquerdo com linha dourada.\",\n  \"deliveryType\": \"PICKUP\",\n  \"pickupPoint\": \"Ateliê UniZambeze Beira\",\n  \"mpesaTransactionId\": \"MP-2026-X83K27\",\n  \"totalPrice\": 12500.0\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/orders",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Todas Encomendas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/orders",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obter Encomenda por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/orders/SUIT-1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "orders",
+                "SUIT-1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Off-line e Sincronização em Lote",
+      "item": [
+        {
+          "name": "Sincronizar Lote de Pedidos (Batch)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orders\": [\n    {\n      \"clientName\": \"Mário Mutola\",\n      \"clientPhone\": \"+258829988776\",\n      \"clientEmail\": \"mario.mutola@gmail.com\",\n      \"model\": \"Classic British Double\",\n      \"lapel\": \"Notch\",\n      \"sleeves\": \"Punho Simples\",\n      \"buttons\": \"Abotoamento Duplo (4 Botões)\",\n      \"pockets\": \"Sem abas\",\n      \"lining\": \"Crimson Red Silk\",\n      \"fabric\": \"Algodão Egípcio Premium\",\n      \"colorHex\": \"#2D3748\",\n      \"fitType\": \"Classic Fit\",\n      \"shoulders\": 48.0,\n      \"chest\": 108.0,\n      \"waist\": 94.0,\n      \"hips\": 101.0,\n      \"sleeveLength\": 65.5,\n      \"trouserLength\": 106.0,\n      \"height\": 1.82,\n      \"weight\": 84.0,\n      \"notes\": \"Busto folgado\",\n      \"deliveryType\": \"DELIVERY\",\n      \"deliveryAddress\": \"Av. Eduardo Mondlane, Letra B, Nampula\",\n      \"mpesaTransactionId\": \"MP-2026-Y91Z83\",\n      \"totalPrice\": 14500.0,\n      \"clientGeneratedId\": \"LOCAL-OFFLINE-UUID-VAL-101\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/orders/sync-batch",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "orders",
+                "sync-batch"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Upload e Administrativos",
+      "item": [
+        {
+          "name": "Carregar Comprovativo Multipart",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/orders/SUIT-1/payment-proof",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "orders",
+                "SUIT-1",
+                "payment-proof"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ver url de Comprovante de Pagamento",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/orders/SUIT-1/payment-proof",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "orders",
+                "SUIT-1",
+                "payment-proof"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Validar Pagamento (Aprovar)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approved\": true,\n  \"comments\": \"Depósito de 12500.00 MZN recebido e conciliado no painel corporativo do Banco de Moçambique.\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/orders/SUIT-1/validate-payment",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "orders",
+                "SUIT-1",
+                "validate-payment"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Alterar Status da Encomenda (Alfaiate)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PRODUCTION\",\n  \"notes\": \"Fato cortado iniciou costura do forro de seda no setor industrial de alfaiataria.\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/orders/SUIT-1/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "orders",
+                "SUIT-1",
+                "status"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

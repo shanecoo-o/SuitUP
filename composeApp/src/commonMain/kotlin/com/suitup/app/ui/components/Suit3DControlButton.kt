@@ -52,7 +52,7 @@ fun Suit3DControlButton(
             modifier = Modifier
                 .size(44.dp)
                 .clip(CircleShape)
-                .background(SuitColors.SurfaceWhite)
+                .background(SuitColors.SurfaceLow)
                 .clickable(
                     interactionSource = interactionSource,
                     indication = null,

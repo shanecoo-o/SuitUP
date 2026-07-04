@@ -28,10 +28,10 @@ fun SuitSlider(
         valueRange = valueRange,
         steps = steps,
         colors = SliderDefaults.colors(
-            thumbColor = SuitColors.Ink,
-            activeTrackColor = SuitColors.Ink,
+            thumbColor = SuitColors.Gold,
+            activeTrackColor = SuitColors.Gold,
             inactiveTrackColor = SuitColors.Mist,
-            activeTickColor = SuitColors.Ink,
+            activeTickColor = SuitColors.Gold,
             inactiveTickColor = SuitColors.Mist,
         ),
     )

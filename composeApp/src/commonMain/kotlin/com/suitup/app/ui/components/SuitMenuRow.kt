@@ -3,6 +3,7 @@ package com.suitup.app.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,12 +32,14 @@ fun SuitMenuRow(
     leadingIcon: (@Composable () -> Unit)? = null,
     showChevron: Boolean = true,
     emphasized: Boolean = false,
+    enabled: Boolean = true,
+    supportingText: String? = null,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 16.dp),
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -49,16 +52,31 @@ fun SuitMenuRow(
             }
         }
 
-        Text(
-            text = text,
-            style = SuitTextStyles.bodyLarge.copy(
-                fontWeight = if (emphasized) FontWeight.SemiBold else FontWeight.Normal
-            ),
-            color = SuitColors.Ink,
+        Column(
             modifier = Modifier.weight(1f),
-        )
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                text = text,
+                style = SuitTextStyles.bodyLarge.copy(
+                    fontWeight = if (emphasized) FontWeight.SemiBold else FontWeight.Normal
+                ),
+                color = when {
+                    !enabled -> SuitColors.Smoke
+                    emphasized -> SuitColors.Gold
+                    else -> SuitColors.Ink
+                },
+            )
+            if (supportingText != null) {
+                Text(
+                    text = supportingText,
+                    style = SuitTextStyles.bodySmall,
+                    color = SuitColors.Smoke,
+                )
+            }
+        }
 
-        if (showChevron) {
+        if (showChevron && enabled) {
             ForwardChevronIcon(tint = SuitColors.Slate, size = 18.dp)
         }
     }

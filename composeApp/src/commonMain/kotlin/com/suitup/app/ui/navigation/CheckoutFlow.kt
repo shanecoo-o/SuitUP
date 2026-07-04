@@ -9,7 +9,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
-import com.suitup.app.data.mock.MockData
+import com.suitup.app.data.order.OrderRuntime
+import com.suitup.app.data.order.OrderDataSource
 import com.suitup.app.domain.model.TipoEntrega
 import com.suitup.app.ui.screens.checkout.AddressScreen
 import com.suitup.app.ui.screens.checkout.CheckoutMedidasScreen
@@ -27,6 +28,7 @@ import com.suitup.app.ui.screens.checkout.PagamentoUiEvent
 import com.suitup.app.ui.screens.checkout.PaymentScreen
 import com.suitup.app.ui.screens.checkout.TipoEntregaScreenModel
 import com.suitup.app.ui.screens.checkout.TipoEntregaUiEvent
+import com.suitup.app.ui.platform.rememberProofFilePicker
 
 /**
  * Step 1 — Dados do Cliente.
@@ -57,7 +59,7 @@ class CheckoutVoyagerScreen : Screen {
             phoneError = state.erroTelefone,
             emailError = state.erroEmail,
             onBack = { navigator.pop() },
-            onCartClick = {},
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
             onFullNameChange = { screenModel.onEvent(CheckoutUiEvent.NomeAlterado(it)) },
             onPhoneChange = { screenModel.onEvent(CheckoutUiEvent.TelefoneAlterado(it)) },
             onEmailChange = { screenModel.onEvent(CheckoutUiEvent.EmailAlterado(it)) },
@@ -95,7 +97,7 @@ class CheckoutMedidasVoyagerScreen(
             podeContinuar = state.podeContinuar,
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
-            onCartClick = {},
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
             onAlturaChange = { screenModel.onEvent(CheckoutMedidasUiEvent.AlturaAlterada(it)) },
             onPesoChange = { screenModel.onEvent(CheckoutMedidasUiEvent.PesoAlterado(it)) },
             onOmbrosChange = { screenModel.onEvent(CheckoutMedidasUiEvent.OmbrosAlterados(it)) },
@@ -126,7 +128,7 @@ class DeliveryTypeVoyagerScreen : Screen {
             selected = state.tipoSeleccionado,
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
-            onCartClick = {},
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
             onSelect = { screenModel.onEvent(TipoEntregaUiEvent.TipoSeleccionado(it)) },
             onContinue = { navigator.push(AddressVoyagerScreen(state.tipoSeleccionado)) }
         )
@@ -140,14 +142,21 @@ class AddressVoyagerScreen(private val modoInicial: TipoEntrega) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val signOut = LocalSignOut.current
         val screenModel = rememberScreenModel { EnderecoScreenModel(modoInicial) }
         val state by screenModel.state.collectAsState()
-        val podeAvancar by screenModel.podeAvancar.collectAsState()
 
-        LaunchedEffect(podeAvancar) {
-            if (podeAvancar) {
-                screenModel.avancarConsumido()
-                navigator.push(PaymentVoyagerScreen())
+        LaunchedEffect(state.pedidoCriadoId) {
+            state.pedidoCriadoId?.let { orderId ->
+                screenModel.pedidoCriadoConsumido()
+                navigator.push(PaymentVoyagerScreen(orderId))
+            }
+        }
+
+        LaunchedEffect(state.sessaoExpirada) {
+            if (state.sessaoExpirada) {
+                screenModel.sessaoExpiradaConsumida()
+                signOut()
             }
         }
 
@@ -159,15 +168,19 @@ class AddressVoyagerScreen(private val modoInicial: TipoEntrega) : Screen {
             pontosLevantamento = state.pontosLevantamento,
             selectedPickupPoint = state.pontoSeleccionado,
             cartItemCount = state.contadorCarrinho,
+            isSubmitting = state.criandoPedido,
+            errorMessage = state.erroPedido,
+            showDemoFallback = state.fallbackMockDisponivel,
             onBack = { navigator.pop() },
-            onCartClick = {},
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
             onModeChange = { screenModel.onEvent(EnderecoUiEvent.ModoAlterado(it)) },
             onCityChange = { screenModel.onEvent(EnderecoUiEvent.CidadeAlterada(it)) },
             onNeighborhoodChange = { screenModel.onEvent(EnderecoUiEvent.BairroAlterado(it)) },
             onStreetChange = { screenModel.onEvent(EnderecoUiEvent.RuaAlterada(it)) },
             onReferenceChange = { screenModel.onEvent(EnderecoUiEvent.ReferenciaAlterada(it)) },
             onPickupPointSelect = { screenModel.onEvent(EnderecoUiEvent.PontoSeleccionado(it)) },
-            onContinue = { screenModel.onEvent(EnderecoUiEvent.ContinuarClicado) }
+            onContinue = { screenModel.onEvent(EnderecoUiEvent.ContinuarClicado) },
+            onContinueDemo = { screenModel.onEvent(EnderecoUiEvent.ContinuarModoDemoClicado) },
         )
     }
 }
@@ -175,32 +188,54 @@ class AddressVoyagerScreen(private val modoInicial: TipoEntrega) : Screen {
 /**
  * Step 4 — Pagamento M-Pesa.
  */
-class PaymentVoyagerScreen : Screen {
+class PaymentVoyagerScreen(private val orderId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = rememberScreenModel { PagamentoScreenModel() }
+        val signOut = LocalSignOut.current
+        val screenModel = rememberScreenModel { PagamentoScreenModel(orderId) }
         val state by screenModel.state.collectAsState()
         val podeAvancar by screenModel.podeAvancar.collectAsState()
 
         LaunchedEffect(podeAvancar) {
             if (podeAvancar) {
                 screenModel.avancarConsumido()
-                navigator.push(ConfirmationVoyagerScreen(MockData.novoPedido.numero))
+                navigator.push(ConfirmationVoyagerScreen(state.numeroPedidoCriado ?: orderId))
             }
         }
+
+        LaunchedEffect(state.sessaoExpirada) {
+            if (state.sessaoExpirada) {
+                screenModel.sessaoExpiradaConsumida()
+                signOut()
+            }
+        }
+
+        val pickProof = rememberProofFilePicker(
+            onSelected = { screenModel.onEvent(PagamentoUiEvent.FicheiroSeleccionado(it)) },
+            onError = { screenModel.onEvent(PagamentoUiEvent.FalhaSeleccao(it)) },
+        )
 
         PaymentScreen(
             numeroMpesa = state.numeroMpesa,
             mpesaTitleHolder = state.titularMpesa,
             uploadedFileName = state.nomeFicheiroCarregado,
+            paymentReference = state.referenciaTransaccao,
+            paymentStatusLabel = state.statusPagamento?.label,
+            isSubmitting = state.carregando,
+            successMessage = state.mensagemSucesso,
+            errorMessage = state.erro,
+            paymentSubmitted = state.pagamentoSubmetido,
+            showDemoFallback = state.fallbackMockDisponivel,
+            totalMzn = state.totalPedidoMt,
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
-            onCartClick = {},
-            onCopyNumber = { screenModel.onEvent(PagamentoUiEvent.CopiarNumeroClicado) },
-            onPickFile = { screenModel.onEvent(PagamentoUiEvent.EscolherFicheiroClicado) },
+            onCartClick = { navigator.push(CartVoyagerScreen()) },
+            onPickFile = pickProof,
             onRemoveFile = { screenModel.onEvent(PagamentoUiEvent.RemoverFicheiroClicado) },
-            onSubmit = { screenModel.onEvent(PagamentoUiEvent.EnviarComprovativoClicado) }
+            onPaymentReferenceChange = { screenModel.onEvent(PagamentoUiEvent.ReferenciaAlterada(it)) },
+            onSubmit = { screenModel.onEvent(PagamentoUiEvent.EnviarComprovativoClicado) },
+            onContinueDemo = { screenModel.onEvent(PagamentoUiEvent.ContinuarModoDemoClicado) },
         )
     }
 }
@@ -208,14 +243,18 @@ class PaymentVoyagerScreen : Screen {
 /**
  * Step 5 — Confirmação.
  */
-class ConfirmationVoyagerScreen(private val numeroPedido: String) : Screen {
+class ConfirmationVoyagerScreen(private val pedidoId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val tabNavigator = LocalTabNavigator.current
 
+        val order = OrderRuntime.repository.cachedOrder(pedidoId)
+
         ConfirmationScreen(
-            orderNumber = numeroPedido,
+            orderNumber = order?.numero ?: pedidoId,
+            order = order,
+            isDemo = OrderRuntime.repository.state.value.source == OrderDataSource.MOCK,
             onSeeOrders = {
                 navigator.popUntilRoot()
                 tabNavigator.current = OrdersTab

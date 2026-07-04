@@ -1,0 +1,19 @@
+spring:
+  jpa:
+    show-sql: false
+  flyway:
+    placeholders:
+      seedDev: false
+
+logging:
+  level:
+    org.hibernate.SQL: WARN
+
+app:
+  security:
+    jwt:
+      secret: suitup-test-only-secret-with-at-least-thirty-two-bytes
+      access-token-minutes: 15
+      refresh-token-days: 14
+    cors:
+      allowed-origins: http://localhost:3000

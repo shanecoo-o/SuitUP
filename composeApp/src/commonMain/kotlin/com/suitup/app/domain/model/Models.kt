@@ -51,14 +51,32 @@ data class ModeloFato(
     val id: String,
     val nome: String,
     val categoria: CategoriaFato,
-    val precoBase: Int,            // em meticais (R$)
+    val precoBase: Int,            // em meticais (MZN)
     val urlImagemPrevia: String,   // mock — Coil resolve, ou usamos drawable interno
+)
+
+@Serializable
+data class SuitModel(
+    val id: String,
+    val name: String,
+    val category: String,
+    val description: String,
+    val basePrice: Int,
+    val imageKey: String,
+    val fabricType: String,
+    val color: String,
+    val available: Boolean = true,
+    val currency: String = "MZN",
+    val primaryImageFileId: String? = null,
 )
 
 enum class CategoriaFato(val label: String) {
     Classico("Clássico"),
     CorteSlim("Slim Fit"),
-    Executivo("Executivo");
+    Executivo("Executivo"),
+    Casual("Casual"),
+    Premium("Premium"),
+    Gala("Gala");
 
     companion object {
         fun all() = entries.toList()
@@ -121,6 +139,8 @@ data class Pedido(
     val id: String,
     val numero: String,                  // ex: "1025"
     val idUtilizador: String,
+    val cliente: DadosClientePedido? = null,
+    val medidas: Medidas? = null,
     val designsFato: List<DesignFato>,
     val subtotal: Int,
     val taxaEntrega: Int,
@@ -133,6 +153,14 @@ data class Pedido(
     val linhaTempo: List<EventoPedido>,
     val criadoEm: String,               // ISO date string mock
     val actualizadoEm: String,
+    val backendStatus: String? = null,
+)
+
+@Serializable
+data class DadosClientePedido(
+    val nome: String,
+    val email: String,
+    val telefone: String,
 )
 
 enum class TipoEntrega(val label: String, val description: String) {
@@ -156,8 +184,9 @@ data class PontoLevantamento(
 )
 
 enum class EstadoPedido(val label: String) {
-    AguardandoPagamento("Aguardando validação do pagamento"),
-    PagamentoValidado("Pagamento validado"),
+    AguardandoPagamento("Aguardando confirmação do pagamento"),
+    PagamentoValidado("Pagamento confirmado"),
+    PagamentoRejeitado("Pagamento rejeitado"),
     EmProducao("Em produção"),
     ProntoParaEntrega("Pronto para entrega"),
     Entregue("Entregue"),
@@ -179,9 +208,18 @@ data class InfoPagamento(
     val caminhoImagemComprovativo: String? = null,
     val numeroMpesa: String,
     val titular: String,
+    val status: PaymentStatus = PaymentStatus.PENDING,
+    val referenciaTransaccao: String? = null,
+    val idPagamento: String? = null,
 )
 
 enum class MetodoPagamento { MpesaManual }
+
+enum class PaymentStatus(val label: String) {
+    PENDING("Pendente"),
+    CONFIRMED("Confirmado"),
+    REJECTED("Rejeitado"),
+}
 
 /**
  * Item no carrinho — referencia um DesignFato + quantidade.

@@ -62,14 +62,14 @@ fun SuitButton(
     )
 
     val (bg, fg, border) = when (variant) {
-        SuitButtonVariant.Primary -> Triple<Color, Color, BorderStroke?>(SuitColors.Ink, SuitColors.SurfaceWhite, null)
-        SuitButtonVariant.Gold -> Triple<Color, Color, BorderStroke?>(SuitColors.Gold, SuitColors.Ink, null)
-        SuitButtonVariant.Secondary -> Triple<Color, Color, BorderStroke?>(SuitColors.SurfaceWhite, SuitColors.Ink, BorderStroke(1.dp, SuitColors.Ink))
-        SuitButtonVariant.SecondaryOnDark -> Triple<Color, Color, BorderStroke?>(Color.Transparent, SuitColors.SurfaceWhite, BorderStroke(1.dp, SuitColors.SurfaceWhite))
+        SuitButtonVariant.Primary -> Triple<Color, Color, BorderStroke?>(SuitColors.Gold, SuitColors.GoldInk, null)
+        SuitButtonVariant.Gold -> Triple<Color, Color, BorderStroke?>(SuitColors.Gold, SuitColors.GoldInk, null)
+        SuitButtonVariant.Secondary -> Triple<Color, Color, BorderStroke?>(SuitColors.WarmBlack, SuitColors.Pearl, BorderStroke(1.dp, SuitColors.BronzeSubtle))
+        SuitButtonVariant.SecondaryOnDark -> Triple<Color, Color, BorderStroke?>(Color.Transparent, SuitColors.Pearl, BorderStroke(1.dp, SuitColors.BronzeSubtle))
         SuitButtonVariant.Ghost -> Triple<Color, Color, BorderStroke?>(Color.Transparent, SuitColors.Ink, null)
     }
 
-    val effectiveBg = if (enabled) bg else SuitColors.Mist
+    val effectiveBg = if (enabled) bg else SuitColors.SurfaceHigh
     val effectiveFg = if (enabled) fg else SuitColors.Smoke
 
     val (height, hPadding, textStyle) = when (size) {

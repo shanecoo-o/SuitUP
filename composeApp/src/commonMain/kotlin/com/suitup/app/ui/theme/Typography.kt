@@ -47,21 +47,21 @@ object SuitTextStyles {
         fontWeight = FontWeight.Bold,
         fontSize = 48.sp,
         lineHeight = 52.sp,
-        letterSpacing = (-1.2).sp,
+        letterSpacing = 0.sp,
     )
     val displayMedium = TextStyle(
         fontFamily = DisplayFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 36.sp,
         lineHeight = 40.sp,
-        letterSpacing = (-0.8).sp,
+        letterSpacing = 0.sp,
     )
     val displaySmall = TextStyle(
         fontFamily = DisplayFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 28.sp,
         lineHeight = 32.sp,
-        letterSpacing = (-0.5).sp,
+        letterSpacing = 0.sp,
     )
 
     val headlineLarge = TextStyle(
@@ -69,14 +69,14 @@ object SuitTextStyles {
         fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp,
         lineHeight = 30.sp,
-        letterSpacing = (-0.3).sp,
+        letterSpacing = 0.sp,
     )
     val headlineMedium = TextStyle(
         fontFamily = DisplayFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 20.sp,
         lineHeight = 26.sp,
-        letterSpacing = (-0.2).sp,
+        letterSpacing = 0.sp,
     )
     val headlineSmall = TextStyle(
         fontFamily = BodyFamily,
@@ -128,21 +128,21 @@ object SuitTextStyles {
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 0.1.sp,
+        letterSpacing = 0.sp,
     )
     val labelMedium = TextStyle(
         fontFamily = BodyFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.2.sp,
+        letterSpacing = 0.sp,
     )
     val labelSmall = TextStyle(
         fontFamily = BodyFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 10.sp,
         lineHeight = 14.sp,
-        letterSpacing = 0.4.sp,
+        letterSpacing = 0.sp,
     )
 
     /**
@@ -154,7 +154,7 @@ object SuitTextStyles {
         fontWeight = FontWeight.SemiBold,
         fontSize = 10.sp,
         lineHeight = 14.sp,
-        letterSpacing = 1.6.sp,
+        letterSpacing = 0.sp,
     )
 
     val mono = TextStyle(
@@ -169,7 +169,7 @@ object SuitTextStyles {
         fontWeight = FontWeight.SemiBold,
         fontSize = 15.sp,
         lineHeight = 20.sp,
-        letterSpacing = 0.2.sp,
+        letterSpacing = 0.sp,
     )
 
     val brand = TextStyle(
@@ -177,7 +177,7 @@ object SuitTextStyles {
         fontWeight = FontWeight.Normal,
         fontSize = 32.sp,
         lineHeight = 36.sp,
-        letterSpacing = (-0.4).sp,
+        letterSpacing = 0.sp,
     )
 }
 

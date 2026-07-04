@@ -30,8 +30,8 @@ fun SuitPageIndicator(
     modifier: Modifier = Modifier,
     dark: Boolean = false,
 ) {
-    val activeColor: Color = if (dark) SuitColors.SurfaceWhite else SuitColors.Ink
-    val inactiveColor: Color = if (dark) SuitColors.SurfaceWhite.copy(alpha = 0.30f) else SuitColors.Smoke
+    val activeColor: Color = SuitColors.Gold
+    val inactiveColor: Color = if (dark) SuitColors.Ink.copy(alpha = 0.30f) else SuitColors.Smoke
 
     Row(
         modifier = modifier,

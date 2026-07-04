@@ -32,8 +32,8 @@ import com.suitup.app.ui.theme.SuitTheme
 fun SuitGarmentMini(
     modifier: Modifier = Modifier,
     size: Dp = 64.dp,
-    garmentColor: Color = SuitColors.Ink,
-    background: Color = SuitColors.Pearl,
+    garmentColor: Color = SuitColors.SurfaceHighest,
+    background: Color = SuitColors.SurfaceLow,
     showShirt: Boolean = true,
 ) {
     Box(
@@ -91,7 +91,7 @@ fun SuitGarmentMini(
                     lineTo(cx - w * 0.05f, h * 0.78f)
                     close()
                 }
-                drawPath(tie, SuitColors.Ink)
+                drawPath(tie, SuitColors.Black)
             }
 
             // Linha subtil dos botões da jaqueta (lateral interna esquerda)

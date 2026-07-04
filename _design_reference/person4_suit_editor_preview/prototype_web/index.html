@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suit Editor 3D</title>
+
+  <!-- ============================================================
+       index.html — Entry point do Suit Editor 3D
+       Carrega os 4 módulos por fase:
+         fase1_layer_manager.js   → Layers & Assets
+         fase2_customization.js   → Cores, Tecidos, Sliders
+         fase3_preview.js         → Preview 3D Fake
+         fase4_report.js          → Relatório final
+       styles.css                 → Design tokens + layout global
+
+       INTEGRAÇÃO:
+         - Substituir <link> e <script> por imports nativos do
+           bundler (Webpack / Vite) ou por include do framework
+         - Em Android/Compose: os módulos JS são substituídos por
+           Composables equivalentes; ver comentários em cada .js
+  ============================================================ -->
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       APP SHELL — Grid principal 3 colunas
+       col-left  : FASE 1 — Layer Manager
+       col-center: FASE 3 — Preview 3D
+       col-right : FASE 2 — Customização
+  ============================================================ -->
+
+  <div class="app-shell" id="app">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-brand">SUIT EDITOR 3D</div>
+      <div class="topbar-phase" id="phaseTabs"></div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span id="statusText" style="font-size:10px;letter-spacing:0.06em;">FASE 1 ACTIVA</span>
+        <button class="phase-pill" onclick="SuitEditorApp.openReport()">RELATÓRIO</button>
+      </div>
+    </header>
+
+    <!-- COL ESQUERDA — Layer Manager (FASE 1) -->
+    <aside class="panel-left" id="layerPanel">
+      <div class="panel-section-title">Z-Order · Layers</div>
+    </aside>
+
+    <!-- COL CENTRAL — Preview (FASE 3) -->
+    <main class="panel-center" id="previewPanel">
+      <div class="mannequin-viewport" id="mannequinViewport">
+
+        <!-- Stage: compor PNGs aqui por ângulo -->
+        <div class="mannequin-stage" id="mannequinStage">
+          <!--
+            INTEGRAÇÃO: substituir este SVG por:
+              <img id="layer-base"   src="assets/mannequin_front@2x.png" />
+              <img id="layer-fato"   src="assets/fato_front@2x.png" />
+              <img id="layer-lapela" src="assets/lapela_front@2x.png" />
+              ... etc.
+            Um <img> por layer, empilhados com position:absolute.
+          -->
+          <svg viewBox="0 0 200 360" width="200" height="360"
+               xmlns="http://www.w3.org/2000/svg" id="mannequinSVG">
+
+            <!-- LAYER 0: silhueta neutra -->
+            <g id="layer-base" data-layer="base">
+              <rect x="55" y="100" width="90" height="160" rx="8" fill="#3a3a4a"/>
+              <rect x="85" y="75"  width="30" height="30"  rx="4" fill="#2d2d3a"/>
+              <circle cx="100" cy="55" r="28" fill="#2d2d3a"/>
+              <rect x="60"  y="255" width="34" height="90" rx="6" fill="#2a2a36"/>
+              <rect x="106" y="255" width="34" height="90" rx="6" fill="#2a2a36"/>
+              <rect x="28"  y="105" width="28" height="100" rx="8" fill="#3a3a4a"/>
+              <rect x="144" y="105" width="28" height="100" rx="8" fill="#3a3a4a"/>
+            </g>
+
+            <!-- LAYER 1: fato base (cor dinâmica via ColorFilter) -->
+            <g id="layer-fato" data-layer="fato">
+              <rect x="56" y="102" width="88" height="155" rx="7" fill="#1a2340" opacity="0.95"/>
+              <rect x="29" y="107" width="26" height="97"  rx="7" fill="#1a2340" opacity="0.95"/>
+              <rect x="145" y="107" width="26" height="97" rx="7" fill="#1a2340" opacity="0.95"/>
+            </g>
+
+            <!-- LAYER 2: lapela -->
+            <g id="layer-lapela" data-layer="lapela">
+              <polygon points="100,115 82,165 100,160 118,165" fill="#222" opacity="0.7"/>
+              <polygon points="100,115 75,108 82,165"  fill="#1a1a1a" opacity="0.8"/>
+              <polygon points="100,115 125,108 118,165" fill="#1a1a1a" opacity="0.8"/>
+            </g>
+
+            <!-- LAYER 3: gola -->
+            <g id="layer-gola" data-layer="gola">
+              <path d="M85,100 Q100,90 115,100 L110,115 Q100,108 90,115 Z"
+                    fill="#1a1a1a" opacity="0.85"/>
+            </g>
+
+            <!-- LAYER 4: botões -->
+            <g id="layer-botoes" data-layer="botoes">
+              <circle cx="100" cy="165" r="4" fill="#888" opacity="0.9"/>
+              <circle cx="100" cy="180" r="4" fill="#888" opacity="0.9"/>
+              <circle cx="100" cy="195" r="4" fill="#888" opacity="0.9"/>
+            </g>
+
+            <!-- LAYER 5: bolso -->
+            <g id="layer-bolso" data-layer="bolso">
+              <rect x="115" y="175" width="22" height="14" rx="2"
+                    fill="none" stroke="#555" stroke-width="1.2"/>
+              <rect x="68"  y="175" width="22" height="14" rx="2"
+                    fill="none" stroke="#555" stroke-width="1.2"/>
+            </g>
+
+            <!-- LAYER 6: forro (oculto por padrão) -->
+            <g id="layer-forro" data-layer="forro" style="display:none">
+              <rect x="57" y="103" width="86" height="153" rx="6"
+                    fill="none" stroke="#c8a87a" stroke-width="1"
+                    stroke-dasharray="3,3"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- FABs: zoom + export (FASE 3) -->
+        <div class="fab-group">
+          <button class="fab" id="fabZoom"
+                  onclick="SuitEditorApp.toggleZoom()" title="Zoom">⊕</button>
+          <button class="fab"
+                  onclick="SuitEditorApp.exportPNG()" title="Exportar PNG">↓</button>
+        </div>
+
+        <!-- Indicador de ângulo activo (FASE 3) -->
+        <div class="angle-indicator" id="angleIndicator">
+          <div class="angle-dot active" data-angle="0"
+               onclick="SuitEditorApp.setAngle(0)"></div>
+          <div class="angle-dot" data-angle="1"
+               onclick="SuitEditorApp.setAngle(1)"></div>
+          <div class="angle-dot" data-angle="2"
+               onclick="SuitEditorApp.setAngle(2)"></div>
+        </div>
+      </div>
+
+      <!-- Barra de navegação de ângulo -->
+      <div class="swipe-bar">
+        <button class="swipe-btn" onclick="SuitEditorApp.prevAngle()">← ANTERIOR</button>
+        <div class="angle-label" id="angleLabel">FRENTE</div>
+        <button class="swipe-btn" onclick="SuitEditorApp.nextAngle()">SEGUINTE →</button>
+      </div>
+    </main>
+
+    <!-- COL DIREITA — Customização (FASE 2) -->
+    <aside class="panel-right" id="customPanel">
+      <div class="panel-section-title">Cor · ColorFilter</div>
+      <div class="color-grid" id="colorGrid"></div>
+      <div class="divider"></div>
+      <div class="panel-section-title">Tecido · BitmapShader</div>
+      <div class="fabric-grid" id="fabricGrid"></div>
+      <div class="divider"></div>
+      <div class="panel-section-title">Sliders · Ajuste</div>
+      <div id="slidersContainer"></div>
+      <div style="flex:1"></div>
+      <div style="padding:14px 16px;">
+        <button class="swipe-btn" style="width:100%;text-align:center;"
+                onclick="SuitEditorApp.validateComposition()">
+          VALIDAR COMPOSIÇÃO
+        </button>
+        <div id="validationMsg"
+             style="font-size:10px;letter-spacing:0.06em;margin-top:8px;
+                    color:var(--color-text-muted);text-align:center;">
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- FASE 4: Report Modal (overlay) -->
+  <div class="report-overlay" id="reportOverlay">
+    <div class="report-modal">
+      <h2>editor_3d_report.md</h2>
+      <div id="reportContent"></div>
+      <button class="close-btn" onclick="SuitEditorApp.closeReport()">FECHAR</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Módulos — ordem de carregamento obrigatória:
+       config → state → fase1 → fase2 → fase3 → fase4 → app
+  ============================================================ -->
+  <script src="config.js"></script>
+  <script src="state.js"></script>
+  <script src="fase1_layer_manager.js"></script>
+  <script src="fase2_customization.js"></script>
+  <script src="fase3_preview.js"></script>
+  <script src="fase4_report.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+// FabricOption.kt — Opção de tecido
+// Pacote sugerido: com.suitup.editor
+
+package com.suitup.editor
+
+data class FabricOption(
+    val id: String,
+    val label: String,
+    val description: String,
+    val textureResId: Int,       // ex: R.drawable.fabric_wool
+    val texturePath: String,     // ex: "assets/fabrics/wool.png"
+    val priceModifier: Int,      // em MZN, pode ser negativo
+    val available: Boolean = true
+) {
+    companion object {
+        fun defaults(): List<FabricOption> = listOf(
+            FabricOption("wool",          "Wool",          "Lã merino premium",            R.drawable.fabric_wool,          "assets/fabrics/wool.png",          0),
+            FabricOption("cotton",        "Cotton",        "Algodão de alta qualidade",    R.drawable.fabric_cotton,        "assets/fabrics/cotton.png",        -1500),
+            FabricOption("linen",         "Linen",         "Linho natural, clima quente",  R.drawable.fabric_linen,         "assets/fabrics/linen.png",         500),
+            FabricOption("premium_black", "Premium Black", "Acabamento acetinado exclusivo",R.drawable.fabric_premium_black,"assets/fabrics/premium_black.png", 5000),
+        )
+    }
+}
+
+// Aplicar textura BitmapShader em Android Canvas (fora de Compose)
+fun applyFabricShader(canvas: android.graphics.Canvas, textureBitmap: Bitmap, rect: RectF) {
+    val shader = BitmapShader(textureBitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
+    val paint = Paint().apply { this.shader = shader }
+    canvas.drawRect(rect, paint)
+}
+
+// Em Compose: usar Image com ImageBitmap e TileMode
+// (Compose não tem BitmapShader directo — usar Canvas API ou ShaderBrush)
+@Composable
+fun FabricTexture(fabric: FabricOption, modifier: Modifier = Modifier) {
+    val texturePainter = painterResource(fabric.textureResId)
+    Canvas(modifier = modifier) {
+        // Tile manual com drawRepeatedImage se necessário
+        with(texturePainter) { draw(size) }
+    }
+}

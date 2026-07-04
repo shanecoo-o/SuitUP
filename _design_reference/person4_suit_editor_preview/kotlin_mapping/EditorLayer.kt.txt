@@ -1,0 +1,64 @@
+// EditorLayer.kt — Layer individual do fato
+// Pacote sugerido: com.suitup.editor
+
+package com.suitup.editor
+
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.ColorFilter as ComposeColorFilter
+
+data class EditorLayer(
+    val id: String,
+    val name: String,
+    val angle: PreviewAngle,
+    val zOrder: Int,
+    val assetResId: Int,            // ex: R.drawable.layer_front_jacket_base
+    val assetPath: String,          // ex: "suit_layers/front/jacket_base.png"
+    val canChangeColor: Boolean,
+    val canChangeFabric: Boolean,
+    val visible: Boolean = true,
+    val toggleable: Boolean = true
+)
+
+// Composable que renderiza todas as layers de um ângulo
+// Ordenado por zOrder, com ColorFilter aplicado
+@Composable
+fun SuitLayerStack(
+    layers: List<EditorLayer>,
+    angle: PreviewAngle,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier) {
+        layers
+            .filter { it.angle == angle && it.visible }
+            .sortedBy { it.zOrder }
+            .forEach { layer ->
+                Image(
+                    painter = painterResource(layer.assetResId),
+                    contentDescription = layer.name,
+                    colorFilter = if (layer.canChangeColor) {
+                        ComposeColorFilter.tint(color, blendMode = BlendMode.SrcIn)
+                    } else null,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+    }
+}
+
+// Factory — lista de layers por ângulo a partir do editor_config.json
+object EditorLayerFactory {
+    fun defaults(): List<EditorLayer> = listOf(
+        EditorLayer("trousers",    "Trousers",    PreviewAngle.FRONT, 0, R.drawable.layer_front_trousers,    "suit_layers/front/trousers.png",    true, true, true, false),
+        EditorLayer("jacket_base","Jacket Base",  PreviewAngle.FRONT, 1, R.drawable.layer_front_jacket_base, "suit_layers/front/jacket_base.png", true, true, true, false),
+        EditorLayer("lapel",      "Lapela",       PreviewAngle.FRONT, 2, R.drawable.layer_front_lapel,       "suit_layers/front/lapel.png",       true, true, true, true),
+        EditorLayer("buttons",    "Botões",       PreviewAngle.FRONT, 3, R.drawable.layer_front_buttons,     "suit_layers/front/buttons.png",     true, false,true, true),
+        EditorLayer("pockets",    "Bolsos",       PreviewAngle.FRONT, 4, R.drawable.layer_front_pockets,     "suit_layers/front/pockets.png",     true, true, true, true),
+        EditorLayer("trousers",    "Trousers",    PreviewAngle.SIDE,  0, R.drawable.layer_side_trousers,     "suit_layers/side/trousers.png",     true, true, true, false),
+        EditorLayer("jacket_base","Jacket Base",  PreviewAngle.SIDE,  1, R.drawable.layer_side_jacket_base,  "suit_layers/side/jacket_base.png",  true, true, true, false),
+        EditorLayer("sleeve",     "Manga",        PreviewAngle.SIDE,  2, R.drawable.layer_side_sleeve,       "suit_layers/side/sleeve.png",       true, true, true, true),
+        EditorLayer("trousers",    "Trousers",    PreviewAngle.BACK,  0, R.drawable.layer_back_trousers,     "suit_layers/back/trousers.png",     true, true, true, false),
+        EditorLayer("jacket_base","Jacket Base",  PreviewAngle.BACK,  1, R.drawable.layer_back_jacket_base,  "suit_layers/back/jacket_base.png",  true, true, true, false),
+        EditorLayer("collar",     "Collar",       PreviewAngle.BACK,  2, R.drawable.layer_back_collar,       "suit_layers/back/collar.png",       true, true, true, true),
+    )
+}

@@ -29,7 +29,7 @@ fun SuitCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     padding: Dp = 20.dp,
-    background: Color = SuitColors.SurfaceWhite,
+    background: Color = SuitColors.Surface,
     border: Boolean = true,
     shape: RoundedCornerShape = SuitTheme.shapes.card,
     content: @Composable () -> Unit,
@@ -38,7 +38,7 @@ fun SuitCard(
         modifier = modifier
             .clip(shape)
             .background(background)
-            .let { m -> if (border) m.border(1.dp, SuitColors.Mist, shape) else m }
+            .let { m -> if (border) m.border(1.dp, SuitColors.BronzeSubtle.copy(alpha = 0.38f), shape) else m }
             .let { m -> if (onClick != null) m.clickable(onClick = onClick) else m }
             .padding(padding)
     ) {

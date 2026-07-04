@@ -1,0 +1,59 @@
+// PreviewAngle.kt — Enum de ângulos do preview pseudo-3D
+// Pacote sugerido: com.suitup.editor
+
+package com.suitup.editor
+
+enum class PreviewAngle(
+    val label: String,
+    val order: Int,
+    val mannequinAsset: String     // path do PNG @2x do manequim
+) {
+    FRONT("Frente",  0, "assets/mannequin/mannequin_front_placeholder.png"),
+    SIDE( "Lado",    1, "assets/mannequin/mannequin_side_placeholder.png"),
+    BACK( "Costas",  2, "assets/mannequin/mannequin_back_placeholder.png");
+
+    fun next(): PreviewAngle = values()[(ordinal + 1) % values().size]
+    fun prev(): PreviewAngle = values()[(ordinal - 1 + values().size) % values().size]
+
+    companion object {
+        fun fromId(id: String): PreviewAngle =
+            values().firstOrNull { it.name.lowercase() == id.lowercase() } ?: FRONT
+    }
+}
+
+// Composable de navegação entre ângulos com crossfade
+@Composable
+fun AnglePreviewPager(
+    currentAngle: PreviewAngle,
+    onAngleChange: (PreviewAngle) -> Unit,
+    content: @Composable (PreviewAngle) -> Unit
+) {
+    val pagerState = rememberPagerState(
+        initialPage = currentAngle.order,
+        pageCount   = { PreviewAngle.values().size }
+    )
+
+    LaunchedEffect(pagerState.currentPage) {
+        onAngleChange(PreviewAngle.values()[pagerState.currentPage])
+    }
+
+    Column {
+        HorizontalPager(state = pagerState) { page ->
+            AnimatedContent(
+                targetState = PreviewAngle.values()[page],
+                transitionSpec = {
+                    fadeIn(tween(250)) togetherWith fadeOut(tween(250))
+                }
+            ) { angle ->
+                content(angle)
+            }
+        }
+
+        // Indicador de página
+        HorizontalPagerIndicator(
+            pagerState = pagerState,
+            pageCount  = PreviewAngle.values().size,
+            modifier   = Modifier.align(Alignment.CenterHorizontally).padding(8.dp)
+        )
+    }
+}

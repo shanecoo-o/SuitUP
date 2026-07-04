@@ -44,7 +44,7 @@ fun SuitSocialButton(
             .scale(pressScale)
             .size(52.dp)
             .clip(CircleShape)
-            .background(SuitColors.SurfaceWhite)
+            .background(SuitColors.SurfaceLow)
             .border(1.dp, SuitColors.Mist, CircleShape)
             .clickable(
                 interactionSource = interactionSource,

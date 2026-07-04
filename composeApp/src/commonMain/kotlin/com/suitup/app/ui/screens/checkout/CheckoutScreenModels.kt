@@ -3,9 +3,21 @@ package com.suitup.app.ui.screens.checkout
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.suitup.app.data.mock.MockData
+import com.suitup.app.data.mock.MockOrderStore
+import com.suitup.app.data.order.CreateCustomerOrderResult
+import com.suitup.app.data.order.CustomerOrderRepository
+import com.suitup.app.data.order.OrderRuntime
+import com.suitup.app.data.order.generateOrderIdempotencyKey
+import com.suitup.app.data.payment.PaymentSubmitResult
+import com.suitup.app.data.payment.PaymentTrackingDataSource
+import com.suitup.app.data.payment.PaymentTrackingRepository
+import com.suitup.app.data.payment.PaymentTrackingRuntime
+import com.suitup.app.data.payment.ProofUploadResult
 import com.suitup.app.domain.model.EnderecoEntrega
+import com.suitup.app.domain.model.PaymentStatus
 import com.suitup.app.domain.model.PontoLevantamento
 import com.suitup.app.domain.model.TipoEntrega
+import com.suitup.app.ui.platform.SelectedProofFile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,7 +63,7 @@ class CheckoutScreenModel : ScreenModel {
                     nomeCompleto = u.nome,
                     telefone = u.telefone,
                     email = u.email,
-                    contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade },
+                    contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }
         }
@@ -77,7 +89,14 @@ class CheckoutScreenModel : ScreenModel {
         val erroTel = if (s.telefone.isBlank()) "Telefone obrigatório" else null
         val erroEmail = if (s.email.isBlank()) "Email obrigatório" else null
         _state.update { it.copy(erroNome = erroNome, erroTelefone = erroTel, erroEmail = erroEmail) }
-        if (erroNome == null && erroTel == null && erroEmail == null) _podeAvancar.value = true
+        if (erroNome == null && erroTel == null && erroEmail == null) {
+            MockOrderStore.updateCheckoutCustomer(
+                nome = s.nomeCompleto,
+                email = s.email,
+                telefone = s.telefone,
+            )
+            _podeAvancar.value = true
+        }
     }
 }
 
@@ -99,16 +118,16 @@ class TipoEntregaScreenModel : ScreenModel {
 
     init {
         screenModelScope.launch {
-            _state.update {
-                it.copy(contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade })
-            }
+            _state.update { it.copy(contadorCarrinho = MockOrderStore.cartItemCount) }
         }
     }
 
     fun onEvent(event: TipoEntregaUiEvent) {
         when (event) {
             is TipoEntregaUiEvent.TipoSeleccionado ->
-                _state.update { it.copy(tipoSeleccionado = event.tipo) }
+                _state.update { it.copy(tipoSeleccionado = event.tipo) }.also {
+                    MockOrderStore.updateCheckoutDeliveryType(event.tipo)
+                }
         }
     }
 }
@@ -125,6 +144,11 @@ data class EnderecoUiState(
     val contadorCarrinho: Int = 0,
     val erroPonto: String? = null,
     val erroEndereco: String? = null,
+    val criandoPedido: Boolean = false,
+    val erroPedido: String? = null,
+    val pedidoCriadoId: String? = null,
+    val sessaoExpirada: Boolean = false,
+    val fallbackMockDisponivel: Boolean = false,
 )
 
 sealed class EnderecoUiEvent {
@@ -135,17 +159,26 @@ sealed class EnderecoUiEvent {
     data class ReferenciaAlterada(val valor: String) : EnderecoUiEvent()
     data class PontoSeleccionado(val ponto: PontoLevantamento) : EnderecoUiEvent()
     data object ContinuarClicado : EnderecoUiEvent()
+    data object ContinuarModoDemoClicado : EnderecoUiEvent()
 }
 
-class EnderecoScreenModel(private val modoInicial: TipoEntrega) : ScreenModel {
+class EnderecoScreenModel(
+    private val modoInicial: TipoEntrega,
+    private val orderRepository: CustomerOrderRepository = OrderRuntime.repository,
+) : ScreenModel {
 
     private val _state = MutableStateFlow(EnderecoUiState(modo = modoInicial))
     val state: StateFlow<EnderecoUiState> = _state.asStateFlow()
 
-    private val _podeAvancar = MutableStateFlow(false)
-    val podeAvancar: StateFlow<Boolean> = _podeAvancar.asStateFlow()
+    private var idempotencyKey: String? = null
 
-    fun avancarConsumido() { _podeAvancar.value = false }
+    fun pedidoCriadoConsumido() {
+        _state.update { it.copy(pedidoCriadoId = null) }
+    }
+
+    fun sessaoExpiradaConsumida() {
+        _state.update { it.copy(sessaoExpirada = false) }
+    }
 
     init {
         screenModelScope.launch {
@@ -154,7 +187,7 @@ class EnderecoScreenModel(private val modoInicial: TipoEntrega) : ScreenModel {
                     cidadesDisponiveis = MockData.cidadesMocambicanas,
                     bairrosDisponiveis = MockData.bairrosMaputo,
                     pontosLevantamento = MockData.pontosLevantamento,
-                    contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade },
+                    contadorCarrinho = MockOrderStore.cartItemCount,
                 )
             }
         }
@@ -163,19 +196,26 @@ class EnderecoScreenModel(private val modoInicial: TipoEntrega) : ScreenModel {
     fun onEvent(event: EnderecoUiEvent) {
         when (event) {
             is EnderecoUiEvent.ModoAlterado ->
-                _state.update { it.copy(modo = event.modo, erroPonto = null, erroEndereco = null) }
+                updateCheckoutInput { it.copy(modo = event.modo, erroPonto = null, erroEndereco = null) }
             is EnderecoUiEvent.CidadeAlterada ->
-                _state.update { it.copy(endereco = it.endereco.copy(cidade = event.valor)) }
+                updateCheckoutInput { it.copy(endereco = it.endereco.copy(cidade = event.valor)) }
             is EnderecoUiEvent.BairroAlterado ->
-                _state.update { it.copy(endereco = it.endereco.copy(bairro = event.valor)) }
+                updateCheckoutInput { it.copy(endereco = it.endereco.copy(bairro = event.valor)) }
             is EnderecoUiEvent.RuaAlterada ->
-                _state.update { it.copy(endereco = it.endereco.copy(rua = event.valor)) }
+                updateCheckoutInput { it.copy(endereco = it.endereco.copy(rua = event.valor)) }
             is EnderecoUiEvent.ReferenciaAlterada ->
-                _state.update { it.copy(endereco = it.endereco.copy(referencia = event.valor)) }
+                updateCheckoutInput { it.copy(endereco = it.endereco.copy(referencia = event.valor)) }
             is EnderecoUiEvent.PontoSeleccionado ->
-                _state.update { it.copy(pontoSeleccionado = event.ponto, erroPonto = null) }
+                updateCheckoutInput { it.copy(pontoSeleccionado = event.ponto, erroPonto = null) }
             is EnderecoUiEvent.ContinuarClicado -> validarEAvancar()
+            EnderecoUiEvent.ContinuarModoDemoClicado -> criarPedidoDemo()
         }
+    }
+
+    private fun updateCheckoutInput(transform: (EnderecoUiState) -> EnderecoUiState) {
+        if (_state.value.criandoPedido) return
+        idempotencyKey = null
+        _state.update { transform(it).copy(erroPedido = null, fallbackMockDisponivel = false) }
     }
 
     private fun validarEAvancar() {
@@ -184,12 +224,71 @@ class EnderecoScreenModel(private val modoInicial: TipoEntrega) : ScreenModel {
             TipoEntrega.Entrega -> {
                 val erro = if (s.endereco.rua.isBlank()) "Morada obrigatória" else null
                 _state.update { it.copy(erroEndereco = erro) }
-                if (erro == null) _podeAvancar.value = true
+                if (erro == null) {
+                    MockOrderStore.updateCheckoutDelivery(
+                        tipoEntrega = s.modo,
+                        enderecoEntrega = s.endereco,
+                        pontoLevantamento = null,
+                    )
+                    criarPedido()
+                }
             }
             TipoEntrega.Levantamento -> {
                 val erro = if (s.pontoSeleccionado == null) "Seleccione um ponto de levantamento" else null
                 _state.update { it.copy(erroPonto = erro) }
-                if (erro == null) _podeAvancar.value = true
+                if (erro == null) {
+                    MockOrderStore.updateCheckoutDelivery(
+                        tipoEntrega = s.modo,
+                        enderecoEntrega = null,
+                        pontoLevantamento = s.pontoSeleccionado,
+                    )
+                    criarPedido()
+                }
+            }
+        }
+    }
+
+    private fun criarPedido() {
+        if (_state.value.criandoPedido) return
+        val key = idempotencyKey ?: generateOrderIdempotencyKey().also { idempotencyKey = it }
+        screenModelScope.launch {
+            _state.update { it.copy(criandoPedido = true, erroPedido = null) }
+            when (val result = orderRepository.createCurrentCheckout(key)) {
+                is CreateCustomerOrderResult.Success -> _state.update {
+                    it.copy(
+                        criandoPedido = false,
+                        pedidoCriadoId = result.order.id,
+                        contadorCarrinho = MockOrderStore.cartItemCount,
+                    )
+                }
+                is CreateCustomerOrderResult.Failure -> _state.update {
+                    it.copy(
+                        criandoPedido = false,
+                        erroPedido = result.message,
+                        sessaoExpirada = result.sessionExpired,
+                        fallbackMockDisponivel = result.canUseMockFallback,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun criarPedidoDemo() {
+        if (_state.value.criandoPedido || !_state.value.fallbackMockDisponivel) return
+        screenModelScope.launch {
+            _state.update { it.copy(criandoPedido = true, erroPedido = null) }
+            when (val result = orderRepository.createMockCheckout()) {
+                is CreateCustomerOrderResult.Success -> _state.update {
+                    it.copy(
+                        criandoPedido = false,
+                        pedidoCriadoId = result.order.id,
+                        contadorCarrinho = MockOrderStore.cartItemCount,
+                        fallbackMockDisponivel = false,
+                    )
+                }
+                is CreateCustomerOrderResult.Failure -> _state.update {
+                    it.copy(criandoPedido = false, erroPedido = result.message)
+                }
             }
         }
     }
@@ -201,35 +300,67 @@ data class PagamentoUiState(
     val numeroMpesa: String = "",
     val titularMpesa: String = "",
     val nomeFicheiroCarregado: String? = null,
+    val numeroPedidoCriado: String? = null,
+    val totalPedidoMt: Int = 0,
     val contadorCarrinho: Int = 0,
+    val referenciaTransaccao: String = "",
+    val statusPagamento: PaymentStatus? = null,
+    val carregando: Boolean = false,
+    val mensagemSucesso: String? = null,
+    val erro: String? = null,
+    val pagamentoSubmetido: Boolean = false,
+    val comprovativoEnviado: Boolean = false,
+    val sessaoExpirada: Boolean = false,
+    val fallbackMockDisponivel: Boolean = false,
 ) {
-    val podeEnviar: Boolean get() = nomeFicheiroCarregado != null
+    val podeEnviar: Boolean
+        get() = nomeFicheiroCarregado != null &&
+            referenciaTransaccao.isNotBlank() &&
+            totalPedidoMt > 0 &&
+            !carregando
 }
 
 sealed class PagamentoUiEvent {
     data object EscolherFicheiroClicado : PagamentoUiEvent()
+    data class FicheiroSeleccionado(val ficheiro: SelectedProofFile) : PagamentoUiEvent()
+    data class FalhaSeleccao(val mensagem: String) : PagamentoUiEvent()
     data object RemoverFicheiroClicado : PagamentoUiEvent()
+    data class ReferenciaAlterada(val valor: String) : PagamentoUiEvent()
     data object CopiarNumeroClicado : PagamentoUiEvent()
     data object EnviarComprovativoClicado : PagamentoUiEvent()
+    data object ContinuarModoDemoClicado : PagamentoUiEvent()
 }
 
-class PagamentoScreenModel : ScreenModel {
+class PagamentoScreenModel(
+    private val orderId: String,
+    private val orderRepository: CustomerOrderRepository = OrderRuntime.repository,
+    private val paymentRepository: PaymentTrackingRepository = PaymentTrackingRuntime.repository,
+) : ScreenModel {
 
     private val _state = MutableStateFlow(PagamentoUiState())
     val state: StateFlow<PagamentoUiState> = _state.asStateFlow()
 
     private val _podeAvancar = MutableStateFlow(false)
     val podeAvancar: StateFlow<Boolean> = _podeAvancar.asStateFlow()
+    private var ficheiroSeleccionado: SelectedProofFile? = null
 
     fun avancarConsumido() { _podeAvancar.value = false }
 
     init {
         screenModelScope.launch {
+            val cachedOrder = orderRepository.cachedOrder(orderId)
+            val detail = if (cachedOrder == null) orderRepository.getOrder(orderId) else null
+            val backendOrder = cachedOrder ?: detail?.order
             _state.update {
                 it.copy(
                     numeroMpesa = MockData.numeroMpesa,
                     titularMpesa = MockData.titularMpesa,
-                    contadorCarrinho = MockData.itensCarrinho.sumOf { item -> item.quantidade },
+                    totalPedidoMt = backendOrder?.total
+                        ?: MockOrderStore.cartItems.sumOf { item -> item.precoUnitarioMt * item.quantidade } +
+                            if (MockOrderStore.cartItems.isEmpty()) 0 else MockData.taxaEntregaMt,
+                    contadorCarrinho = MockOrderStore.cartItemCount,
+                    sessaoExpirada = detail?.sessionExpired == true,
+                    erro = detail?.errorMessage,
                 )
             }
         }
@@ -237,16 +368,138 @@ class PagamentoScreenModel : ScreenModel {
 
     fun onEvent(event: PagamentoUiEvent) {
         when (event) {
-            is PagamentoUiEvent.EscolherFicheiroClicado ->
-                // Demo: simula ficheiro seleccionado.
-                _state.update { it.copy(nomeFicheiroCarregado = "comprovativo_mpesa.jpg") }
-            is PagamentoUiEvent.RemoverFicheiroClicado ->
-                _state.update { it.copy(nomeFicheiroCarregado = null) }
+            is PagamentoUiEvent.EscolherFicheiroClicado -> Unit
+            is PagamentoUiEvent.FicheiroSeleccionado -> {
+                ficheiroSeleccionado = event.ficheiro
+                _state.update {
+                    it.copy(
+                        nomeFicheiroCarregado = event.ficheiro.filename,
+                        erro = null,
+                        mensagemSucesso = null,
+                    )
+                }
+            }
+            is PagamentoUiEvent.FalhaSeleccao ->
+                _state.update { it.copy(erro = event.mensagem, mensagemSucesso = null) }
+            is PagamentoUiEvent.RemoverFicheiroClicado -> if (!_state.value.pagamentoSubmetido) {
+                ficheiroSeleccionado = null
+                _state.update { it.copy(nomeFicheiroCarregado = null, erro = null) }
+            }
+            is PagamentoUiEvent.ReferenciaAlterada -> if (!_state.value.pagamentoSubmetido) {
+                _state.update { it.copy(referenciaTransaccao = event.valor, erro = null) }
+            }
             is PagamentoUiEvent.CopiarNumeroClicado ->
                 { /* Step 5: Clipboard expect/actual */ }
-            is PagamentoUiEvent.EnviarComprovativoClicado -> {
-                if (_state.value.podeEnviar) _podeAvancar.value = true
+            is PagamentoUiEvent.EnviarComprovativoClicado -> submeter()
+            is PagamentoUiEvent.ContinuarModoDemoClicado -> submeterModoDemo()
+        }
+    }
+
+    fun sessaoExpiradaConsumida() {
+        _state.update { it.copy(sessaoExpirada = false) }
+    }
+
+    private fun submeter() {
+        val state = _state.value
+        val proof = ficheiroSeleccionado ?: return
+        if (!state.podeEnviar || state.numeroPedidoCriado != null) return
+        _state.update { it.copy(carregando = true, erro = null, mensagemSucesso = null) }
+        screenModelScope.launch {
+            if (state.pagamentoSubmetido) {
+                enviarComprovativo(proof)
+                return@launch
+            }
+            when (val result = paymentRepository.submitPayment(
+                orderId = orderId,
+                amountMzn = state.totalPedidoMt,
+                reference = state.referenciaTransaccao,
+            )) {
+                is PaymentSubmitResult.Success -> {
+                    _state.update {
+                        it.copy(
+                            pagamentoSubmetido = true,
+                            statusPagamento = result.payment?.status ?: PaymentStatus.PENDING,
+                            mensagemSucesso = "Pagamento submetido com sucesso.",
+                            fallbackMockDisponivel = false,
+                        )
+                    }
+                    if (result.source == PaymentTrackingDataSource.MOCK) {
+                        concluirModoDemo()
+                    } else {
+                        enviarComprovativo(proof)
+                    }
+                }
+                is PaymentSubmitResult.Failure -> _state.update {
+                    it.copy(
+                        carregando = false,
+                        erro = result.message,
+                        sessaoExpirada = result.sessionExpired,
+                        fallbackMockDisponivel = result.canUseMockFallback,
+                    )
+                }
             }
         }
+    }
+
+    private suspend fun enviarComprovativo(proof: SelectedProofFile) {
+        when (val result = paymentRepository.uploadPaymentProof(
+            orderId = orderId,
+            filename = proof.filename,
+            contentType = proof.contentType,
+            bytes = proof.bytes,
+        )) {
+            is ProofUploadResult.Success -> {
+                orderRepository.refreshOrders()
+                _state.update {
+                    it.copy(
+                        carregando = false,
+                        comprovativoEnviado = true,
+                        numeroPedidoCriado = orderId,
+                        mensagemSucesso = "Comprovativo enviado com sucesso.",
+                    )
+                }
+                _podeAvancar.value = true
+            }
+            is ProofUploadResult.Failure -> _state.update {
+                it.copy(
+                    carregando = false,
+                    erro = result.message,
+                    sessaoExpirada = result.sessionExpired,
+                )
+            }
+        }
+    }
+
+    private fun submeterModoDemo() {
+        val state = _state.value
+        if (!state.fallbackMockDisponivel || state.carregando) return
+        _state.update { it.copy(carregando = true, erro = null) }
+        screenModelScope.launch {
+            when (val result = paymentRepository.submitMockPayment(
+                orderId,
+                state.referenciaTransaccao,
+                state.nomeFicheiroCarregado,
+            )) {
+                is PaymentSubmitResult.Success -> concluirModoDemo()
+                is PaymentSubmitResult.Failure -> _state.update {
+                    it.copy(carregando = false, erro = result.message)
+                }
+            }
+        }
+    }
+
+    private fun concluirModoDemo() {
+        _state.update {
+            it.copy(
+                carregando = false,
+                pagamentoSubmetido = true,
+                comprovativoEnviado = true,
+                statusPagamento = PaymentStatus.PENDING,
+                numeroPedidoCriado = orderId,
+                mensagemSucesso = "Pagamento guardado em modo demo.",
+                fallbackMockDisponivel = false,
+            )
+        }
+        _podeAvancar.value = true
     }
 }

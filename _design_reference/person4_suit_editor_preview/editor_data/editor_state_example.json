@@ -1,0 +1,66 @@
+{
+  "_comment": "editor_state_example.json — Estado do editor enquanto o utilizador está a personalizar. Equivale ao EditorState data class em Kotlin / StateFlow no ViewModel.",
+
+  "sessionId": "session_20240611_143022",
+  "userId": "user_abc123",
+  "timestamp": "2024-06-11T14:30:22Z",
+  "isDirty": true,
+
+  "selectedModel": "classic_suit",
+  "currentAngle": "front",
+  "zoomLevel": 1,
+
+  "selectedColor": {
+    "id": "navy",
+    "hex": "#1a2340",
+    "label": "Navy"
+  },
+
+  "selectedFabric": {
+    "id": "wool",
+    "label": "Wool",
+    "assetPath": "assets/fabrics/wool.png"
+  },
+
+  "sliders": {
+    "lapela":      { "value": 55, "unit": "%", "scaleX": 1.05 },
+    "comprimento": { "value": 60, "unit": "%", "scaleY": 1.02 },
+    "ombro":       { "value": 45, "unit": "%", "scaleX": 0.94 }
+  },
+
+  "layerVisibility": {
+    "front": {
+      "trousers":    true,
+      "jacket_base": true,
+      "lapel":       true,
+      "buttons":     true,
+      "pockets":     true
+    },
+    "side": {
+      "trousers":    true,
+      "jacket_base": true,
+      "sleeve":      true
+    },
+    "back": {
+      "trousers":    true,
+      "jacket_base": true,
+      "collar":      true
+    }
+  },
+
+  "selectedLayerId": "lapel",
+
+  "composition": {
+    "validated": true,
+    "lastValidation": "2024-06-11T14:29:58Z",
+    "issues": []
+  },
+
+  "estimatedPrice": {
+    "base": 12500,
+    "fabricModifier": 0,
+    "colorModifier": 0,
+    "total": 12500,
+    "currency": "MZN"
+  }
+}

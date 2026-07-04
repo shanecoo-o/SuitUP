@@ -1,0 +1,137 @@
+Project SuitUP {
+  database_type: 'PostgreSQL'
+}
+
+Table users {
+  id uuid [pk]
+  full_name varchar [not null]
+  email varchar [unique, not null]
+  phone varchar
+  password_hash varchar [not null]
+  role varchar [note: 'CLIENT, ADMIN, TAILOR']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table suit_models {
+  id uuid [pk]
+  name varchar [not null]
+  description text
+  base_price decimal
+  image_url varchar
+  active boolean
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table suit_designs {
+  id uuid [pk]
+  user_id uuid [not null]
+  suit_model_id uuid [not null]
+  lapel_type varchar
+  sleeve_style varchar
+  button_style varchar
+  pocket_style varchar
+  lining_style varchar
+  fabric_name varchar
+  fabric_color_hex varchar
+  fit_type varchar
+  estimated_price decimal
+  preview_image_url varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table measurements {
+  id uuid [pk]
+  user_id uuid [not null]
+  label varchar
+  height decimal
+  weight decimal
+  shoulders decimal
+  chest decimal
+  waist decimal
+  hips decimal
+  neck decimal
+  arm_length decimal
+  sleeve_length decimal
+  trouser_length decimal
+  inseam decimal
+  notes text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table orders {
+  id uuid [pk]
+  user_id uuid [not null]
+  suit_design_id uuid [not null]
+  measurement_id uuid [not null]
+  order_code varchar [unique, not null]
+  total_price decimal [not null]
+  payment_status varchar [not null, note: 'PENDING, PROOF_UPLOADED, VALIDATED, REJECTED']
+  order_status varchar [not null, note: 'PAYMENT_PENDING, PAYMENT_VALIDATED, IN_PRODUCTION, READY_FOR_PICKUP, OUT_FOR_DELIVERY, DELIVERED, CANCELLED']
+  delivery_type varchar [not null, note: 'DELIVERY, PICKUP']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table order_status_history {
+  id uuid [pk]
+  order_id uuid [not null]
+  status varchar [not null]
+  description text
+  changed_by uuid [not null]
+  created_at timestamp
+}
+
+Table payment_proofs {
+  id uuid [pk]
+  order_id uuid [not null]
+  mpesa_transaction_id varchar [unique, not null]
+  file_name varchar
+  file_path varchar
+  file_type varchar
+  uploaded_at timestamp
+  validated boolean
+  validated_at timestamp
+  validation_notes text
+}
+
+Table delivery_info {
+  id uuid [pk]
+  order_id uuid [unique, not null]
+  address varchar
+  city varchar
+  reference_point varchar
+  pickup_point varchar
+  receiver_name varchar
+  receiver_phone varchar
+  delivery_notes text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table sync_queue {
+  id uuid [pk]
+  entity_type varchar [not null]
+  entity_id uuid [not null]
+  operation_type varchar [not null, note: 'CREATE, UPDATE, DELETE, UPLOAD']
+  payload_json text [not null]
+  status varchar [not null, note: 'PENDING, SYNCED, FAILED']
+  retry_count int
+  last_error text
+  created_at timestamp
+  synced_at timestamp
+}
+
+Ref: suit_designs.user_id > users.id
+Ref: suit_designs.suit_model_id > suit_models.id
+Ref: measurements.user_id > users.id
+Ref: orders.user_id > users.id
+Ref: orders.suit_design_id > suit_designs.id
+Ref: orders.measurement_id > measurements.id
+Ref: order_status_history.order_id > orders.id
+Ref: order_status_history.changed_by > users.id
+Ref: payment_proofs.order_id > orders.id
+Ref: delivery_info.order_id - orders.id

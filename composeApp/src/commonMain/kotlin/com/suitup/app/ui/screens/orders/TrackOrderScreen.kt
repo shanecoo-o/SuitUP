@@ -1,241 +1,199 @@
 package com.suitup.app.ui.screens.orders
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.EstadoEvento
-import com.suitup.app.domain.model.Pedido
 import com.suitup.app.domain.model.EventoPedido
-import com.suitup.app.domain.model.EstadoPedido
-import com.suitup.app.ui.components.SuitButton
-import com.suitup.app.ui.components.SuitCard
-import com.suitup.app.ui.components.SuitEyebrow
-import com.suitup.app.ui.components.SuitTopBar
-import com.suitup.app.ui.icons.CheckIcon
+import com.suitup.app.domain.model.PaymentStatus
+import com.suitup.app.domain.model.Pedido
+import com.suitup.app.data.payment.CustomerTrackingEvent
+import com.suitup.app.data.payment.CustomerTrackingStatus
+import com.suitup.app.ui.components.OrderTimeline
+import com.suitup.app.ui.components.OrderTimelineItem
+import com.suitup.app.ui.components.PaymentStatusCard
+import com.suitup.app.ui.components.PremiumCard
+import com.suitup.app.ui.components.PremiumTopBar
+import com.suitup.app.ui.components.PrimaryGoldButton
+import com.suitup.app.ui.components.SectionHeader
+import com.suitup.app.ui.components.SecondaryDarkButton
+import com.suitup.app.ui.components.TimelineItemStatus
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
+import com.suitup.app.ui.util.formatMzn
 
-/**
- * Ecrã 14 — Acompanhar Pedido.
- *
- * Top bar dark com "Pedido #N". Card resumo com estado atual + timestamp.
- * Timeline vertical com 5 estados do flow do pedido.
- * Footer com "Falar com suporte".
- */
 @Composable
 fun TrackOrderScreen(
     order: Pedido,
     cartItemCount: Int = 0,
+    backendTimeline: List<CustomerTrackingEvent>? = null,
+    isTimelineLoading: Boolean = false,
+    timelineError: String? = null,
+    noticeMessage: String? = null,
     onBack: () -> Unit = {},
     onCartClick: () -> Unit = {},
-    onContactSupport: () -> Unit = {},
+    onContactSupport: (() -> Unit)? = null,
+    onRetryTimeline: () -> Unit = {},
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(SuitColors.Bone),
-    ) {
-        SuitTopBar(
-            dark = true,
-            title = "Pedido #${order.numero}",
+    Column(modifier = Modifier.fillMaxSize()) {
+        PremiumTopBar(
+            title = "Acompanhar pedido",
             onBack = onBack,
             onCart = onCartClick,
             cartBadgeCount = cartItemCount,
         )
-
         Column(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            // Header card com estado atual
-            CurrentStatusCard(
-                statusLabel = order.estado.label,
-                actualizadoEm = order.actualizadoEm,
+            if (noticeMessage != null) {
+                PremiumCard {
+                    Text(noticeMessage, style = SuitTextStyles.bodySmall, color = SuitColors.Error)
+                }
+            }
+            SectionHeader(
+                eyebrow = "PEDIDO #${order.numero}",
+                title = order.estado.label,
+                description = "Criado em ${order.criadoEm} · actualizado em ${order.actualizadoEm}",
             )
-
-            // Timeline
-            OrderTimeline(events = order.linhaTempo)
-        }
-
-        // Footer
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 14.dp),
-        ) {
-            SuitButton(
-                text = "Falar com suporte",
-                onClick = onContactSupport,
-            )
-        }
-    }
-}
-
-@Composable
-private fun CurrentStatusCard(statusLabel: String, actualizadoEm: String) {
-    SuitCard {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SuitEyebrow("Status atual")
-            Text(
-                text = statusLabel,
-                style = SuitTextStyles.titleLarge,
-                color = SuitColors.Ink,
-            )
-            Text(
-                text = "Atualizado em $actualizadoEm",
-                style = SuitTextStyles.bodySmall,
-                color = SuitColors.Slate,
-            )
-        }
-    }
-}
-
-@Composable
-private fun OrderTimeline(events: List<EventoPedido>) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        events.forEachIndexed { index, event ->
-            val isLast = index == events.lastIndex
-            TimelineRow(
-                event = event,
-                isLast = isLast,
-            )
-        }
-    }
-}
-
-@Composable
-private fun TimelineRow(
-    event: EventoPedido,
-    isLast: Boolean,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top,
-    ) {
-        // Coluna do indicator + linha conectora
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.width(28.dp),
-        ) {
-            StatusIndicator(state = event.estadoEvento)
-            if (!isLast) {
-                Box(
-                    modifier = Modifier
-                        .width(2.dp)
-                        .height(36.dp)
-                        .background(
-                            if (event.estadoEvento == EstadoEvento.Concluido) SuitColors.Ink
-                            else SuitColors.Mist
+            PaymentStatusCard(status = order.pagamento.status)
+            if (order.pagamento.status == PaymentStatus.REJECTED) {
+                PremiumCard {
+                    Text(
+                        "Pagamento rejeitado. Contacte a loja ou envie uma nova referência.",
+                        style = SuitTextStyles.bodyMedium,
+                        color = SuitColors.Error,
+                    )
+                }
+            }
+            PremiumCard {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Progresso", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+                    when {
+                        isTimelineLoading -> Text(
+                            "A carregar acompanhamento...",
+                            style = SuitTextStyles.bodyMedium,
+                            color = SuitColors.Slate,
                         )
-                )
+                        timelineError != null -> {
+                            Text(timelineError, style = SuitTextStyles.bodyMedium, color = SuitColors.Error)
+                            SecondaryDarkButton(
+                                text = "Tentar novamente",
+                                onClick = onRetryTimeline,
+                                fullWidth = false,
+                            )
+                        }
+                        backendTimeline != null && backendTimeline.isEmpty() -> Text(
+                            "Ainda não existe histórico para este pedido.",
+                            style = SuitTextStyles.bodyMedium,
+                            color = SuitColors.Slate,
+                        )
+                        backendTimeline != null -> OrderTimeline(items = backendTimeline.map(::timelineItem))
+                        else -> OrderTimeline(items = order.linhaTempo.map(::timelineItem))
+                    }
+                }
+            }
+            PremiumCard {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Resumo do pedido", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+                    val design = order.designsFato.firstOrNull()
+                    SummaryLine("Fato", design?.nome ?: "Fato personalizado")
+                    design?.let {
+                        SummaryLine("Tecido", it.tecido.nome)
+                        SummaryLine("Cor", it.cor.nome)
+                        SummaryLine("Lapela", it.partes.lapela.label)
+                        SummaryLine("Botões", it.partes.botoes.label)
+                    }
+                    SummaryLine("Cliente", order.cliente?.nome ?: "Cliente SuitUP")
+                    SummaryLine(
+                        "Recepção",
+                        order.enderecoEntrega?.let { "${it.bairro}, ${it.cidade}" }
+                            ?: order.pontoLevantamento?.nome
+                            ?: order.tipoEntrega.label,
+                    )
+                    SummaryLine("Subtotal", formatMzn(order.subtotal))
+                    SummaryLine("Entrega", formatMzn(order.taxaEntrega))
+                    SummaryLine("Total", formatMzn(order.total))
+                }
+            }
+            order.medidas?.let { medidas ->
+                PremiumCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Medidas", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+                        MeasurementLine("Altura", medidas.alturaCm)
+                        MeasurementLine("Peito", medidas.peitoCm)
+                        MeasurementLine("Cintura", medidas.cinturaCm)
+                        MeasurementLine("Ombros", medidas.ombrosCm)
+                        MeasurementLine("Manga", medidas.mangaCm)
+                        MeasurementLine("Calça", medidas.calcaCm)
+                    }
+                }
             }
         }
-
-        Spacer(Modifier.width(12.dp))
-
-        // Texto: título + sub-label
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(bottom = if (isLast) 0.dp else 16.dp, top = 2.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text(
-                text = eventTitleLabel(event.estadoPedido),
-                style = SuitTextStyles.titleMedium,
-                color = SuitColors.Ink,
-            )
-            Text(
-                text = eventSubLabel(event),
-                style = SuitTextStyles.bodySmall,
-                color = SuitColors.Slate,
+        if (onContactSupport != null) {
+            PrimaryGoldButton(
+                text = "Falar com suporte",
+                onClick = onContactSupport,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
             )
         }
+    }
+}
+
+private fun timelineItem(event: EventoPedido): OrderTimelineItem = OrderTimelineItem(
+    label = event.estadoPedido.label,
+    description = event.ocorridoEm ?: when (event.estadoEvento) {
+        EstadoEvento.Concluido -> "Concluído"
+        EstadoEvento.Actual -> "Em curso"
+        EstadoEvento.Pendente -> "Pendente"
+    },
+    status = when {
+        event.estadoPedido.label.contains("rejeitado", ignoreCase = true) -> TimelineItemStatus.Rejected
+        event.estadoEvento == EstadoEvento.Concluido -> TimelineItemStatus.Completed
+        event.estadoEvento == EstadoEvento.Actual -> TimelineItemStatus.Current
+        else -> TimelineItemStatus.Pending
+    },
+)
+
+private fun timelineItem(event: CustomerTrackingEvent): OrderTimelineItem = OrderTimelineItem(
+    label = when (event.status) {
+        CustomerTrackingStatus.RECEIVED -> "Pedido recebido"
+        CustomerTrackingStatus.IN_ANALYSIS -> "Em análise"
+        CustomerTrackingStatus.MEASUREMENTS_CONFIRMED -> "Medidas confirmadas"
+        CustomerTrackingStatus.IN_PRODUCTION -> "Em produção"
+        CustomerTrackingStatus.READY_FOR_DELIVERY -> "Pronto para entrega"
+        CustomerTrackingStatus.DELIVERED -> "Entregue"
+        CustomerTrackingStatus.CANCELLED -> "Cancelado"
+    },
+    description = event.occurredAt.ifBlank { if (event.isCurrent) "Estado actual" else "Registado" },
+    status = when {
+        event.status == CustomerTrackingStatus.CANCELLED -> TimelineItemStatus.Rejected
+        event.isCurrent -> TimelineItemStatus.Current
+        else -> TimelineItemStatus.Completed
+    },
+)
+
+@Composable
+private fun SummaryLine(label: String, value: String) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, style = SuitTextStyles.bodySmall, color = SuitColors.Smoke)
+        Text(value, style = SuitTextStyles.bodyMedium, color = SuitColors.Pearl)
     }
 }
 
 @Composable
-private fun StatusIndicator(state: EstadoEvento) {
-    Box(
-        modifier = Modifier
-            .size(24.dp)
-            .clip(CircleShape)
-            .background(
-                when (state) {
-                    EstadoEvento.Concluido, EstadoEvento.Actual -> SuitColors.Ink
-                    EstadoEvento.Pendente -> SuitColors.SurfaceWhite
-                }
-            )
-            .border(
-                width = if (state == EstadoEvento.Pendente) 1.5.dp else 0.dp,
-                color = SuitColors.Mist,
-                shape = CircleShape,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        when (state) {
-            EstadoEvento.Concluido -> CheckIcon(tint = SuitColors.SurfaceWhite, size = 14.dp)
-            EstadoEvento.Actual -> Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .clip(CircleShape)
-                    .background(SuitColors.SurfaceWhite)
-            )
-            EstadoEvento.Pendente -> Unit
-        }
-    }
-}
-
-/**
- * Label curto do estado para usar como título do item da linhaTempo.
- * Difere ligeiramente do label completo do domain para encurtar.
- */
-private fun eventTitleLabel(estado: EstadoPedido): String = when (estado) {
-    EstadoPedido.AguardandoPagamento -> "Pagamento enviado"
-    EstadoPedido.PagamentoValidado -> "Pagamento validado"
-    EstadoPedido.EmProducao -> "Em produção"
-    EstadoPedido.ProntoParaEntrega -> "Pronto para entrega"
-    EstadoPedido.Entregue -> "Entregue"
-    EstadoPedido.Cancelado -> "Cancelado"
-}
-
-/**
- * Sub-label calculada conforme o estado do evento.
- * - Concluido com occurredAt → mostrar data
- * - Concluido sem occurredAt → "Aguardando validação" (caso M-Pesa pendente)
- * - Actual → "Em curso"
- * - Pendente → "Pendente"
- */
-private fun eventSubLabel(event: EventoPedido): String = when (event.estadoEvento) {
-    EstadoEvento.Concluido -> when {
-        event.ocorridoEm != null -> event.ocorridoEm
-        event.estadoPedido == EstadoPedido.AguardandoPagamento -> "Aguardando validação"
-        else -> "Concluído"
-    }
-    EstadoEvento.Actual -> "Em curso"
-    EstadoEvento.Pendente -> "Pendente"
+private fun MeasurementLine(label: String, value: String) {
+    if (value.isNotBlank()) SummaryLine(label, "$value cm")
 }

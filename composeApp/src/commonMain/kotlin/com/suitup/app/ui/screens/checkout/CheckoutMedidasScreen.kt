@@ -17,12 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.Medidas
-import com.suitup.app.ui.components.SuitButton
-import com.suitup.app.ui.components.SuitCard
+import com.suitup.app.ui.components.CheckoutStepIndicator
+import com.suitup.app.ui.components.PremiumCard
+import com.suitup.app.ui.components.PremiumTextField
+import com.suitup.app.ui.components.PremiumTopBar
+import com.suitup.app.ui.components.PrimaryGoldButton
 import com.suitup.app.ui.components.SuitEyebrow
-import com.suitup.app.ui.components.SuitStepIndicator
-import com.suitup.app.ui.components.SuitTextField
-import com.suitup.app.ui.components.SuitTopBar
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 
@@ -61,11 +61,11 @@ fun CheckoutMedidasScreen(
             .fillMaxSize()
             .background(SuitColors.Bone),
     ) {
-        SuitTopBar(
+        PremiumTopBar(
+            title = "Checkout",
             onBack = onBack,
             onCart = onCartClick,
             cartBadgeCount = cartItemCount,
-            centerContent = { SuitStepIndicator(currentStep = 2, totalSteps = 5) },
         )
 
         Column(
@@ -75,6 +75,7 @@ fun CheckoutMedidasScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            CheckoutStepIndicator(currentStep = 2)
             // Cabeçalho
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
@@ -200,7 +201,7 @@ fun CheckoutMedidasScreen(
 
             // Observações
             MedidasGrupo(titulo = "Observações") {
-                SuitTextField(
+                PremiumTextField(
                     value = medidas.observacoes,
                     onValueChange = onObservacoesChange,
                     label = "Observações adicionais",
@@ -232,8 +233,8 @@ fun CheckoutMedidasScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 14.dp),
         ) {
-            SuitButton(
-                text = "Continuar",
+            PrimaryGoldButton(
+                text = "Continuar para entrega",
                 onClick = onContinue,
                 enabled = podeContinuar,
             )
@@ -246,7 +247,7 @@ private fun MedidasGrupo(
     titulo: String,
     content: @Composable () -> Unit,
 ) {
-    SuitCard {
+    PremiumCard {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SuitEyebrow(titulo)
             content()
@@ -262,7 +263,7 @@ private fun MedidaField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    SuitTextField(
+    PremiumTextField(
         value = valor,
         onValueChange = onValueChange,
         label = label,

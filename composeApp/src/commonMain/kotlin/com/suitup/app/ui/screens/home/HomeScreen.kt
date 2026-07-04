@@ -1,5 +1,6 @@
 package com.suitup.app.ui.screens.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,103 +8,198 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.suitup.app.domain.model.EstadoPedido
+import com.suitup.app.domain.model.ModeloFato
 import com.suitup.app.domain.model.Pedido
-import com.suitup.app.ui.components.SuitButton
-import com.suitup.app.ui.components.SuitButtonSize
-import com.suitup.app.ui.components.SuitButtonVariant
-import com.suitup.app.ui.components.SuitCard
-import com.suitup.app.ui.components.SuitGarmentMini
-import com.suitup.app.ui.components.SuitLogoInline
-import com.suitup.app.ui.components.SuitStatusBadge
-import com.suitup.app.ui.components.SuitTopBar
+import com.suitup.app.ui.components.EmptyStateCard
+import com.suitup.app.ui.components.MetricCard
+import com.suitup.app.ui.components.PremiumCard
+import com.suitup.app.ui.components.PrimaryGoldButton
+import com.suitup.app.ui.components.SectionHeader
+import com.suitup.app.ui.components.StatusChip
+import com.suitup.app.ui.components.StatusChipType
+import com.suitup.app.ui.components.SuitImageCard
+import com.suitup.app.ui.components.PremiumTopBar
 import com.suitup.app.ui.icons.ForwardChevronIcon
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 import com.suitup.app.ui.theme.SuitTheme
-import com.suitup.app.ui.util.toComposeColorOrNull
+import com.suitup.app.ui.util.formatMzn
+import com.suitup.app.ui.util.suitImageResource
+import org.jetbrains.compose.resources.painterResource
 
-/**
- * Ecrã 04 — Home.
- *
- * Top bar escura com logo + cart, hero card escuro com CTA dourado,
- * lista de pedidos recentes, bottom nav.
- */
-/**
- * NOTA arquitetural: bottom nav vive no MainShellScreen (ui/navigation), não aqui.
- * Este composable só renderiza o **conteúdo** da tab Home.
- */
 @Composable
 fun HomeScreen(
     pedidosRecentes: List<Pedido>,
     cartItemCount: Int,
+    featuredModels: List<ModeloFato> = emptyList(),
+    userName: String = "João",
     onCreateNewSuit: () -> Unit = {},
+    onFeaturedModelClick: (ModeloFato) -> Unit = {},
     onOrderClick: (Pedido) -> Unit = {},
     onSeeAllOrders: () -> Unit = {},
     onCartClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
 ) {
+    val pendingPayments = pedidosRecentes.count { it.estado == EstadoPedido.AguardandoPagamento }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(SuitColors.Bone),
+            .background(SuitColors.InkBlack),
     ) {
-        SuitTopBar(
-            dark = true,
+        PremiumTopBar(
+            title = "SuitUP",
             onCart = onCartClick,
             cartBadgeCount = cartItemCount,
-            centerContent = { SuitLogoInline(markSize = 24.dp, tint = SuitColors.SurfaceWhite) }
+            trailing = null,
         )
 
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            contentPadding = PaddingValues(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            item("hero") {
-                HeroCard(onCreateNewSuit = onCreateNewSuit)
-            }
-
-            item("orders-header") {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
+            item("greeting") {
+                Column(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
-                        text = "Meus pedidos",
-                        style = SuitTextStyles.headlineMedium,
-                        color = SuitColors.Ink,
+                        text = "Olá, ${userName.substringBefore(' ')}",
+                        style = SuitTextStyles.headlineLarge,
+                        color = SuitColors.Pearl,
                     )
                     Text(
-                        text = "Ver todos",
-                        style = SuitTextStyles.labelMedium,
+                        text = "O próximo fato começa nos detalhes.",
+                        style = SuitTextStyles.bodyMedium,
                         color = SuitColors.Slate,
-                        modifier = Modifier
-                            .clickable(onClick = onSeeAllOrders)
-                            .padding(4.dp)
                     )
                 }
             }
 
+            item("hero") {
+                HomeHero(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    onCreateNewSuit = onCreateNewSuit,
+                )
+            }
+
+            item("quick-actions") {
+                HomeQuickActions(
+                    onCatalog = onCreateNewSuit,
+                    onCart = onCartClick,
+                    onOrders = onSeeAllOrders,
+                    onProfile = onProfileClick,
+                )
+            }
+
+            item("metrics") {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    item {
+                        MetricCard(
+                            label = "Pedidos",
+                            value = pedidosRecentes.size.toString(),
+                            supportingText = "recentes",
+                            modifier = Modifier.width(136.dp),
+                        )
+                    }
+                    item {
+                        MetricCard(
+                            label = "Carrinho",
+                            value = cartItemCount.toString(),
+                            supportingText = "itens",
+                            modifier = Modifier.width(136.dp),
+                        )
+                    }
+                    item {
+                        MetricCard(
+                            label = "Pagamentos",
+                            value = pendingPayments.toString(),
+                            supportingText = "pendentes",
+                            modifier = Modifier.width(136.dp),
+                            accent = if (pendingPayments > 0) SuitColors.Warning else SuitColors.Success,
+                        )
+                    }
+                }
+            }
+
+            if (featuredModels.isNotEmpty()) {
+                item("catalog-header") {
+                    SectionHeader(
+                        title = "Modelos em destaque",
+                        eyebrow = "Catálogo",
+                        description = "Escolha uma base e personalize cada detalhe.",
+                        actionLabel = "Ver catálogo",
+                        onAction = onCreateNewSuit,
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                    )
+                }
+
+                item("catalog-models") {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(featuredModels.take(3), key = { it.id }) { model ->
+                            SuitImageCard(
+                                image = suitImageResource(model.urlImagemPrevia),
+                                title = model.nome,
+                                subtitle = model.categoria.label,
+                                priceMzn = model.precoBase,
+                                modifier = Modifier.width(220.dp),
+                                onClick = { onFeaturedModelClick(model) },
+                            )
+                        }
+                    }
+                }
+            }
+
+            item("orders-header") {
+                SectionHeader(
+                    title = "Pedidos recentes",
+                    description = "Acompanhe produção, pagamento e entrega.",
+                    actionLabel = "Ver todos",
+                    onAction = onSeeAllOrders,
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                )
+            }
+
             if (pedidosRecentes.isEmpty()) {
-                item("empty") { EmptyOrders() }
+                item("empty-orders") {
+                    EmptyStateCard(
+                        title = "Ainda não tem pedidos",
+                        description = "Personalize o seu primeiro fato e acompanhe tudo por aqui.",
+                        actionLabel = "Ver catálogo",
+                        onAction = onCreateNewSuit,
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                    )
+                }
             } else {
-                items(pedidosRecentes, key = { it.id }) { order ->
-                    OrderRow(order = order, onClick = { onOrderClick(order) })
+                items(pedidosRecentes.take(2), key = { it.id }) { order ->
+                    RecentOrderCard(
+                        order = order,
+                        onClick = { onOrderClick(order) },
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                    )
                 }
             }
         }
@@ -111,49 +207,88 @@ fun HomeScreen(
 }
 
 @Composable
-private fun HeroCard(onCreateNewSuit: () -> Unit) {
-    SuitCard(
-        background = SuitColors.Ink,
-        border = false,
-        padding = 0.dp,
+private fun HomeQuickActions(
+    onCatalog: () -> Unit,
+    onCart: () -> Unit,
+    onOrders: () -> Unit,
+    onProfile: () -> Unit,
+) {
+    val actions = listOf(
+        "Catálogo" to onCatalog,
+        "Carrinho" to onCart,
+        "Pedidos" to onOrders,
+        "Perfil" to onProfile,
+    )
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
+        items(actions, key = { it.first }) { (label, action) ->
+            PremiumCard(
+                modifier = Modifier
+                    .width(116.dp)
+                    .clickable(onClick = action),
+                padding = 14.dp,
+            ) {
+                Text(label, style = SuitTextStyles.titleMedium, color = SuitColors.Pearl)
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeHero(
+    onCreateNewSuit: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    PremiumCard(modifier = modifier, onClick = onCreateNewSuit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 0.dp, top = 24.dp, bottom = 24.dp),
+                .background(
+                    Brush.verticalGradient(
+                        listOf(SuitColors.SlateSurface, SuitColors.WarmBlack)
+                    )
+                )
+                .padding(2.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
-                    text = "Crie o seu estilo único e exclusivo",
-                    style = SuitTextStyles.headlineMedium,
-                    color = SuitColors.SurfaceWhite,
+                    text = "Crie o seu fato à medida",
+                    style = SuitTextStyles.headlineLarge,
+                    color = SuitColors.Pearl,
                 )
-                SuitButton(
+                Text(
+                    text = "Personalize modelo, tecido e detalhes em poucos passos.",
+                    style = SuitTextStyles.bodyMedium,
+                    color = SuitColors.Slate,
+                )
+                PrimaryGoldButton(
                     text = "Criar novo fato",
                     onClick = onCreateNewSuit,
-                    variant = SuitButtonVariant.Gold,
-                    size = SuitButtonSize.Medium,
                     fullWidth = false,
                 )
             }
 
-            Spacer(Modifier.width(12.dp))
-
-            // Mini suit posicionado à direita do card
             Box(
                 modifier = Modifier
-                    .padding(end = 16.dp),
-                contentAlignment = Alignment.Center
+                    .width(84.dp)
+                    .clip(SuitTheme.shapes.md)
+                    .background(SuitColors.WarmBlack),
+                contentAlignment = Alignment.Center,
             ) {
-                SuitGarmentMini(
-                    size = 96.dp,
-                    garmentColor = SuitColors.Charcoal,
-                    background = Color.Transparent,
-                    showShirt = true,
+                Image(
+                    painter = painterResource(suitImageResource("suit_navy_business")),
+                    contentDescription = "Fato azul executivo",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(6.dp),
+                    contentScale = ContentScale.Fit,
                 )
             }
         }
@@ -161,60 +296,52 @@ private fun HeroCard(onCreateNewSuit: () -> Unit) {
 }
 
 @Composable
-private fun OrderRow(order: Pedido, onClick: () -> Unit) {
-    SuitCard(
-        onClick = onClick,
-        padding = 12.dp,
-    ) {
+private fun RecentOrderCard(
+    order: Pedido,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    PremiumCard(modifier = modifier, onClick = onClick) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            SuitGarmentMini(
-                size = 56.dp,
-                garmentColor = order.designsFato.firstOrNull()?.cor?.hex?.toComposeColorOrNull() ?: SuitColors.Ink,
-                background = SuitColors.Pearl,
-            )
-
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
             ) {
                 Text(
                     text = "Pedido #${order.numero}",
-                    style = SuitTextStyles.titleMedium,
-                    color = SuitColors.Ink,
+                    style = SuitTextStyles.titleLarge,
+                    color = SuitColors.Pearl,
                 )
-                SuitStatusBadge(
-                    text = order.estado.shortLabel(),
-                    kind = order.estado.toBadgeKind(),
+                Text(
+                    text = order.designsFato.firstOrNull()?.nome ?: "Fato personalizado",
+                    style = SuitTextStyles.bodySmall,
+                    color = SuitColors.Slate,
+                )
+                Text(
+                    text = formatMzn(order.total),
+                    style = SuitTextStyles.titleMedium,
+                    color = SuitColors.GoldChampagne,
+                )
+                StatusChip(
+                    status = order.estado.toStatusChipType(),
+                    label = order.estado.shortLabel(),
                 )
             }
-
-            ForwardChevronIcon(tint = SuitColors.Slate, size = 20.dp)
+            ForwardChevronIcon(tint = SuitColors.GoldChampagne, size = 20.dp)
         }
     }
 }
 
-@Composable
-private fun EmptyOrders() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = "Ainda não tem pedidos",
-            style = SuitTextStyles.titleMedium,
-            color = SuitColors.Ink,
-        )
-        Text(
-            text = "Comece pelo seu primeiro fato.",
-            style = SuitTextStyles.bodyMedium,
-            color = SuitColors.Slate,
-        )
-    }
+private fun EstadoPedido.toStatusChipType(): StatusChipType = when (this) {
+    EstadoPedido.AguardandoPagamento -> StatusChipType.Pending
+    EstadoPedido.PagamentoValidado -> StatusChipType.Confirmed
+    EstadoPedido.PagamentoRejeitado -> StatusChipType.Rejected
+    EstadoPedido.EmProducao -> StatusChipType.Production
+    EstadoPedido.ProntoParaEntrega -> StatusChipType.Ready
+    EstadoPedido.Entregue -> StatusChipType.Delivered
+    EstadoPedido.Cancelado -> StatusChipType.Rejected
 }

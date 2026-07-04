@@ -1,96 +1,121 @@
 package com.suitup.app.ui.theme
 
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
- * SuitUP color palette.
+ * SuitUP dark sartorial palette.
  *
- * Princípios aplicados das skills de design:
- * - Nunca usar #000000 puro (usamos #0D0D0D off-black)
- * - Off-white cálido em vez de #FFFFFF puro
- * - Acento dourado único (estratégia "Restrained": 1 cor de acento ≤10%)
- * - Pastéis muito desaturados para tags/estado badges
- * - Bordas hairline em vez de shadows pesadas
+ * The Figma reference is dark-first: charcoal app background, layered dark
+ * surfaces, bone text, beige-gray muted text, and restrained gold accents.
+ * Several existing screens use SuitColors.Ink for text, so Ink now represents
+ * the primary readable ink-on-dark color. Use the explicit Surface* tokens for
+ * containers and Charcoal/Black for dark fills.
  */
 object SuitColors {
-    // Primárias do mockup
-    val Ink = Color(0xFF0D0D0D)              // Off-black principal
-    val Charcoal = Color(0xFF2C2C2C)         // Cinza escuro secundário
-    val Bone = Color(0xFFF5F5F5)             // Off-white de fundo
-    val Gold = Color(0xFFC8A96A)             // Acento dourado (alfaiataria)
+    val InkBlack = Color(0xFF0A0A0C)
+    val Charcoal = Color(0xFF111216)
+    val WarmBlack = Color(0xFF15171B)
+    val SlateSurface = Color(0xFF1C1F24)
+    val MutedGray = Color(0xFF2B2E34)
+    val BoneText = Color(0xFFEDE8DE)
+    val PearlText = Color(0xFFF6F5F3)
+    val GoldPrimary = Color(0xFFD4AF37)
+    val GoldChampagne = Color(0xFFE6C97A)
+    val BronzeSubtle = Color(0xFFB78C4A)
+    val Success = Color(0xFF2ECC71)
+    val Warning = Color(0xFFFFC107)
+    val Error = Color(0xFFE74C3C)
+    val Info = Color(0xFF3DA9FC)
 
-    // Neutros derivados
-    val Pearl = Color(0xFFFAFAFA)            // Surface mais clara que Bone
-    val Mist = Color(0xFFEAEAEA)             // Bordas hairline
-    val Smoke = Color(0xFFB8B8B8)            // Texto desativado / placeholder
-    val Slate = Color(0xFF787774)            // Texto secundário
+    // Compatibility aliases used throughout the current screens.
+    val Black = InkBlack
+    val SurfaceLow = WarmBlack
+    val Surface = SlateSurface
+    val SurfaceHigh = MutedGray
+    val SurfaceHighest = Color(0xFF343840)
 
-    // Estados (pastéis muito desaturados)
-    val PaleGreen = Color(0xFFEDF3EC)
-    val PaleGreenInk = Color(0xFF346538)
+    val Ink = PearlText
+    val Bone = InkBlack
+    val Pearl = PearlText
+    val SurfaceWhite = PearlText
 
-    val PaleAmber = Color(0xFFFBF3DB)
-    val PaleAmberInk = Color(0xFF956400)
+    val Slate = BoneText
+    val Smoke = Color(0xFFA6A29A)
+    val Mist = BronzeSubtle.copy(alpha = 0.42f)
 
-    val PaleRed = Color(0xFFFDEBEC)
-    val PaleRedInk = Color(0xFF9F2F2D)
+    val Gold = GoldPrimary
+    val GoldDeep = BronzeSubtle
+    val GoldInk = InkBlack
 
-    val PaleBlue = Color(0xFFE1F3FE)
-    val PaleBlueInk = Color(0xFF1F6C9F)
+    val Navy = Color(0xFF1A2A44)
+    val Olive = Color(0xFF3D4434)
+    val Burgundy = Color(0xFF4A1A1A)
+    val Tan = Color(0xFFB5A68D)
 
-    // Surfaces
-    val SurfaceWhite = Color(0xFFFFFFFF)
-    val Overlay = Color(0x99000000)
+    val PaleGreen = Color(0xFF123321)
+    val PaleGreenInk = Success
+    val PaleAmber = Color(0xFF3A2E08)
+    val PaleAmberInk = Warning
+    val PaleRed = Color(0xFF3A1717)
+    val PaleRedInk = Error
+    val PaleBlue = Color(0xFF102B3D)
+    val PaleBlueInk = Info
+
+    val Overlay = Color(0xCC000000)
 }
 
-/**
- * Material3 ColorScheme mapeado para Suit colors.
- */
-val SuitLightColorScheme: ColorScheme = lightColorScheme(
-    primary = SuitColors.Ink,
-    onPrimary = SuitColors.SurfaceWhite,
-    primaryContainer = SuitColors.Charcoal,
-    onPrimaryContainer = SuitColors.SurfaceWhite,
+val SuitDarkColorScheme: ColorScheme = darkColorScheme(
+    primary = SuitColors.Gold,
+    onPrimary = SuitColors.GoldInk,
+    primaryContainer = SuitColors.GoldDeep,
+    onPrimaryContainer = SuitColors.GoldInk,
 
-    secondary = SuitColors.Gold,
-    onSecondary = SuitColors.Ink,
-    secondaryContainer = SuitColors.PaleAmber,
-    onSecondaryContainer = SuitColors.PaleAmberInk,
+    secondary = SuitColors.Slate,
+    onSecondary = SuitColors.Black,
+    secondaryContainer = SuitColors.SurfaceHigh,
+    onSecondaryContainer = SuitColors.Slate,
 
-    tertiary = SuitColors.Charcoal,
-    onTertiary = SuitColors.SurfaceWhite,
+    tertiary = SuitColors.Tan,
+    onTertiary = SuitColors.Black,
 
     background = SuitColors.Bone,
     onBackground = SuitColors.Ink,
 
-    surface = SuitColors.SurfaceWhite,
+    surface = SuitColors.Surface,
     onSurface = SuitColors.Ink,
-    surfaceVariant = SuitColors.Pearl,
+    surfaceVariant = SuitColors.SurfaceHigh,
     onSurfaceVariant = SuitColors.Slate,
 
     outline = SuitColors.Mist,
     outlineVariant = SuitColors.Mist,
 
     error = SuitColors.PaleRedInk,
-    onError = SuitColors.SurfaceWhite,
+    onError = SuitColors.Black,
     errorContainer = SuitColors.PaleRed,
     onErrorContainer = SuitColors.PaleRedInk,
 )
 
-/**
- * Tokens semânticos extra que o Material não cobre bem.
- * Usados via LocalSuitColors.
- */
+val SuitLightColorScheme: ColorScheme = SuitDarkColorScheme
+
 @Immutable
 data class SuitColorTokens(
+    val inkBlack: Color = SuitColors.InkBlack,
     val ink: Color = SuitColors.Ink,
     val charcoal: Color = SuitColors.Charcoal,
+    val warmBlack: Color = SuitColors.WarmBlack,
     val bone: Color = SuitColors.Bone,
     val pearl: Color = SuitColors.Pearl,
     val gold: Color = SuitColors.Gold,
+    val goldChampagne: Color = SuitColors.GoldChampagne,
+    val bronzeSubtle: Color = SuitColors.BronzeSubtle,
+    val goldDeep: Color = SuitColors.GoldDeep,
+    val goldInk: Color = SuitColors.GoldInk,
+    val surfaceLow: Color = SuitColors.SurfaceLow,
+    val surface: Color = SuitColors.Surface,
+    val surfaceHigh: Color = SuitColors.SurfaceHigh,
     val mist: Color = SuitColors.Mist,
     val slate: Color = SuitColors.Slate,
     val smoke: Color = SuitColors.Smoke,

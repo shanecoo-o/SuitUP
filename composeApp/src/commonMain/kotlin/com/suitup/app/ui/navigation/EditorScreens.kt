@@ -28,6 +28,8 @@ class Editor2DPartsVoyagerScreen(private val modeloId: String) : Screen {
             partes = state.partes,
             selectedPart = state.parteSeleccionada,
             garmentColor = state.corFato,
+            modelName = state.nomeModelo,
+            basePriceMzn = state.precoBase,
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
             onCartClick = { navigator.push(CartVoyagerScreen()) },
@@ -43,7 +45,7 @@ class Editor2DColorsVoyagerScreen(private val modeloId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = rememberScreenModel { EditorCoresScreenModel() }
+        val screenModel = rememberScreenModel { EditorCoresScreenModel(modeloId) }
         val state by screenModel.state.collectAsState()
 
         Editor2DColorsScreen(
@@ -52,6 +54,8 @@ class Editor2DColorsVoyagerScreen(private val modeloId: String) : Screen {
             tecidos = state.tecidos,
             selectedColor = state.corActual,
             selectedFabric = state.tecidoActual,
+            modelName = state.nomeModelo,
+            basePriceMzn = state.precoBase,
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
             onCartClick = { navigator.push(CartVoyagerScreen()) },
@@ -74,12 +78,15 @@ class Preview3DVoyagerScreen(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = rememberScreenModel { Preview3DScreenModel(colorHex) }
+        val screenModel = rememberScreenModel { Preview3DScreenModel(modeloId, colorHex) }
         val state by screenModel.state.collectAsState()
 
         Preview3DScreen(
             state = state.estadoVisor,
             garmentColor = state.corFato,
+            modelName = state.nomeModelo,
+            estimatedPriceMzn = state.precoEstimado,
+            configurationDetails = state.detalhesConfiguracao,
             showLight = state.mostrarLuz,
             backgroundDark = state.fundoEscuro,
             cartItemCount = state.contadorCarrinho,
@@ -91,7 +98,10 @@ class Preview3DVoyagerScreen(
             onToggleLight = { screenModel.onEvent(Preview3DUiEvent.AlternarLuz) },
             onToggleBackground = { screenModel.onEvent(Preview3DUiEvent.AlternarFundo) },
             onEditAgain = { navigator.pop() },
-            onOrder = { navigator.push(CheckoutVoyagerScreen()) }
+            onOrder = {
+                screenModel.adicionarAoCarrinho()
+                navigator.push(CartVoyagerScreen())
+            }
         )
     }
 }
