@@ -11,6 +11,7 @@ import com.suitup.backend.common.BadRequestException;
 import com.suitup.backend.common.ResourceNotFoundException;
 import com.suitup.backend.user.UserEntity;
 import com.suitup.backend.user.UserRepository;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -109,7 +110,7 @@ class FileStorageServiceTest {
     }
 
     @Test
-    void ownerAndAdminCanLoadButForeignUserGetsNotFound() {
+    void ownerAndAdminCanLoadExactBytesButForeignUserGetsNotFound() throws Exception {
         UploadedFileEntity stored = storePng("profile.png", UploadedFilePurpose.PROFILE);
         when(uploadedFileRepository.findById(stored.getId())).thenReturn(Optional.of(stored));
 
@@ -117,9 +118,32 @@ class FileStorageServiceTest {
         StoredFileResource adminFile = service.load(stored.getId(), UUID.randomUUID(), true);
 
         assertThat(ownFile.resource().exists()).isTrue();
+        try (InputStream ownerInput = ownFile.resource().getInputStream();
+             InputStream adminInput = adminFile.resource().getInputStream()) {
+            assertThat(ownerInput.readAllBytes()).isEqualTo(PNG);
+            assertThat(adminInput.readAllBytes()).isEqualTo(PNG);
+        }
         assertThat(adminFile.metadata().getContentType()).isEqualTo("image/png");
         assertThatThrownBy(() -> service.load(stored.getId(), UUID.randomUUID(), false))
             .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void unknownAndMissingPhysicalFilesReturnControlledNotFound() throws Exception {
+        UUID unknownFileId = UUID.randomUUID();
+        when(uploadedFileRepository.findById(unknownFileId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.load(unknownFileId, owner.getId(), false))
+            .isInstanceOf(ResourceNotFoundException.class)
+            .hasMessage("Ficheiro nao encontrado");
+
+        UploadedFileEntity stored = storePng("missing.png", UploadedFilePurpose.PAYMENT_PROOF);
+        when(uploadedFileRepository.findById(stored.getId())).thenReturn(Optional.of(stored));
+        Files.delete(tempDirectory.resolve("uploads").resolve(stored.getStoragePath()));
+
+        assertThatThrownBy(() -> service.load(stored.getId(), owner.getId(), false))
+            .isInstanceOf(ResourceNotFoundException.class)
+            .hasMessage("Ficheiro nao encontrado");
     }
 
     private UploadedFileEntity storePng(String filename, UploadedFilePurpose purpose) {
