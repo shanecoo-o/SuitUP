@@ -51,7 +51,7 @@ fun ConfirmationScreen(
                 if (isDemo) {
                     "Pedido guardado em modo demo. Não foi enviado ao servidor."
                 } else {
-                    "A encomenda foi registada. A integração do pagamento será concluída na próxima etapa."
+                    "Pagamento submetido com sucesso. O comprovativo foi enviado para validação."
                 },
                 style = SuitTextStyles.bodyMedium,
                 color = SuitColors.Slate,
@@ -70,7 +70,7 @@ fun ConfirmationScreen(
                     description = if (isDemo) {
                         "Pagamento mantido apenas no fluxo local de demonstração."
                     } else {
-                        "O pagamento ainda não foi submetido ao backend nesta etapa."
+                        "Aguardando confirmação do pagamento pelo administrador."
                     },
                     modifier = Modifier.fillMaxWidth(),
                 )

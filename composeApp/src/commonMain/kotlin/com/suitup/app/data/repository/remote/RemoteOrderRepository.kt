@@ -30,6 +30,9 @@ class RemoteOrderRepository(private val api: OrdersApi) {
     suspend fun adminGetById(id: String): ApiResult<Pedido> =
         api.adminGetOrderById(id).map { it.toDomain() }
 
+    suspend fun adminGetTimeline(id: String): ApiResult<List<OrderStatusHistoryDto>> =
+        api.adminGetOrderTimeline(id)
+
     suspend fun adminUpdateStatus(
         id: String,
         request: UpdateOrderStatusRequestDto,

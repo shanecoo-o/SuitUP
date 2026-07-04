@@ -20,6 +20,7 @@ import com.suitup.app.ui.components.CheckoutStepIndicator
 import com.suitup.app.ui.components.PremiumCard
 import com.suitup.app.ui.components.PremiumTopBar
 import com.suitup.app.ui.components.PrimaryGoldButton
+import com.suitup.app.ui.components.PremiumTextField
 import com.suitup.app.ui.components.SecondaryDarkButton
 import com.suitup.app.ui.components.SectionHeader
 import com.suitup.app.ui.components.StatusChip
@@ -34,6 +35,13 @@ fun PaymentScreen(
     numeroMpesa: String,
     mpesaTitleHolder: String,
     uploadedFileName: String?,
+    paymentReference: String = "",
+    paymentStatusLabel: String? = null,
+    isSubmitting: Boolean = false,
+    successMessage: String? = null,
+    errorMessage: String? = null,
+    paymentSubmitted: Boolean = false,
+    showDemoFallback: Boolean = false,
     totalMzn: Int = 0,
     cartItemCount: Int = 0,
     onBack: () -> Unit = {},
@@ -41,7 +49,9 @@ fun PaymentScreen(
     onCopyNumber: (() -> Unit)? = null,
     onPickFile: () -> Unit = {},
     onRemoveFile: () -> Unit = {},
+    onPaymentReferenceChange: (String) -> Unit = {},
     onSubmit: () -> Unit = {},
+    onContinueDemo: () -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         PremiumTopBar(title = "Pagamento", onBack = onBack, onCart = onCartClick, cartBadgeCount = cartItemCount)
@@ -97,6 +107,13 @@ fun PaymentScreen(
                     Text("Titular: $mpesaTitleHolder", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
                 }
             }
+            PremiumTextField(
+                value = paymentReference,
+                onValueChange = onPaymentReferenceChange,
+                label = "Referência da transacção",
+                placeholder = "MPESA-TEST-123456",
+                enabled = !paymentSubmitted && !isSubmitting,
+            )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Comprovativo", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
                 SuitUploadCard(
@@ -114,6 +131,34 @@ fun PaymentScreen(
                     color = SuitColors.Slate,
                 )
             }
+            if (successMessage != null || errorMessage != null || paymentStatusLabel != null) {
+                PremiumCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        paymentStatusLabel?.let {
+                            Text("Estado: $it", style = SuitTextStyles.labelMedium, color = SuitColors.GoldChampagne)
+                        }
+                        successMessage?.let {
+                            Text(it, style = SuitTextStyles.bodyMedium, color = SuitColors.Success)
+                        }
+                        errorMessage?.let {
+                            Text(it, style = SuitTextStyles.bodyMedium, color = SuitColors.Error)
+                        }
+                        if (showDemoFallback) {
+                            Text(
+                                "O modo demo não envia o pagamento nem o ficheiro ao servidor.",
+                                style = SuitTextStyles.bodySmall,
+                                color = SuitColors.Slate,
+                            )
+                            SecondaryDarkButton(
+                                text = "Continuar em modo demo",
+                                onClick = onContinueDemo,
+                                enabled = !isSubmitting,
+                                fullWidth = false,
+                            )
+                        }
+                    }
+                }
+            }
         }
         Column(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
@@ -128,9 +173,13 @@ fun PaymentScreen(
                 Text(formatMzn(totalMzn), style = SuitTextStyles.titleLarge, color = SuitColors.GoldChampagne)
             }
             PrimaryGoldButton(
-                text = "Enviar comprovativo",
+                text = when {
+                    isSubmitting -> "A processar..."
+                    paymentSubmitted -> "Tentar enviar comprovativo"
+                    else -> "Submeter pagamento"
+                },
                 onClick = onSubmit,
-                enabled = uploadedFileName != null,
+                enabled = uploadedFileName != null && paymentReference.isNotBlank() && !isSubmitting,
             )
             SecondaryDarkButton(text = "Voltar", onClick = onBack)
         }

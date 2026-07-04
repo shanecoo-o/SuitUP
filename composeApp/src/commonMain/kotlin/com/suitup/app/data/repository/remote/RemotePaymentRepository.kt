@@ -38,6 +38,12 @@ class RemotePaymentRepository(private val api: PaymentsApi) {
     suspend fun adminGetPending(): ApiResult<List<PaymentRecord>> =
         api.adminGetPendingPayments().map { payments -> payments.map { it.toDomain() } }
 
+    suspend fun adminGetById(paymentId: String): ApiResult<PaymentRecord> =
+        api.adminGetPaymentById(paymentId).map { it.toDomain() }
+
+    suspend fun adminGetTimeline(paymentId: String): ApiResult<List<PaymentStatusHistoryDto>> =
+        api.adminGetPaymentTimeline(paymentId)
+
     suspend fun adminConfirm(
         paymentId: String,
         note: String? = null,

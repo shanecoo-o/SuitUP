@@ -122,6 +122,7 @@ fun OrderDto.toDomain(): Pedido {
             PontoLevantamento(id = "remote-pickup", nome = it, endereco = it)
         },
         pagamento = InfoPagamento(
+            idPagamento = latestPayment?.id,
             metodo = MetodoPagamento.MpesaManual,
             caminhoImagemComprovativo = latestPayment?.proofFileId,
             numeroMpesa = latestPayment?.transactionReference.orEmpty(),
@@ -133,6 +134,7 @@ fun OrderDto.toDomain(): Pedido {
         linhaTempo = timeline,
         criadoEm = createdAt,
         actualizadoEm = updatedAt,
+        backendStatus = status.name,
     )
 }
 

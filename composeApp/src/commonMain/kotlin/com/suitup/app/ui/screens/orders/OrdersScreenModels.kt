@@ -5,6 +5,10 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.suitup.app.data.mock.MockOrderStore
 import com.suitup.app.data.order.CustomerOrderRepository
 import com.suitup.app.data.order.OrderRuntime
+import com.suitup.app.data.payment.CustomerTrackingEvent
+import com.suitup.app.data.payment.PaymentTrackingDataSource
+import com.suitup.app.data.payment.PaymentTrackingRepository
+import com.suitup.app.data.payment.PaymentTrackingRuntime
 import com.suitup.app.domain.model.Pedido
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -75,6 +79,9 @@ data class AcompanharPedidoUiState(
     val erro: String? = null,
     val usandoFallbackMock: Boolean = false,
     val sessaoExpirada: Boolean = false,
+    val timeline: List<CustomerTrackingEvent> = emptyList(),
+    val carregandoTimeline: Boolean = false,
+    val erroTimeline: String? = null,
 )
 
 sealed class AcompanharPedidoUiEvent {
@@ -85,6 +92,7 @@ sealed class AcompanharPedidoUiEvent {
 class AcompanharPedidoScreenModel(
     private val pedidoId: String,
     private val repository: CustomerOrderRepository = OrderRuntime.repository,
+    private val paymentTrackingRepository: PaymentTrackingRepository = PaymentTrackingRuntime.repository,
 ) : ScreenModel {
 
     private val _state = MutableStateFlow(AcompanharPedidoUiState())
@@ -101,15 +109,29 @@ class AcompanharPedidoScreenModel(
 
     fun refresh() {
         screenModelScope.launch {
-            _state.update { it.copy(carregando = true, erro = null) }
+            _state.update {
+                it.copy(
+                    carregando = true,
+                    carregandoTimeline = true,
+                    erro = null,
+                    erroTimeline = null,
+                )
+            }
             val result = repository.getOrder(pedidoId)
+            val timelineResult = if (result.order != null) {
+                paymentTrackingRepository.loadTimeline(pedidoId)
+            } else null
             _state.update {
                 it.copy(
                     pedido = result.order,
                     carregando = false,
                     erro = result.errorMessage,
-                    usandoFallbackMock = result.isUsingMockFallback,
-                    sessaoExpirada = result.sessionExpired,
+                    timeline = timelineResult?.events.orEmpty(),
+                    carregandoTimeline = false,
+                    erroTimeline = timelineResult?.errorMessage,
+                    usandoFallbackMock = result.isUsingMockFallback ||
+                        timelineResult?.source == PaymentTrackingDataSource.MOCK,
+                    sessaoExpirada = result.sessionExpired || timelineResult?.sessionExpired == true,
                 )
             }
         }

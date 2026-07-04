@@ -265,6 +265,26 @@ object MockOrderStore {
         )
     }
 
+    fun submitMockPayment(
+        orderId: String,
+        reference: String,
+        proofName: String?,
+    ): Pedido? {
+        _orders.update { orders ->
+            orders.map { order ->
+                if (order.id != orderId) order else order.copy(
+                    pagamento = order.pagamento.copy(
+                        caminhoImagemComprovativo = proofName,
+                        referenciaTransaccao = reference,
+                        status = PaymentStatus.PENDING,
+                    ),
+                    actualizadoEm = nowLabel(),
+                )
+            }
+        }
+        return _orders.value.firstOrNull { it.id == orderId }
+    }
+
     fun updateOrderStatus(orderId: String, estadoPedido: EstadoPedido) {
         _orders.update { orders ->
             orders.map { order ->

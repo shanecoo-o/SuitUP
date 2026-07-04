@@ -91,11 +91,15 @@ class TrackOrderVoyagerScreen(private val pedidoId: String) : Screen {
             TrackOrderScreen(
                 order = pedido,
                 cartItemCount = state.contadorCarrinho,
+                backendTimeline = state.timeline,
+                isTimelineLoading = state.carregandoTimeline,
+                timelineError = state.erroTimeline,
                 noticeMessage = if (state.usandoFallbackMock) {
-                    "Não foi possível carregar o pedido. A mostrar dados locais em modo demo."
+                    "A mostrar dados locais em modo demo."
                 } else null,
                 onBack = { navigator.pop() },
                 onCartClick = { navigator.push(CartVoyagerScreen()) },
+                onRetryTimeline = screenModel::refresh,
             )
         }
     }

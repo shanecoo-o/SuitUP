@@ -153,6 +153,7 @@ data class Pedido(
     val linhaTempo: List<EventoPedido>,
     val criadoEm: String,               // ISO date string mock
     val actualizadoEm: String,
+    val backendStatus: String? = null,
 )
 
 @Serializable
@@ -209,6 +210,7 @@ data class InfoPagamento(
     val titular: String,
     val status: PaymentStatus = PaymentStatus.PENDING,
     val referenciaTransaccao: String? = null,
+    val idPagamento: String? = null,
 )
 
 enum class MetodoPagamento { MpesaManual }

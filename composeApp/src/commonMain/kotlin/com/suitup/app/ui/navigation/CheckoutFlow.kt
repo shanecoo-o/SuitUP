@@ -28,6 +28,7 @@ import com.suitup.app.ui.screens.checkout.PagamentoUiEvent
 import com.suitup.app.ui.screens.checkout.PaymentScreen
 import com.suitup.app.ui.screens.checkout.TipoEntregaScreenModel
 import com.suitup.app.ui.screens.checkout.TipoEntregaUiEvent
+import com.suitup.app.ui.platform.rememberProofFilePicker
 
 /**
  * Step 1 — Dados do Cliente.
@@ -191,6 +192,7 @@ class PaymentVoyagerScreen(private val orderId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val signOut = LocalSignOut.current
         val screenModel = rememberScreenModel { PagamentoScreenModel(orderId) }
         val state by screenModel.state.collectAsState()
         val podeAvancar by screenModel.podeAvancar.collectAsState()
@@ -202,17 +204,38 @@ class PaymentVoyagerScreen(private val orderId: String) : Screen {
             }
         }
 
+        LaunchedEffect(state.sessaoExpirada) {
+            if (state.sessaoExpirada) {
+                screenModel.sessaoExpiradaConsumida()
+                signOut()
+            }
+        }
+
+        val pickProof = rememberProofFilePicker(
+            onSelected = { screenModel.onEvent(PagamentoUiEvent.FicheiroSeleccionado(it)) },
+            onError = { screenModel.onEvent(PagamentoUiEvent.FalhaSeleccao(it)) },
+        )
+
         PaymentScreen(
             numeroMpesa = state.numeroMpesa,
             mpesaTitleHolder = state.titularMpesa,
             uploadedFileName = state.nomeFicheiroCarregado,
+            paymentReference = state.referenciaTransaccao,
+            paymentStatusLabel = state.statusPagamento?.label,
+            isSubmitting = state.carregando,
+            successMessage = state.mensagemSucesso,
+            errorMessage = state.erro,
+            paymentSubmitted = state.pagamentoSubmetido,
+            showDemoFallback = state.fallbackMockDisponivel,
             totalMzn = state.totalPedidoMt,
             cartItemCount = state.contadorCarrinho,
             onBack = { navigator.pop() },
             onCartClick = { navigator.push(CartVoyagerScreen()) },
-            onPickFile = { screenModel.onEvent(PagamentoUiEvent.EscolherFicheiroClicado) },
+            onPickFile = pickProof,
             onRemoveFile = { screenModel.onEvent(PagamentoUiEvent.RemoverFicheiroClicado) },
-            onSubmit = { screenModel.onEvent(PagamentoUiEvent.EnviarComprovativoClicado) }
+            onPaymentReferenceChange = { screenModel.onEvent(PagamentoUiEvent.ReferenciaAlterada(it)) },
+            onSubmit = { screenModel.onEvent(PagamentoUiEvent.EnviarComprovativoClicado) },
+            onContinueDemo = { screenModel.onEvent(PagamentoUiEvent.ContinuarModoDemoClicado) },
         )
     }
 }

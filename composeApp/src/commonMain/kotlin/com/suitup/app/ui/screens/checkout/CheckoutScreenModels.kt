@@ -8,9 +8,16 @@ import com.suitup.app.data.order.CreateCustomerOrderResult
 import com.suitup.app.data.order.CustomerOrderRepository
 import com.suitup.app.data.order.OrderRuntime
 import com.suitup.app.data.order.generateOrderIdempotencyKey
+import com.suitup.app.data.payment.PaymentSubmitResult
+import com.suitup.app.data.payment.PaymentTrackingDataSource
+import com.suitup.app.data.payment.PaymentTrackingRepository
+import com.suitup.app.data.payment.PaymentTrackingRuntime
+import com.suitup.app.data.payment.ProofUploadResult
 import com.suitup.app.domain.model.EnderecoEntrega
+import com.suitup.app.domain.model.PaymentStatus
 import com.suitup.app.domain.model.PontoLevantamento
 import com.suitup.app.domain.model.TipoEntrega
+import com.suitup.app.ui.platform.SelectedProofFile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -296,20 +303,38 @@ data class PagamentoUiState(
     val numeroPedidoCriado: String? = null,
     val totalPedidoMt: Int = 0,
     val contadorCarrinho: Int = 0,
+    val referenciaTransaccao: String = "",
+    val statusPagamento: PaymentStatus? = null,
+    val carregando: Boolean = false,
+    val mensagemSucesso: String? = null,
+    val erro: String? = null,
+    val pagamentoSubmetido: Boolean = false,
+    val comprovativoEnviado: Boolean = false,
+    val sessaoExpirada: Boolean = false,
+    val fallbackMockDisponivel: Boolean = false,
 ) {
-    val podeEnviar: Boolean get() = nomeFicheiroCarregado != null
+    val podeEnviar: Boolean
+        get() = nomeFicheiroCarregado != null &&
+            referenciaTransaccao.isNotBlank() &&
+            totalPedidoMt > 0 &&
+            !carregando
 }
 
 sealed class PagamentoUiEvent {
     data object EscolherFicheiroClicado : PagamentoUiEvent()
+    data class FicheiroSeleccionado(val ficheiro: SelectedProofFile) : PagamentoUiEvent()
+    data class FalhaSeleccao(val mensagem: String) : PagamentoUiEvent()
     data object RemoverFicheiroClicado : PagamentoUiEvent()
+    data class ReferenciaAlterada(val valor: String) : PagamentoUiEvent()
     data object CopiarNumeroClicado : PagamentoUiEvent()
     data object EnviarComprovativoClicado : PagamentoUiEvent()
+    data object ContinuarModoDemoClicado : PagamentoUiEvent()
 }
 
 class PagamentoScreenModel(
-    private val orderId: String? = null,
+    private val orderId: String,
     private val orderRepository: CustomerOrderRepository = OrderRuntime.repository,
+    private val paymentRepository: PaymentTrackingRepository = PaymentTrackingRuntime.repository,
 ) : ScreenModel {
 
     private val _state = MutableStateFlow(PagamentoUiState())
@@ -317,12 +342,15 @@ class PagamentoScreenModel(
 
     private val _podeAvancar = MutableStateFlow(false)
     val podeAvancar: StateFlow<Boolean> = _podeAvancar.asStateFlow()
+    private var ficheiroSeleccionado: SelectedProofFile? = null
 
     fun avancarConsumido() { _podeAvancar.value = false }
 
     init {
         screenModelScope.launch {
-            val backendOrder = orderId?.let(orderRepository::cachedOrder)
+            val cachedOrder = orderRepository.cachedOrder(orderId)
+            val detail = if (cachedOrder == null) orderRepository.getOrder(orderId) else null
+            val backendOrder = cachedOrder ?: detail?.order
             _state.update {
                 it.copy(
                     numeroMpesa = MockData.numeroMpesa,
@@ -331,6 +359,8 @@ class PagamentoScreenModel(
                         ?: MockOrderStore.cartItems.sumOf { item -> item.precoUnitarioMt * item.quantidade } +
                             if (MockOrderStore.cartItems.isEmpty()) 0 else MockData.taxaEntregaMt,
                     contadorCarrinho = MockOrderStore.cartItemCount,
+                    sessaoExpirada = detail?.sessionExpired == true,
+                    erro = detail?.errorMessage,
                 )
             }
         }
@@ -338,27 +368,138 @@ class PagamentoScreenModel(
 
     fun onEvent(event: PagamentoUiEvent) {
         when (event) {
-            is PagamentoUiEvent.EscolherFicheiroClicado ->
-                // Demo: simula ficheiro seleccionado.
-                _state.update { it.copy(nomeFicheiroCarregado = "comprovativo_mpesa.jpg") }
-            is PagamentoUiEvent.RemoverFicheiroClicado ->
-                _state.update { it.copy(nomeFicheiroCarregado = null) }
+            is PagamentoUiEvent.EscolherFicheiroClicado -> Unit
+            is PagamentoUiEvent.FicheiroSeleccionado -> {
+                ficheiroSeleccionado = event.ficheiro
+                _state.update {
+                    it.copy(
+                        nomeFicheiroCarregado = event.ficheiro.filename,
+                        erro = null,
+                        mensagemSucesso = null,
+                    )
+                }
+            }
+            is PagamentoUiEvent.FalhaSeleccao ->
+                _state.update { it.copy(erro = event.mensagem, mensagemSucesso = null) }
+            is PagamentoUiEvent.RemoverFicheiroClicado -> if (!_state.value.pagamentoSubmetido) {
+                ficheiroSeleccionado = null
+                _state.update { it.copy(nomeFicheiroCarregado = null, erro = null) }
+            }
+            is PagamentoUiEvent.ReferenciaAlterada -> if (!_state.value.pagamentoSubmetido) {
+                _state.update { it.copy(referenciaTransaccao = event.valor, erro = null) }
+            }
             is PagamentoUiEvent.CopiarNumeroClicado ->
                 { /* Step 5: Clipboard expect/actual */ }
-            is PagamentoUiEvent.EnviarComprovativoClicado -> {
-                if (_state.value.podeEnviar && _state.value.numeroPedidoCriado == null) {
-                    val completedOrderId = orderId ?: MockOrderStore
-                        .createOrder(comprovativo = _state.value.nomeFicheiroCarregado)
-                        .id
+            is PagamentoUiEvent.EnviarComprovativoClicado -> submeter()
+            is PagamentoUiEvent.ContinuarModoDemoClicado -> submeterModoDemo()
+        }
+    }
+
+    fun sessaoExpiradaConsumida() {
+        _state.update { it.copy(sessaoExpirada = false) }
+    }
+
+    private fun submeter() {
+        val state = _state.value
+        val proof = ficheiroSeleccionado ?: return
+        if (!state.podeEnviar || state.numeroPedidoCriado != null) return
+        _state.update { it.copy(carregando = true, erro = null, mensagemSucesso = null) }
+        screenModelScope.launch {
+            if (state.pagamentoSubmetido) {
+                enviarComprovativo(proof)
+                return@launch
+            }
+            when (val result = paymentRepository.submitPayment(
+                orderId = orderId,
+                amountMzn = state.totalPedidoMt,
+                reference = state.referenciaTransaccao,
+            )) {
+                is PaymentSubmitResult.Success -> {
                     _state.update {
                         it.copy(
-                            numeroPedidoCriado = completedOrderId,
-                            contadorCarrinho = MockOrderStore.cartItemCount,
+                            pagamentoSubmetido = true,
+                            statusPagamento = result.payment?.status ?: PaymentStatus.PENDING,
+                            mensagemSucesso = "Pagamento submetido com sucesso.",
+                            fallbackMockDisponivel = false,
                         )
                     }
-                    _podeAvancar.value = true
+                    if (result.source == PaymentTrackingDataSource.MOCK) {
+                        concluirModoDemo()
+                    } else {
+                        enviarComprovativo(proof)
+                    }
+                }
+                is PaymentSubmitResult.Failure -> _state.update {
+                    it.copy(
+                        carregando = false,
+                        erro = result.message,
+                        sessaoExpirada = result.sessionExpired,
+                        fallbackMockDisponivel = result.canUseMockFallback,
+                    )
                 }
             }
         }
+    }
+
+    private suspend fun enviarComprovativo(proof: SelectedProofFile) {
+        when (val result = paymentRepository.uploadPaymentProof(
+            orderId = orderId,
+            filename = proof.filename,
+            contentType = proof.contentType,
+            bytes = proof.bytes,
+        )) {
+            is ProofUploadResult.Success -> {
+                orderRepository.refreshOrders()
+                _state.update {
+                    it.copy(
+                        carregando = false,
+                        comprovativoEnviado = true,
+                        numeroPedidoCriado = orderId,
+                        mensagemSucesso = "Comprovativo enviado com sucesso.",
+                    )
+                }
+                _podeAvancar.value = true
+            }
+            is ProofUploadResult.Failure -> _state.update {
+                it.copy(
+                    carregando = false,
+                    erro = result.message,
+                    sessaoExpirada = result.sessionExpired,
+                )
+            }
+        }
+    }
+
+    private fun submeterModoDemo() {
+        val state = _state.value
+        if (!state.fallbackMockDisponivel || state.carregando) return
+        _state.update { it.copy(carregando = true, erro = null) }
+        screenModelScope.launch {
+            when (val result = paymentRepository.submitMockPayment(
+                orderId,
+                state.referenciaTransaccao,
+                state.nomeFicheiroCarregado,
+            )) {
+                is PaymentSubmitResult.Success -> concluirModoDemo()
+                is PaymentSubmitResult.Failure -> _state.update {
+                    it.copy(carregando = false, erro = result.message)
+                }
+            }
+        }
+    }
+
+    private fun concluirModoDemo() {
+        _state.update {
+            it.copy(
+                carregando = false,
+                pagamentoSubmetido = true,
+                comprovativoEnviado = true,
+                statusPagamento = PaymentStatus.PENDING,
+                numeroPedidoCriado = orderId,
+                mensagemSucesso = "Pagamento guardado em modo demo.",
+                fallbackMockDisponivel = false,
+            )
+        }
+        _podeAvancar.value = true
     }
 }

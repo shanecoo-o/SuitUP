@@ -28,6 +28,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.suitup.app.data.admin.AdminOrderStatus
+import com.suitup.app.data.admin.AdminTimelineEvent
+import com.suitup.app.domain.model.AdminOrderSummary
 import com.suitup.app.domain.model.EstadoPedido
 import com.suitup.app.domain.model.PaymentStatus
 import com.suitup.app.domain.model.Pedido
@@ -108,12 +111,16 @@ object AdminCatalogOptions {
 @Composable
 fun AdminDashboardScreen(
     stats: AdminDashboardStats,
-    recentOrders: List<Pedido> = emptyList(),
+    recentOrders: List<AdminOrderSummary> = emptyList(),
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    isUsingMockFallback: Boolean = false,
     onBack: () -> Unit = {},
     onCatalogClick: () -> Unit = {},
     onAddSuitClick: () -> Unit = {},
     onOrdersClick: () -> Unit = {},
     onPaymentsClick: () -> Unit = {},
+    onRetry: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -133,6 +140,17 @@ fun AdminDashboardScreen(
                     title = "Gestão da loja e encomendas",
                     description = "Visão operacional do catálogo, pedidos e pagamentos.",
                 )
+            }
+
+            if (isLoading || errorMessage != null || isUsingMockFallback) {
+                item {
+                    AdminFeedbackCard(
+                        isLoading = isLoading,
+                        errorMessage = errorMessage,
+                        isUsingMockFallback = isUsingMockFallback,
+                        onRetry = onRetry,
+                    )
+                }
             }
 
             item {
@@ -198,7 +216,7 @@ fun AdminDashboardScreen(
                     )
                 }
                 items(recentOrders.take(2), key = { it.id }) { order ->
-                    AdminOrderCard(order = order, onOpen = onOrdersClick)
+                    AdminDashboardOrderCard(order = order, onOpen = onOrdersClick)
                 }
             }
 
@@ -521,8 +539,12 @@ fun AdminSuitFormScreen(
 @Composable
 fun AdminOrdersScreen(
     orders: List<Pedido>,
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    isUsingMockFallback: Boolean = false,
     onBack: () -> Unit = {},
     onOpenDetails: (String) -> Unit = {},
+    onRetry: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -567,10 +589,21 @@ fun AdminOrdersScreen(
                 }
             }
 
+            if (isLoading || errorMessage != null || isUsingMockFallback) {
+                item {
+                    AdminFeedbackCard(
+                        isLoading = isLoading,
+                        errorMessage = errorMessage,
+                        isUsingMockFallback = isUsingMockFallback,
+                        onRetry = onRetry,
+                    )
+                }
+            }
+
             if (orders.isEmpty()) {
                 item {
                     EmptyStateCard(
-                        title = "Ainda não existem pedidos",
+                        title = if (isLoading) "A carregar pedidos..." else "Nenhum pedido encontrado.",
                         description = "Os novos pedidos dos clientes aparecerão aqui.",
                     )
                 }
@@ -585,11 +618,19 @@ fun AdminOrdersScreen(
 
 @Composable
 fun AdminPaymentsScreen(
-    orders: List<Pedido>,
+    items: List<AdminPaymentListItem>,
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    successMessage: String? = null,
+    rejectionReason: String = "",
+    pendingPaymentId: String? = null,
+    isUsingMockFallback: Boolean = false,
     onBack: () -> Unit = {},
     onOpenDetails: (String) -> Unit = {},
     onConfirm: (String) -> Unit = {},
     onReject: (String) -> Unit = {},
+    onRejectionReasonChange: (String) -> Unit = {},
+    onRetry: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -613,26 +654,26 @@ fun AdminPaymentsScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                         MetricCard(
                             "Pendentes",
-                            orders.count { it.pagamento.status == PaymentStatus.PENDING }.toString(),
+                            items.count { it.payment.status == PaymentStatus.PENDING }.toString(),
                             Modifier.weight(1f),
                         )
                         MetricCard(
                             "Confirmados",
-                            orders.count { it.pagamento.status == PaymentStatus.CONFIRMED }.toString(),
+                            items.count { it.payment.status == PaymentStatus.CONFIRMED }.toString(),
                             Modifier.weight(1f),
                         )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                         MetricCard(
                             "Rejeitados",
-                            orders.count { it.pagamento.status == PaymentStatus.REJECTED }.toString(),
+                            items.count { it.payment.status == PaymentStatus.REJECTED }.toString(),
                             Modifier.weight(1f),
                         )
                         MetricCard(
                             "Receita confirmada",
                             formatMzn(
-                                orders.filter { it.pagamento.status == PaymentStatus.CONFIRMED }
-                                    .sumOf { it.total }
+                                items.filter { it.payment.status == PaymentStatus.CONFIRMED }
+                                    .sumOf { it.payment.amountMt }
                             ),
                             Modifier.weight(1f),
                         )
@@ -640,7 +681,31 @@ fun AdminPaymentsScreen(
                 }
             }
 
-            if (orders.isNotEmpty() && orders.none { it.pagamento.status == PaymentStatus.PENDING }) {
+            if (isLoading || errorMessage != null || successMessage != null || isUsingMockFallback) {
+                item {
+                    AdminFeedbackCard(
+                        isLoading = isLoading,
+                        errorMessage = errorMessage,
+                        successMessage = successMessage,
+                        isUsingMockFallback = isUsingMockFallback,
+                        onRetry = onRetry,
+                    )
+                }
+            }
+
+            if (items.any { it.payment.status == PaymentStatus.PENDING }) {
+                item {
+                    PremiumTextField(
+                        value = rejectionReason,
+                        onValueChange = onRejectionReasonChange,
+                        label = "Motivo da rejeição",
+                        placeholder = "Ex.: comprovativo ilegível",
+                        enabled = pendingPaymentId == null && !isUsingMockFallback,
+                    )
+                }
+            }
+
+            if (items.isNotEmpty() && items.none { it.payment.status == PaymentStatus.PENDING }) {
                 item {
                     EmptyStateCard(
                         title = "Não existem pagamentos pendentes",
@@ -649,20 +714,23 @@ fun AdminPaymentsScreen(
                 }
             }
 
-            if (orders.isEmpty()) {
+            if (items.isEmpty()) {
                 item {
                     EmptyStateCard(
-                        title = "Ainda não existem pagamentos",
+                        title = if (isLoading) "A carregar pagamentos..." else "Nenhum pagamento encontrado.",
                         description = "Os pagamentos submetidos pelos clientes aparecerão aqui.",
                     )
                 }
             } else {
-                items(orders, key = { it.id }) { order ->
-                    AdminPaymentCard(
-                        order = order,
-                        onOpen = { onOpenDetails(order.id) },
-                        onConfirm = { onConfirm(order.id) },
-                        onReject = { onReject(order.id) },
+                items(items, key = { it.payment.id }) { item ->
+                    AdminPaymentRecordCard(
+                        item = item,
+                        pending = pendingPaymentId == item.payment.id,
+                        writesEnabled = !isUsingMockFallback && pendingPaymentId == null,
+                        rejectionReasonProvided = rejectionReason.isNotBlank(),
+                        onOpen = { onOpenDetails(item.payment.orderId) },
+                        onConfirm = { onConfirm(item.payment.id) },
+                        onReject = { onReject(item.payment.id) },
                     )
                 }
             }
@@ -673,18 +741,23 @@ fun AdminPaymentsScreen(
 @Composable
 fun AdminOrderDetailsScreen(
     order: Pedido,
+    timeline: List<AdminTimelineEvent> = emptyList(),
+    errorMessage: String? = null,
+    successMessage: String? = null,
+    rejectionReason: String = "",
+    pendingAction: Boolean = false,
+    isUsingMockFallback: Boolean = false,
     onBack: () -> Unit = {},
-    onConfirmPayment: (String) -> Unit = {},
-    onRejectPayment: (String) -> Unit = {},
-    onUpdateStatus: (EstadoPedido) -> Unit = {},
+    onConfirmPayment: () -> Unit = {},
+    onRejectPayment: () -> Unit = {},
+    onRejectionReasonChange: (String) -> Unit = {},
+    onUpdateStatus: (AdminOrderStatus) -> Unit = {},
 ) {
-    val statusOptions = listOf(
-        EstadoPedido.PagamentoValidado,
-        EstadoPedido.EmProducao,
-        EstadoPedido.ProntoParaEntrega,
-        EstadoPedido.Entregue,
-        EstadoPedido.Cancelado,
-    )
+    val currentStatus = order.toAdminOrderStatus()
+    val allowedTransitions = currentStatus.allowedNext().filterNot { status ->
+        status == AdminOrderStatus.IN_PRODUCTION && order.pagamento.status != PaymentStatus.CONFIRMED
+    }
+    val statusOptions = listOf(currentStatus) + allowedTransitions
 
     Column(
         modifier = Modifier
@@ -702,10 +775,18 @@ fun AdminOrderDetailsScreen(
         ) {
             SectionHeader(
                 eyebrow = "PEDIDO #${order.numero}",
-                title = order.estado.label,
+                title = currentStatus.label,
                 description = "Criado em ${order.criadoEm}",
             )
             AdminOrderSummary(order = order)
+
+            if (errorMessage != null || successMessage != null || isUsingMockFallback) {
+                AdminFeedbackCard(
+                    errorMessage = errorMessage,
+                    successMessage = successMessage,
+                    isUsingMockFallback = isUsingMockFallback,
+                )
+            }
 
             PremiumCard {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -757,17 +838,36 @@ fun AdminOrderDetailsScreen(
                         style = SuitTextStyles.bodySmall,
                         color = SuitColors.Slate,
                     )
+                    order.pagamento.caminhoImagemComprovativo?.let { fileId ->
+                        Text("Comprovativo: $fileId", style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+                        Text(
+                            "Pré-visualização do ficheiro ficará disponível no smoke test final.",
+                            style = SuitTextStyles.bodySmall,
+                            color = SuitColors.Smoke,
+                        )
+                    }
 
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (order.pagamento.status == PaymentStatus.PENDING) {
+                            PremiumTextField(
+                                value = rejectionReason,
+                                onValueChange = onRejectionReasonChange,
+                                label = "Motivo da rejeição",
+                                placeholder = "Indique o motivo antes de rejeitar",
+                                enabled = !pendingAction && !isUsingMockFallback,
+                            )
+                        }
                         PrimaryGoldButton(
                             text = "Confirmar pagamento",
-                            onClick = { onConfirmPayment(order.id) },
-                            enabled = order.pagamento.status == PaymentStatus.PENDING,
+                            onClick = onConfirmPayment,
+                            enabled = order.pagamento.status == PaymentStatus.PENDING &&
+                                !pendingAction && !isUsingMockFallback,
                         )
                         SecondaryDarkButton(
                             text = "Rejeitar pagamento",
-                            onClick = { onRejectPayment(order.id) },
-                            enabled = order.pagamento.status == PaymentStatus.PENDING,
+                            onClick = onRejectPayment,
+                            enabled = order.pagamento.status == PaymentStatus.PENDING &&
+                                rejectionReason.isNotBlank() && !pendingAction && !isUsingMockFallback,
                         )
                     }
                 }
@@ -776,23 +876,44 @@ fun AdminOrderDetailsScreen(
             PremiumCard {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("Actualizar estado", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
-                    if (order.pagamento.status == PaymentStatus.CONFIRMED) {
+                    if (statusOptions.size > 1) {
                         PremiumDropdown(
                             options = statusOptions,
-                            selectedOption = order.estado.takeIf { it in statusOptions } ?: EstadoPedido.PagamentoValidado,
-                            onSelect = onUpdateStatus,
+                            selectedOption = currentStatus,
+                            onSelect = { selected ->
+                                if (selected != currentStatus && !pendingAction && !isUsingMockFallback) {
+                                    onUpdateStatus(selected)
+                                }
+                            },
                             optionLabel = { it.label },
                         )
                     } else {
                         Text(
-                            text = if (order.pagamento.status == PaymentStatus.REJECTED) {
-                                "O pagamento foi rejeitado. O pedido não pode avançar até ser corrigido."
-                            } else {
-                                "Confirme o pagamento antes de avançar o pedido para produção."
-                            },
+                            text = "Este pedido está num estado final e não permite novas transições.",
                             style = SuitTextStyles.bodySmall,
                             color = SuitColors.Slate,
                         )
+                    }
+                }
+            }
+
+            PremiumCard {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Histórico do pedido", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
+                    if (timeline.isEmpty()) {
+                        Text(
+                            "Ainda não existe histórico para este pedido.",
+                            style = SuitTextStyles.bodySmall,
+                            color = SuitColors.Slate,
+                        )
+                    } else {
+                        timeline.forEach { event ->
+                            Text(
+                                "${event.status.label} · ${event.createdAt}${event.note?.let { " · $it" }.orEmpty()}",
+                                style = SuitTextStyles.bodySmall,
+                                color = SuitColors.Slate,
+                            )
+                        }
                     }
                 }
             }
@@ -817,6 +938,120 @@ private fun AdminOrderCard(order: Pedido, onOpen: () -> Unit) {
                 text = "Ver detalhes",
                 onClick = onOpen,
             )
+        }
+    }
+}
+
+@Composable
+private fun AdminDashboardOrderCard(order: AdminOrderSummary, onOpen: () -> Unit) {
+    PremiumCard(padding = 14.dp) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Pedido #${order.orderNumber}", style = SuitTextStyles.titleMedium, color = SuitColors.Ink)
+                PaymentStatusBadge(order.paymentStatus)
+            }
+            Text(
+                "${order.customerName} · ${order.status.toAdminStatusLabel()}",
+                style = SuitTextStyles.bodySmall,
+                color = SuitColors.Slate,
+            )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(formatMzn(order.totalMt), style = SuitTextStyles.titleMedium, color = SuitColors.Gold)
+                Text(order.createdAt, style = SuitTextStyles.bodySmall, color = SuitColors.Smoke)
+            }
+            SecondaryDarkButton(text = "Ver pedidos", onClick = onOpen)
+        }
+    }
+}
+
+@Composable
+private fun AdminFeedbackCard(
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    successMessage: String? = null,
+    isUsingMockFallback: Boolean = false,
+    onRetry: (() -> Unit)? = null,
+) {
+    PremiumCard(padding = 14.dp) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (isLoading) {
+                Text("A carregar dados...", style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
+            }
+            successMessage?.let {
+                Text(it, style = SuitTextStyles.bodyMedium, color = SuitColors.Success)
+            }
+            errorMessage?.let {
+                Text(it, style = SuitTextStyles.bodyMedium, color = SuitColors.Error)
+            }
+            if (isUsingMockFallback) {
+                Text(
+                    "A mostrar dados locais em modo demo. As acções de escrita estão desactivadas.",
+                    style = SuitTextStyles.bodySmall,
+                    color = SuitColors.Slate,
+                )
+            }
+            if (errorMessage != null && onRetry != null) {
+                SecondaryDarkButton(text = "Tentar novamente", onClick = onRetry, fullWidth = false)
+            }
+        }
+    }
+}
+
+@Composable
+private fun AdminPaymentRecordCard(
+    item: AdminPaymentListItem,
+    pending: Boolean,
+    writesEnabled: Boolean,
+    rejectionReasonProvided: Boolean,
+    onOpen: () -> Unit,
+    onConfirm: () -> Unit,
+    onReject: () -> Unit,
+) {
+    val payment = item.payment
+    val order = item.order
+    PremiumCard(padding = 14.dp) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    "Pedido #${order?.numero ?: payment.orderId}",
+                    style = SuitTextStyles.titleMedium,
+                    color = SuitColors.Ink,
+                )
+                PaymentStatusBadge(payment.status)
+            }
+            Text(
+                order?.cliente?.nome ?: order?.idUtilizador ?: "Cliente não disponível",
+                style = SuitTextStyles.bodySmall,
+                color = SuitColors.Slate,
+            )
+            Text(
+                "${payment.method} · ${payment.transactionReference ?: "Sem referência"}",
+                style = SuitTextStyles.bodySmall,
+                color = SuitColors.Slate,
+            )
+            Text(formatMzn(payment.amountMt), style = SuitTextStyles.titleMedium, color = SuitColors.Gold)
+            payment.proofFileId?.let {
+                Text("Comprovativo: $it", style = SuitTextStyles.bodySmall, color = SuitColors.Smoke)
+            }
+            if (payment.status == PaymentStatus.PENDING) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    PrimaryGoldButton(
+                        text = if (pending) "A processar..." else "Confirmar",
+                        onClick = onConfirm,
+                        enabled = writesEnabled,
+                        fullWidth = false,
+                        modifier = Modifier.weight(1f),
+                    )
+                    SecondaryDarkButton(
+                        text = "Rejeitar",
+                        onClick = onReject,
+                        enabled = writesEnabled && rejectionReasonProvided,
+                        fullWidth = false,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+            SecondaryDarkButton(text = "Abrir pedido", onClick = onOpen)
         }
     }
 }
@@ -876,7 +1111,7 @@ private fun AdminOrderSummary(order: Pedido) {
             verticalAlignment = Alignment.Top,
         ) {
             Text("Pedido #${order.numero}", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
-            SuitStatusBadge(text = order.estado.label, kind = order.toAdminBadgeKind())
+            SuitStatusBadge(text = order.toAdminOrderStatus().label, kind = order.toAdminBadgeKind())
         }
         Text(
             "${order.cliente?.nome ?: order.idUtilizador} · $suitName",
@@ -940,6 +1175,21 @@ private fun Pedido.toAdminBadgeKind(): SuitStatusKind = when (estado) {
     EstadoPedido.Entregue -> SuitStatusKind.Success
     EstadoPedido.Cancelado -> SuitStatusKind.Error
 }
+
+private fun Pedido.toAdminOrderStatus(): AdminOrderStatus =
+    backendStatus?.let { raw -> AdminOrderStatus.entries.firstOrNull { it.name == raw } }
+        ?: when (estado) {
+            EstadoPedido.AguardandoPagamento -> AdminOrderStatus.RECEIVED
+            EstadoPedido.PagamentoValidado -> AdminOrderStatus.MEASUREMENTS_CONFIRMED
+            EstadoPedido.PagamentoRejeitado -> AdminOrderStatus.RECEIVED
+            EstadoPedido.EmProducao -> AdminOrderStatus.IN_PRODUCTION
+            EstadoPedido.ProntoParaEntrega -> AdminOrderStatus.READY_FOR_DELIVERY
+            EstadoPedido.Entregue -> AdminOrderStatus.DELIVERED
+            EstadoPedido.Cancelado -> AdminOrderStatus.CANCELLED
+        }
+
+private fun String.toAdminStatusLabel(): String =
+    AdminOrderStatus.entries.firstOrNull { it.name == this }?.label ?: this
 
 @Composable
 private fun CatalogImage(imageKey: String, description: String, size: Int = 88) {
