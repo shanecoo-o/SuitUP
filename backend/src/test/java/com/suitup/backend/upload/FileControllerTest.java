@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.suitup.backend.common.GlobalExceptionHandler;
+import com.suitup.backend.common.ResourceNotFoundException;
 import com.suitup.backend.security.CustomUserDetails;
 import com.suitup.backend.security.CustomUserDetailsService;
 import com.suitup.backend.security.JwtAuthenticationFilter;
@@ -112,6 +113,40 @@ class FileControllerTest {
             .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, org.hamcrest.Matchers.startsWith("attachment")));
 
         verify(fileStorageService).load(stored.getId(), customer.getId(), false);
+    }
+
+    @Test
+    void adminCanRetrievePrivateFile() throws Exception {
+        CustomUserDetails admin = userDetails(RoleCode.ADMIN);
+        UploadedFileEntity stored = metadata(UUID.randomUUID(), UploadedFilePurpose.PAYMENT_PROOF, 9);
+        byte[] bytes = new byte[] {
+            (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x01
+        };
+        stored.setSizeBytes(bytes.length);
+        when(fileStorageService.load(stored.getId(), admin.getId(), true)).thenReturn(
+            new StoredFileResource(stored, new ByteArrayResource(bytes))
+        );
+
+        mockMvc.perform(get("/api/files/{id}", stored.getId()).with(user(admin)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("image/png"))
+            .andExpect(content().bytes(bytes));
+
+        verify(fileStorageService).load(stored.getId(), admin.getId(), true);
+    }
+
+    @Test
+    void unavailableFileUsesControlledNotFoundContract() throws Exception {
+        CustomUserDetails customer = userDetails(RoleCode.CUSTOMER);
+        UUID fileId = UUID.randomUUID();
+        when(fileStorageService.load(fileId, customer.getId(), false))
+            .thenThrow(new ResourceNotFoundException("Ficheiro nao encontrado"));
+
+        mockMvc.perform(get("/api/files/{id}", fileId).with(user(customer)))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("RESOURCE_NOT_FOUND"))
+            .andExpect(jsonPath("$.message").value("Ficheiro nao encontrado"))
+            .andExpect(jsonPath("$.path").value("/api/files/" + fileId));
     }
 
     private UploadedFileEntity metadata(UUID ownerId, UploadedFilePurpose purpose, long size) {

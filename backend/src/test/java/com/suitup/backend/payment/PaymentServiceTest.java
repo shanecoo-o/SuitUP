@@ -19,6 +19,7 @@ import com.suitup.backend.upload.UploadedFileRepository;
 import com.suitup.backend.upload.FileStorageService;
 import com.suitup.backend.upload.UploadedFileEntity;
 import com.suitup.backend.upload.UploadedFilePurpose;
+import com.suitup.backend.upload.dto.StoredFileResponse;
 import com.suitup.backend.user.UserRepository;
 import com.suitup.backend.user.UserEntity;
 import java.math.BigDecimal;
@@ -248,9 +249,11 @@ class PaymentServiceTest {
         when(fileStorageService.store(file, UploadedFilePurpose.PAYMENT_PROOF, customerId))
             .thenReturn(stored);
 
-        service.uploadProof(orderId, file, customerId, false);
+        StoredFileResponse response = service.uploadProof(orderId, file, customerId, false);
 
         assertThat(payment.getProofFile()).isSameAs(stored);
+        assertThat(response.fileId()).isEqualTo(stored.getId());
+        assertThat(response.url()).isEqualTo("/api/files/" + stored.getId());
         verify(paymentRepository).save(payment);
     }
 
