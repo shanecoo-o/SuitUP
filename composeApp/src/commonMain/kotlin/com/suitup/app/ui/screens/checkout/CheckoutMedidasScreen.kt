@@ -1,11 +1,9 @@
 package com.suitup.app.ui.screens.checkout
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,11 +16,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.Medidas
 import com.suitup.app.ui.components.CheckoutStepIndicator
-import com.suitup.app.ui.components.PremiumCard
-import com.suitup.app.ui.components.PremiumTextField
-import com.suitup.app.ui.components.PremiumTopBar
-import com.suitup.app.ui.components.PrimaryGoldButton
+import com.suitup.app.ui.components.SuitAlertBanner
+import com.suitup.app.ui.components.SuitAlertVariant
+import com.suitup.app.ui.components.SuitButton
+import com.suitup.app.ui.components.SuitCard
+import com.suitup.app.ui.components.SuitDetailTopBar
 import com.suitup.app.ui.components.SuitEyebrow
+import com.suitup.app.ui.components.SuitFixedCtaBar
+import com.suitup.app.ui.components.SuitFormFlowScaffold
+import com.suitup.app.ui.components.SuitTextField
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 
@@ -56,27 +58,23 @@ fun CheckoutMedidasScreen(
     onObservacoesChange: (String) -> Unit = {},
     onContinue: () -> Unit = {},
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(SuitColors.Bone),
+    SuitFormFlowScaffold(
+        topBar = {
+            SuitDetailTopBar(onBack = onBack, title = "Checkout", onCart = onCartClick, cartBadgeCount = cartItemCount)
+        },
+        fixedCta = {
+            SuitFixedCtaBar {
+                SuitButton(text = "Continuar para entrega", onClick = onContinue, enabled = podeContinuar)
+            }
+        },
     ) {
-        PremiumTopBar(
-            title = "Checkout",
-            onBack = onBack,
-            onCart = onCartClick,
-            cartBadgeCount = cartItemCount,
-        )
-
         Column(
             modifier = Modifier
-                .weight(1f)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             CheckoutStepIndicator(currentStep = 2)
-            // Cabeçalho
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = "Medidas do Cliente",
@@ -90,7 +88,6 @@ fun CheckoutMedidasScreen(
                 )
             }
 
-            // Medidas gerais
             MedidasGrupo(titulo = "Medidas gerais") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -113,7 +110,6 @@ fun CheckoutMedidasScreen(
                 }
             }
 
-            // Tronco
             MedidasGrupo(titulo = "Tronco") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -156,7 +152,6 @@ fun CheckoutMedidasScreen(
                 }
             }
 
-            // Comprimentos
             MedidasGrupo(titulo = "Comprimentos") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -199,9 +194,8 @@ fun CheckoutMedidasScreen(
                 }
             }
 
-            // Observações
             MedidasGrupo(titulo = "Observações") {
-                PremiumTextField(
+                SuitTextField(
                     value = medidas.observacoes,
                     onValueChange = onObservacoesChange,
                     label = "Observações adicionais",
@@ -210,33 +204,14 @@ fun CheckoutMedidasScreen(
                 )
             }
 
-            // Aviso de erro de validação
             if (erro != null) {
-                Text(
-                    text = erro,
-                    style = SuitTextStyles.bodySmall,
-                    color = SuitColors.PaleRedInk,
-                )
+                SuitAlertBanner(variant = SuitAlertVariant.Error, message = erro)
             }
 
-            // Nota informativa
             Text(
                 text = "(*) Campo obrigatório. As medidas são usadas apenas para preparar a encomenda.",
                 style = SuitTextStyles.bodySmall,
                 color = SuitColors.Slate,
-            )
-        }
-
-        // Footer com CTA
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 14.dp),
-        ) {
-            PrimaryGoldButton(
-                text = "Continuar para entrega",
-                onClick = onContinue,
-                enabled = podeContinuar,
             )
         }
     }
@@ -247,7 +222,7 @@ private fun MedidasGrupo(
     titulo: String,
     content: @Composable () -> Unit,
 ) {
-    PremiumCard {
+    SuitCard(modifier = Modifier.fillMaxWidth()) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SuitEyebrow(titulo)
             content()
@@ -263,7 +238,7 @@ private fun MedidaField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    PremiumTextField(
+    SuitTextField(
         value = valor,
         onValueChange = onValueChange,
         label = label,

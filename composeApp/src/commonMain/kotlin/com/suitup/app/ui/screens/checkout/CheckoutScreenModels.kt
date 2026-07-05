@@ -300,7 +300,10 @@ data class PagamentoUiState(
     val numeroMpesa: String = "",
     val titularMpesa: String = "",
     val nomeFicheiroCarregado: String? = null,
+    val tipoFicheiroCarregado: String? = null,
+    val tamanhoFicheiroBytes: Long? = null,
     val numeroPedidoCriado: String? = null,
+    val numeroPedido: String = "",
     val totalPedidoMt: Int = 0,
     val contadorCarrinho: Int = 0,
     val referenciaTransaccao: String = "",
@@ -355,6 +358,7 @@ class PagamentoScreenModel(
                 it.copy(
                     numeroMpesa = MockData.numeroMpesa,
                     titularMpesa = MockData.titularMpesa,
+                    numeroPedido = backendOrder?.numero.orEmpty(),
                     totalPedidoMt = backendOrder?.total
                         ?: MockOrderStore.cartItems.sumOf { item -> item.precoUnitarioMt * item.quantidade } +
                             if (MockOrderStore.cartItems.isEmpty()) 0 else MockData.taxaEntregaMt,
@@ -374,6 +378,8 @@ class PagamentoScreenModel(
                 _state.update {
                     it.copy(
                         nomeFicheiroCarregado = event.ficheiro.filename,
+                        tipoFicheiroCarregado = event.ficheiro.contentType,
+                        tamanhoFicheiroBytes = event.ficheiro.bytes.size.toLong(),
                         erro = null,
                         mensagemSucesso = null,
                     )
@@ -383,7 +389,14 @@ class PagamentoScreenModel(
                 _state.update { it.copy(erro = event.mensagem, mensagemSucesso = null) }
             is PagamentoUiEvent.RemoverFicheiroClicado -> if (!_state.value.pagamentoSubmetido) {
                 ficheiroSeleccionado = null
-                _state.update { it.copy(nomeFicheiroCarregado = null, erro = null) }
+                _state.update {
+                    it.copy(
+                        nomeFicheiroCarregado = null,
+                        tipoFicheiroCarregado = null,
+                        tamanhoFicheiroBytes = null,
+                        erro = null,
+                    )
+                }
             }
             is PagamentoUiEvent.ReferenciaAlterada -> if (!_state.value.pagamentoSubmetido) {
                 _state.update { it.copy(referenciaTransaccao = event.valor, erro = null) }

@@ -27,6 +27,8 @@ fun SuitTheme(
         LocalSuitSpacing provides SuitSpacing(),
         LocalSuitShapes provides SuitShapes(),
         LocalSuitMotion provides SuitMotion(),
+        LocalSuitElevation provides SuitElevationTokens(),
+        LocalSuitIconSizes provides SuitIconSizes(),
     ) {
         MaterialTheme(
             colorScheme = SuitDarkColorScheme,
@@ -49,4 +51,17 @@ object SuitTheme {
 
     val motion: SuitMotion
         @Composable get() = LocalSuitMotion.current
+
+    val elevation: SuitElevationTokens
+        @Composable get() = LocalSuitElevation.current
+
+    val iconSizes: SuitIconSizes
+        @Composable get() = LocalSuitIconSizes.current
+
+    /**
+     * Requires a [SuitResponsiveRoot] ancestor to reflect actual measured space;
+     * otherwise falls back to a Standard/Standard default (see [LocalSuitResponsiveInfo]).
+     */
+    val responsive: SuitResponsiveInfo
+        @Composable get() = LocalSuitResponsiveInfo.current
 }

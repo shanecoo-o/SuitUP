@@ -356,6 +356,7 @@ object MockOrderStore {
             "Lapela: ${design.partes.lapela.label}",
             "Botoes: ${design.partes.botoes.label}",
         ),
+        imagemKey = MockCatalogStore.getModeloFatoById(design.idModeloBase)?.urlImagemPrevia ?: "",
     )
 
     private fun syncCart() {

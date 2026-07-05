@@ -144,6 +144,7 @@ fun PremiumTextField(
     error: String? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     enabled: Boolean = true,
+    readOnly: Boolean = false,
     isPassword: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     trailingIcon: (@Composable () -> Unit)? = null,
@@ -158,6 +159,7 @@ fun PremiumTextField(
         error = error,
         keyboardType = keyboardType,
         enabled = enabled,
+        readOnly = readOnly,
         isPassword = isPassword,
         visualTransformation = visualTransformation,
         trailingIcon = trailingIcon,
@@ -172,6 +174,7 @@ fun <T> PremiumDropdown(
     optionLabel: (T) -> String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    error: String? = null,
 ) {
     SuitDropdown(
         options = options,
@@ -180,6 +183,7 @@ fun <T> PremiumDropdown(
         optionLabel = optionLabel,
         modifier = modifier,
         enabled = enabled,
+        error = error,
     )
 }
 
@@ -205,6 +209,35 @@ fun EmptyStateCard(
                 PrimaryGoldButton(
                     text = actionLabel,
                     onClick = onAction,
+                    fullWidth = false,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ErrorStateCard(
+    title: String,
+    description: String,
+    modifier: Modifier = Modifier,
+    retryLabel: String? = null,
+    onRetry: (() -> Unit)? = null,
+    icon: (@Composable () -> Unit)? = null,
+) {
+    PremiumCard(modifier = modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            icon?.invoke()
+            Text(title, style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+            Text(description, style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
+            if (retryLabel != null && onRetry != null) {
+                PrimaryGoldButton(
+                    text = retryLabel,
+                    onClick = onRetry,
                     fullWidth = false,
                 )
             }

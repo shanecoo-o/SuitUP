@@ -65,6 +65,30 @@ object SuitColors {
     val PaleBlueInk = Info
 
     val Overlay = Color(0xCC000000)
+
+    // --- Phase 6C.1: Stitch-aligned semantic tokens (additive) ---
+    // Sourced from Prompt 9 `suitup_implementation_blueprint.md` (literal handoff names)
+    // with DESIGN.md's Material3 tonal ramp used to fill gaps (surface tiers, on-* roles).
+    // Where the two Stitch sources disagreed (accent gold, error) or were silent
+    // (success/warning/info, disabled/pressed states, scrim), the existing validated
+    // repo value is kept rather than inventing an unconfirmed one — see
+    // UI_PHASE_6C1_FOUNDATION_REPORT.md for the full discrepancy log.
+    val Background = Color(0xFF131315)          // blueprint.md Background
+    val SurfaceRaised = Color(0xFF252427)        // blueprint.md SurfaceRaised
+    val SurfaceInteractive = Color(0xFF2A2A2C)   // DESIGN.md surface-container-high (hover)
+    val SurfaceSelected = Color(0xFF353437)      // DESIGN.md surface-container-highest (Level 2 active/selected)
+    val Border = Color(0xFF39393B)               // blueprint.md Border
+    val BorderStrong = Color(0xFF99907C)         // DESIGN.md outline (higher-contrast border)
+
+    val TextPrimary = PearlText                  // kept: existing warm off-white preferred over Stitch's pure #FFFFFF / #E5E1E4
+    val TextSecondary = Color(0xFFA1A1A5)        // blueprint.md TextSecondary
+    val TextMuted = Smoke                        // reuse existing muted tone for lowest-emphasis text
+
+    val AccentGold = GoldPrimary                 // kept: existing #D4AF37 (also DESIGN.md's rendered primary-container value); blueprint's #F2CA50 conflicts with DESIGN.md's own HTML output
+    val AccentGoldPressed = BronzeSubtle          // deeper existing tone reused for pressed state
+    val AccentGoldDisabled = GoldPrimary.copy(alpha = 0.38f) // derived (no disabled value specified anywhere in handoff)
+
+    val Scrim = Color(0x80000000)                // derived Material-default scrim (not specified in handoff docs); Overlay above remains the heavier modal backdrop already in use
 }
 
 val SuitDarkColorScheme: ColorScheme = darkColorScheme(
@@ -89,8 +113,8 @@ val SuitDarkColorScheme: ColorScheme = darkColorScheme(
     surfaceVariant = SuitColors.SurfaceHigh,
     onSurfaceVariant = SuitColors.Slate,
 
-    outline = SuitColors.Mist,
-    outlineVariant = SuitColors.Mist,
+    outline = SuitColors.Border,
+    outlineVariant = SuitColors.BorderStrong,
 
     error = SuitColors.PaleRedInk,
     onError = SuitColors.Black,
@@ -128,4 +152,19 @@ data class SuitColorTokens(
     val statusInfo: Color = SuitColors.PaleBlueInk,
     val statusInfoBg: Color = SuitColors.PaleBlue,
     val overlay: Color = SuitColors.Overlay,
+
+    // Phase 6C.1 additions
+    val background: Color = SuitColors.Background,
+    val surfaceRaised: Color = SuitColors.SurfaceRaised,
+    val surfaceInteractive: Color = SuitColors.SurfaceInteractive,
+    val surfaceSelected: Color = SuitColors.SurfaceSelected,
+    val border: Color = SuitColors.Border,
+    val borderStrong: Color = SuitColors.BorderStrong,
+    val textPrimary: Color = SuitColors.TextPrimary,
+    val textSecondary: Color = SuitColors.TextSecondary,
+    val textMuted: Color = SuitColors.TextMuted,
+    val accentGold: Color = SuitColors.AccentGold,
+    val accentGoldPressed: Color = SuitColors.AccentGoldPressed,
+    val accentGoldDisabled: Color = SuitColors.AccentGoldDisabled,
+    val scrim: Color = SuitColors.Scrim,
 )

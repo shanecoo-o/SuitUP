@@ -11,6 +11,7 @@ import com.suitup.app.data.session.AuthRuntime
 import com.suitup.app.data.order.OrderRuntime
 import com.suitup.app.data.payment.PaymentTrackingRuntime
 import com.suitup.app.ui.navigation.SplashVoyagerScreen
+import com.suitup.app.ui.theme.SuitResponsiveRoot
 import com.suitup.app.ui.theme.SuitTheme
 
 /**
@@ -36,8 +37,10 @@ fun App(tokenStore: TokenStore = InMemoryTokenStore()) {
     )
 
     SuitTheme {
-        Navigator(SplashVoyagerScreen()) { navigator ->
-            FadeTransition(navigator)
+        SuitResponsiveRoot {
+            Navigator(SplashVoyagerScreen()) { navigator ->
+                FadeTransition(navigator)
+            }
         }
     }
 }

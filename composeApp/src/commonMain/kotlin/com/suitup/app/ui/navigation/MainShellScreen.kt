@@ -1,13 +1,11 @@
 package com.suitup.app.ui.navigation
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -15,8 +13,9 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import com.suitup.app.data.session.AuthRuntime
 import com.suitup.app.ui.components.SuitBottomNav
+import com.suitup.app.ui.components.SuitNavDensity
+import com.suitup.app.ui.components.SuitPrimaryDestinationScaffold
 import com.suitup.app.ui.components.SuitTab
-import com.suitup.app.ui.theme.SuitColors
 import kotlinx.coroutines.launch
 
 /**
@@ -43,22 +42,25 @@ class MainShellScreen : Screen {
             }
         }
 
-        CompositionLocalProvider(LocalSignOut provides signOut) {
-            TabNavigator(HomeTab) { tabNavigator ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(SuitColors.Bone)
-                ) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        tabNavigator.current.Content()
-                    }
+        // Phase 9.4: shared holder so a tab-root screen's own
+        // `rememberSuitNavDensity(...)` (Home's LazyColumn, Catalog's
+        // LazyVerticalGrid) can drive this bottom nav — see LocalSuitNavDensity's
+        // doc comment in NavLocals.kt for why this indirection exists.
+        val navDensity = remember { mutableStateOf(SuitNavDensity.Expanded) }
 
-                    SuitBottomNav(
-                        selected = currentSuitTab(tabNavigator),
-                        onSelect = { tab -> tabNavigator.current = tab.toVoyagerTab() }
-                    )
-                }
+        CompositionLocalProvider(LocalSignOut provides signOut, LocalSuitNavDensity provides navDensity) {
+            TabNavigator(HomeTab) { tabNavigator ->
+                val density by navDensity
+                SuitPrimaryDestinationScaffold(
+                    bottomNav = {
+                        SuitBottomNav(
+                            selected = currentSuitTab(tabNavigator),
+                            onSelect = { tab -> tabNavigator.current = tab.toVoyagerTab() },
+                            density = density,
+                        )
+                    },
+                    content = { tabNavigator.current.Content() },
+                )
             }
         }
     }

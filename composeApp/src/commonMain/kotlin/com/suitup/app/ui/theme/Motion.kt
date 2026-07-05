@@ -28,6 +28,13 @@ data class SuitMotion(
     val easeOutExpo: Easing = CubicBezierEasing(0.16f, 1f, 0.3f, 1f),
     val easeInOutQuart: Easing = CubicBezierEasing(0.76f, 0f, 0.24f, 1f),
     val standard: Easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f),
+
+    // Phase 6C.1: semantic use-case aliases over the existing duration scale
+    // (no new values invented — consolidates naming per interaction, not per speed).
+    val press: Int = instant,                  // press/tap feedback (scale, ripple)
+    val selection: Int = fast,                 // selection toggle / chip / radio state change
+    val expandCollapse: Int = normal,           // expand/collapse, bottom-bar compression
+    val navigationTransition: Int = slow,       // screen/nav visual changes
 )
 
 val LocalSuitMotion = staticCompositionLocalOf { SuitMotion() }

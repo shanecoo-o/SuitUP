@@ -1,6 +1,5 @@
 package com.suitup.app.ui.navigation
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -14,8 +13,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
-import com.suitup.app.ui.components.EmptyStateCard
-import com.suitup.app.ui.components.PremiumTopBar
+import com.suitup.app.ui.components.ErrorStateCard
+import com.suitup.app.ui.components.SuitContentLoading
+import com.suitup.app.ui.components.SuitDetailScaffold
+import com.suitup.app.ui.components.SuitDetailTopBar
 import com.suitup.app.ui.screens.orders.AcompanharPedidoScreenModel
 import com.suitup.app.ui.screens.orders.ListaPedidosScreenModel
 import com.suitup.app.ui.screens.orders.ListaPedidosUiEvent
@@ -69,23 +70,23 @@ class TrackOrderVoyagerScreen(private val pedidoId: String) : Screen {
 
         val pedido = state.pedido
         if (pedido == null) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                PremiumTopBar(title = "Detalhes do pedido", onBack = { navigator.pop() })
-                EmptyStateCard(
-                    title = if (state.carregando) {
-                        "A carregar pedido..."
-                    } else {
-                        state.erro ?: "Pedido não encontrado."
-                    },
-                    description = if (state.carregando) {
-                        "A obter os detalhes da encomenda."
-                    } else {
-                        "Verifique a ligação e tente novamente."
-                    },
-                    actionLabel = if (state.carregando) null else "Tentar novamente",
-                    onAction = screenModel::refresh,
-                    modifier = Modifier.weight(1f).padding(24.dp),
-                )
+            SuitDetailScaffold(
+                topBar = { SuitDetailTopBar(title = "Detalhes do pedido", onBack = { navigator.pop() }) },
+            ) {
+                if (state.carregando) {
+                    SuitContentLoading(
+                        modifier = Modifier.fillMaxSize(),
+                        message = "A carregar pedido...",
+                    )
+                } else {
+                    ErrorStateCard(
+                        title = state.erro ?: "Pedido não encontrado.",
+                        description = "Verifique a ligação e tente novamente.",
+                        retryLabel = "Tentar novamente",
+                        onRetry = screenModel::refresh,
+                        modifier = Modifier.padding(24.dp),
+                    )
+                }
             }
         } else {
             TrackOrderScreen(

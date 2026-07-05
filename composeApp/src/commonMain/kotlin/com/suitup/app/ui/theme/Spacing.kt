@@ -32,6 +32,13 @@ data class SuitSpacing(
     val sectionGap: Dp = 24.dp,
     val inputGap: Dp = 8.dp,
     val fieldGap: Dp = 14.dp,
+
+    // Phase 6C.1: Stitch blueprint.md "Space48" — margin before fixed/sticky CTAs.
+    val xxxxl: Dp = 48.dp,
+
+    // Phase 6C.1: Stitch responsive spec's fixed bottom scroll-container clearance,
+    // so the last list item isn't hidden under BottomNav/fixed CTA bars.
+    val bottomScrollClearance: Dp = 128.dp,
 )
 
 val LocalSuitSpacing = staticCompositionLocalOf { SuitSpacing() }

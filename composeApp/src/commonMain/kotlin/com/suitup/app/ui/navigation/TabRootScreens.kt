@@ -45,8 +45,7 @@ class HomeVoyagerScreen : Screen {
             userName = MockData.utilizadorActual.nome,
             onCreateNewSuit = { tabNavigator.current = ModelsTab },
             onFeaturedModelClick = { model ->
-                MockOrderStore.startDraft(model)
-                navigator.push(Editor2DPartsVoyagerScreen(model.id))
+                navigator.push(ProductDetailVoyagerScreen(model.id))
             },
             onOrderClick = { pedido -> navigator.push(TrackOrderVoyagerScreen(pedido.id)) },
             onSeeAllOrders = { tabNavigator.current = OrdersTab },
@@ -104,8 +103,7 @@ class SelectModelVoyagerScreen : Screen {
             isUsingMockFallback = state.usandoFallbackMock,
             onCategorySelect = { screenModel.onEvent(SelecionarModeloUiEvent.CategoriaSeleccionada(it)) },
             onModelClick = { modelo ->
-                screenModel.onEvent(SelecionarModeloUiEvent.ModeloClicado(modelo))
-                navigator.push(Editor2DPartsVoyagerScreen(modelo.id))
+                navigator.push(ProductDetailVoyagerScreen(modelo.id))
             },
             onRetry = { screenModel.onEvent(SelecionarModeloUiEvent.TentarNovamente) },
             onCartClick = { navigator.push(CartVoyagerScreen()) }
@@ -134,7 +132,12 @@ class ProfileVoyagerScreen : Screen {
             cartItemCount = state.contadorCarrinho,
             orderCount = state.contadorPedidos,
             onCartClick = { navigator.push(CartVoyagerScreen()) },
+            onMyData = { navigator.push(PersonalDataVoyagerScreen()) },
+            onAddresses = { navigator.push(AddressesVoyagerScreen()) },
+            onSavedMeasurements = { navigator.push(MeasurementsVoyagerScreen()) },
             onOrders = { tabNavigator.current = OrdersTab },
+            onNotifications = { navigator.push(NotificationsVoyagerScreen()) },
+            onSupport = { navigator.push(SupportVoyagerScreen()) },
             onSignOut = signOut
         )
     }

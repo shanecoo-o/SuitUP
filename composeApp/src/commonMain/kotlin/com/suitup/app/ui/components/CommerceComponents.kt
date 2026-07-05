@@ -21,6 +21,7 @@ import com.suitup.app.domain.model.PaymentStatus
 import com.suitup.app.domain.model.Pedido
 import com.suitup.app.domain.model.Utilizador
 import com.suitup.app.ui.screens.home.shortLabel
+import com.suitup.app.ui.screens.home.toBadgeKind
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 import com.suitup.app.ui.util.formatMzn
@@ -90,7 +91,7 @@ fun PremiumOrderCard(
                         color = SuitColors.Slate,
                     )
                 }
-                StatusChip(status = orderStatusType(order), label = order.estado.shortLabel())
+                SuitStatusBadge(text = order.estado.shortLabel(), kind = order.estado.toBadgeKind())
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -149,11 +150,4 @@ private fun AccountMetric(label: String, value: String, modifier: Modifier = Mod
         Text(value, style = SuitTextStyles.titleLarge.copy(fontWeight = FontWeight.Bold), color = SuitColors.GoldChampagne)
         Text(label, style = SuitTextStyles.bodySmall, color = SuitColors.Smoke)
     }
-}
-
-private fun orderStatusType(order: Pedido): StatusChipType = when (order.estado.shortLabel()) {
-    "Entregue" -> StatusChipType.Delivered
-    "Pronto" -> StatusChipType.Ready
-    "Em produção" -> StatusChipType.Production
-    else -> StatusChipType.Analysis
 }

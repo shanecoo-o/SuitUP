@@ -20,6 +20,11 @@ data class SuitShapes(
     val md: RoundedCornerShape = RoundedCornerShape(8.dp),
     val lg: RoundedCornerShape = RoundedCornerShape(12.dp),
     val xl: RoundedCornerShape = RoundedCornerShape(16.dp),
+    // Phase 6C.1: Stitch DESIGN.md's "xl" radius tier (1.5rem/24dp), used for e.g.
+    // Primary Cards per the handoff. Added as a new tier rather than resizing the
+    // existing `card` token in place, to avoid a global visual change ahead of the
+    // screen-migration phase; adopt per-component in later phases as needed.
+    val xxl: RoundedCornerShape = RoundedCornerShape(24.dp),
     val pill: RoundedCornerShape = RoundedCornerShape(999.dp),
 
     // Semânticos

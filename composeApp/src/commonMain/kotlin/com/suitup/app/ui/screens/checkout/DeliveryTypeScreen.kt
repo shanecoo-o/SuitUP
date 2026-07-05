@@ -1,9 +1,7 @@
 package com.suitup.app.ui.screens.checkout
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,9 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.TipoEntrega
 import com.suitup.app.ui.components.CheckoutStepIndicator
-import com.suitup.app.ui.components.PremiumTopBar
-import com.suitup.app.ui.components.SectionHeader
+import com.suitup.app.ui.components.SuitDetailTopBar
 import com.suitup.app.ui.components.SuitDualBottomBar
+import com.suitup.app.ui.components.SuitEyebrow
+import com.suitup.app.ui.components.SuitFormFlowScaffold
 import com.suitup.app.ui.components.SuitSelectableCard
 import com.suitup.app.ui.icons.PinIcon
 import com.suitup.app.ui.icons.TruckIcon
@@ -35,29 +34,29 @@ fun DeliveryTypeScreen(
     onSelect: (TipoEntrega) -> Unit = {},
     onContinue: () -> Unit = {},
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(SuitColors.Bone),
+    SuitFormFlowScaffold(
+        topBar = {
+            SuitDetailTopBar(onBack = onBack, title = "Checkout", onCart = onCartClick, cartBadgeCount = cartItemCount)
+        },
+        fixedCta = {
+            SuitDualBottomBar(
+                primaryText = "Continuar",
+                onPrimaryClick = onContinue,
+                onSecondaryClick = onBack,
+            )
+        },
     ) {
-        PremiumTopBar(
-            title = "Checkout",
-            onBack = onBack,
-            onCart = onCartClick,
-            cartBadgeCount = cartItemCount,
-        )
-
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             CheckoutStepIndicator(currentStep = 3)
-            SectionHeader(
-                eyebrow = "ENTREGA",
-                title = "Como deseja receber?",
-                description = "Escolha entrega ao domicílio ou levantamento na loja.",
+            SuitEyebrow(text = "Entrega")
+            Text("Como deseja receber?", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
+            Text(
+                "Escolha entrega ao domicílio ou levantamento na loja.",
+                style = SuitTextStyles.bodySmall,
+                color = SuitColors.Slate,
             )
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SuitSelectableCard(
@@ -76,11 +75,5 @@ fun DeliveryTypeScreen(
                 )
             }
         }
-
-        SuitDualBottomBar(
-            primaryText = "Continuar",
-            onPrimaryClick = onContinue,
-            onSecondaryClick = onBack,
-        )
     }
 }

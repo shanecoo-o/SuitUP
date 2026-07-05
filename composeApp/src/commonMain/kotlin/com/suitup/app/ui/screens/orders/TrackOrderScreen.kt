@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.suitup.app.data.mock.MockCatalogStore
 import com.suitup.app.domain.model.EstadoEvento
 import com.suitup.app.domain.model.EventoPedido
 import com.suitup.app.domain.model.PaymentStatus
@@ -20,17 +22,47 @@ import com.suitup.app.data.payment.CustomerTrackingEvent
 import com.suitup.app.data.payment.CustomerTrackingStatus
 import com.suitup.app.ui.components.OrderTimeline
 import com.suitup.app.ui.components.OrderTimelineItem
-import com.suitup.app.ui.components.PaymentStatusCard
-import com.suitup.app.ui.components.PremiumCard
-import com.suitup.app.ui.components.PremiumTopBar
-import com.suitup.app.ui.components.PrimaryGoldButton
-import com.suitup.app.ui.components.SectionHeader
-import com.suitup.app.ui.components.SecondaryDarkButton
 import com.suitup.app.ui.components.TimelineItemStatus
+import com.suitup.app.ui.components.PaymentStatusCard
+import com.suitup.app.ui.components.SuitAlertBanner
+import com.suitup.app.ui.components.SuitAlertVariant
+import com.suitup.app.ui.components.SuitButton
+import com.suitup.app.ui.components.SuitButtonVariant
+import com.suitup.app.ui.components.SuitCard
+import com.suitup.app.ui.components.SuitDetailTopBar
+import com.suitup.app.ui.components.SuitFixedCtaBar
+import com.suitup.app.ui.components.SuitImageContainer
+import com.suitup.app.ui.components.SuitImageContext
+import com.suitup.app.ui.components.SuitDetailScaffold
+import com.suitup.app.ui.components.SuitStatusBadge
+import com.suitup.app.ui.screens.home.shortLabel
+import com.suitup.app.ui.screens.home.toBadgeKind
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
+import com.suitup.app.ui.theme.SuitTheme
 import com.suitup.app.ui.util.formatMzn
+import com.suitup.app.ui.util.suitImageResource
 
+/**
+ * Ecrã "Detalhes do pedido / Acompanhar" (Fase 9.6C). Migrado para a
+ * linguagem Stitch. A app não tem um ecrã de Order Detail separado do
+ * Tracking — [OrdersScreens.TrackOrderVoyagerScreen] sempre navegou
+ * directamente para aqui (ver [com.suitup.app.ui.components.SuitDetailScaffold]
+ * doc: "Archetype B — pushed detail screen (Product Detail, Order
+ * Detail/Tracking)") — por isso as Tasks 5-8 (Order Detail) e 10-13
+ * (Tracking) deste ecrã convergem num único ficheiro, sem introduzir uma
+ * segunda rota. Mantém o ScreenModel/repositório existentes
+ * (AcompanharPedidoScreenModel) — apenas apresentação.
+ *
+ * Proof de pagamento do cliente (Task 9): [order.pagamento.caminhoImagemComprovativo]
+ * já transporta o proofFileId real (RemoteMappers.kt) mas não existe, neste
+ * repositório, uma rota/backend confirmado de download seguro para o cliente
+ * (apenas o lado Admin consome RemoteFileRepository.download). Por isso este
+ * ecrã apenas mostra o estado do comprovativo (hasProof) via
+ * [PaymentStatusCard] — sem criar uma segunda API/repositório de proof nem
+ * inventar uma rota de download/preview para o cliente
+ * (CUSTOMER PROOF DETAIL DEFERRED — DATA/ROUTE GAP).
+ */
 @Composable
 fun TrackOrderScreen(
     order: Pedido,
@@ -44,43 +76,54 @@ fun TrackOrderScreen(
     onContactSupport: (() -> Unit)? = null,
     onRetryTimeline: () -> Unit = {},
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        PremiumTopBar(
-            title = "Acompanhar pedido",
-            onBack = onBack,
-            onCart = onCartClick,
-            cartBadgeCount = cartItemCount,
-        )
+    SuitDetailScaffold(
+        topBar = {
+            SuitDetailTopBar(
+                title = "Detalhes do pedido",
+                onBack = onBack,
+                onCart = onCartClick,
+                cartBadgeCount = cartItemCount,
+            )
+        },
+        fixedCta = if (onContactSupport != null) {
+            {
+                SuitFixedCtaBar {
+                    SuitButton(text = "Falar com suporte", onClick = onContactSupport)
+                }
+            }
+        } else null,
+    ) {
         Column(
             modifier = Modifier
-                .weight(1f)
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
+                .padding(horizontal = SuitTheme.responsive.horizontalContentPadding, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (noticeMessage != null) {
-                PremiumCard {
-                    Text(noticeMessage, style = SuitTextStyles.bodySmall, color = SuitColors.Error)
-                }
+                SuitAlertBanner(variant = SuitAlertVariant.Offline, message = noticeMessage)
             }
-            SectionHeader(
-                eyebrow = "PEDIDO #${order.numero}",
-                title = order.estado.label,
-                description = "Criado em ${order.criadoEm} · actualizado em ${order.actualizadoEm}",
+
+            OrderSummarySection(order)
+
+            PaymentStatusCard(
+                status = order.pagamento.status,
+                paymentReference = order.pagamento.referenciaTransaccao,
+                orderReference = "#${order.numero}",
+                hasProof = order.pagamento.caminhoImagemComprovativo != null,
             )
-            PaymentStatusCard(status = order.pagamento.status)
             if (order.pagamento.status == PaymentStatus.REJECTED) {
-                PremiumCard {
-                    Text(
-                        "Pagamento rejeitado. Contacte a loja ou envie uma nova referência.",
-                        style = SuitTextStyles.bodyMedium,
-                        color = SuitColors.Error,
-                    )
-                }
+                SuitAlertBanner(
+                    variant = SuitAlertVariant.Error,
+                    message = "Pagamento rejeitado. Contacte a loja ou envie uma nova referência.",
+                )
             }
-            PremiumCard {
+
+            DeliverySection(order)
+
+            SuitCard {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Progresso", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+                    Text("Acompanhamento", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
                     when {
                         isTimelineLoading -> Text(
                             "A carregar acompanhamento...",
@@ -89,9 +132,10 @@ fun TrackOrderScreen(
                         )
                         timelineError != null -> {
                             Text(timelineError, style = SuitTextStyles.bodyMedium, color = SuitColors.Error)
-                            SecondaryDarkButton(
+                            SuitButton(
                                 text = "Tentar novamente",
                                 onClick = onRetryTimeline,
+                                variant = SuitButtonVariant.Secondary,
                                 fullWidth = false,
                             )
                         }
@@ -105,33 +149,11 @@ fun TrackOrderScreen(
                     }
                 }
             }
-            PremiumCard {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Resumo do pedido", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
-                    val design = order.designsFato.firstOrNull()
-                    SummaryLine("Fato", design?.nome ?: "Fato personalizado")
-                    design?.let {
-                        SummaryLine("Tecido", it.tecido.nome)
-                        SummaryLine("Cor", it.cor.nome)
-                        SummaryLine("Lapela", it.partes.lapela.label)
-                        SummaryLine("Botões", it.partes.botoes.label)
-                    }
-                    SummaryLine("Cliente", order.cliente?.nome ?: "Cliente SuitUP")
-                    SummaryLine(
-                        "Recepção",
-                        order.enderecoEntrega?.let { "${it.bairro}, ${it.cidade}" }
-                            ?: order.pontoLevantamento?.nome
-                            ?: order.tipoEntrega.label,
-                    )
-                    SummaryLine("Subtotal", formatMzn(order.subtotal))
-                    SummaryLine("Entrega", formatMzn(order.taxaEntrega))
-                    SummaryLine("Total", formatMzn(order.total))
-                }
-            }
+
             order.medidas?.let { medidas ->
-                PremiumCard {
+                SuitCard {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("Medidas", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
+                        Text("Medidas", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
                         MeasurementLine("Altura", medidas.alturaCm)
                         MeasurementLine("Peito", medidas.peitoCm)
                         MeasurementLine("Cintura", medidas.cinturaCm)
@@ -142,12 +164,59 @@ fun TrackOrderScreen(
                 }
             }
         }
-        if (onContactSupport != null) {
-            PrimaryGoldButton(
-                text = "Falar com suporte",
-                onClick = onContactSupport,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+    }
+}
+
+@Composable
+private fun OrderSummarySection(order: Pedido) {
+    val design = order.designsFato.firstOrNull()
+    SuitCard {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            SuitImageContainer(
+                image = suitImageResource(
+                    design?.idModeloBase?.let { MockCatalogStore.getModeloFatoById(it)?.urlImagemPrevia }.orEmpty(),
+                ),
+                contentDescription = design?.nome,
+                context = SuitImageContext.ProductDetail,
+                modifier = Modifier.width(96.dp),
             )
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Pedido #${order.numero}", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
+                    SuitStatusBadge(text = order.estado.shortLabel(), kind = order.estado.toBadgeKind())
+                }
+                Text(design?.nome ?: "Fato personalizado", style = SuitTextStyles.bodyMedium, color = SuitColors.Slate)
+                design?.let {
+                    SummaryLine("Tecido", it.tecido.nome)
+                    SummaryLine("Cor", it.cor.nome)
+                    SummaryLine("Lapela", it.partes.lapela.label)
+                    SummaryLine("Botões", it.partes.botoes.label)
+                }
+                Text(
+                    "Criado em ${order.criadoEm} · actualizado em ${order.actualizadoEm}",
+                    style = SuitTextStyles.bodySmall,
+                    color = SuitColors.Smoke,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeliverySection(order: Pedido) {
+    SuitCard {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("Cliente e entrega", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
+            SummaryLine("Cliente", order.cliente?.nome ?: "Cliente SuitUP")
+            SummaryLine(
+                "Recepção",
+                order.enderecoEntrega?.let { "${it.bairro}, ${it.cidade}" }
+                    ?: order.pontoLevantamento?.nome
+                    ?: order.tipoEntrega.label,
+            )
+            SummaryLine("Subtotal", formatMzn(order.subtotal))
+            SummaryLine("Entrega", formatMzn(order.taxaEntrega))
+            SummaryLine("Total", formatMzn(order.total))
         }
     }
 }

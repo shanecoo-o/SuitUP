@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,7 +36,9 @@ import com.suitup.app.ui.theme.SuitTextStyles
 import com.suitup.app.ui.theme.SuitTheme
 
 /**
- * Dropdown / combobox SuitUP.
+ * Dropdown / combobox SuitUP — used for category, status, delivery-location and
+ * admin-filter selection wherever a native Compose menu (not an HTML-style
+ * select) is appropriate.
  *
  * Botão com border 1dp Mist + label + chevron rotativo + menu suspenso por baixo.
  * O menu é controlado internamente (open/close) — o componente expõe apenas
@@ -43,6 +46,9 @@ import com.suitup.app.ui.theme.SuitTheme
  *
  * Estado de "expanded" é UI-only, fica dentro do componente. State management
  * (qual opção está selecionada) é hoisted via [selectedLabel].
+ *
+ * States: DEFAULT, FOCUSED/expanded (gold border), SELECTED (option row highlight),
+ * ERROR (red border + message), DISABLED (muted surface, non-interactive).
  */
 @Composable
 fun <T> SuitDropdown(
@@ -52,6 +58,7 @@ fun <T> SuitDropdown(
     optionLabel: (T) -> String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    error: String? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val updatedOnSelect by rememberUpdatedState(onSelect)
@@ -62,14 +69,23 @@ fun <T> SuitDropdown(
         label = "chevron-rotation"
     )
 
+    val borderColor = when {
+        !enabled -> SuitColors.Mist.copy(alpha = 0.5f)
+        error != null -> SuitColors.PaleRedInk
+        expanded -> SuitColors.GoldChampagne
+        else -> SuitColors.Mist
+    }
+    val backgroundColor = if (enabled) SuitColors.WarmBlack else SuitColors.SurfaceHigh
+
     Box(modifier = modifier) {
+        Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
                 .clip(SuitTheme.shapes.input)
-                .background(SuitColors.WarmBlack)
-                .border(1.dp, if (expanded) SuitColors.GoldChampagne else SuitColors.Mist, SuitTheme.shapes.input)
+                .background(backgroundColor)
+                .border(1.dp, borderColor, SuitTheme.shapes.input)
                 .clickable(enabled = enabled) { expanded = !expanded }
                 .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -85,6 +101,15 @@ fun <T> SuitDropdown(
                 size = 18.dp,
                 modifier = Modifier.rotate(chevronRotation),
             )
+        }
+        if (error != null) {
+            Text(
+                text = error,
+                style = SuitTextStyles.bodySmall,
+                color = SuitColors.PaleRedInk,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
         }
 
         DropdownMenu(

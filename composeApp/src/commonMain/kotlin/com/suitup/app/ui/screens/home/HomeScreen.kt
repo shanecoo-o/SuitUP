@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,11 +33,12 @@ import com.suitup.app.ui.components.MetricCard
 import com.suitup.app.ui.components.PremiumCard
 import com.suitup.app.ui.components.PrimaryGoldButton
 import com.suitup.app.ui.components.SectionHeader
-import com.suitup.app.ui.components.StatusChip
-import com.suitup.app.ui.components.StatusChipType
 import com.suitup.app.ui.components.SuitImageCard
-import com.suitup.app.ui.components.PremiumTopBar
+import com.suitup.app.ui.components.SuitPrimaryTopBar
+import com.suitup.app.ui.components.SuitStatusBadge
+import com.suitup.app.ui.components.rememberSuitNavDensity
 import com.suitup.app.ui.icons.ForwardChevronIcon
+import com.suitup.app.ui.navigation.LocalSuitNavDensity
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 import com.suitup.app.ui.theme.SuitTheme
@@ -57,27 +60,33 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
 ) {
     val pendingPayments = pedidosRecentes.count { it.estado == EstadoPedido.AguardandoPagamento }
+    val horizontalPadding = SuitTheme.responsive.horizontalContentPadding
+
+    val listState = rememberLazyListState()
+    val navDensity = rememberSuitNavDensity(listState)
+    val sharedNavDensity = LocalSuitNavDensity.current
+    LaunchedEffect(navDensity) { sharedNavDensity.value = navDensity }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(SuitColors.InkBlack),
     ) {
-        PremiumTopBar(
+        SuitPrimaryTopBar(
             title = "SuitUP",
             onCart = onCartClick,
             cartBadgeCount = cartItemCount,
-            trailing = null,
         )
 
         LazyColumn(
+            state = listState,
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             item("greeting") {
                 Column(
-                    modifier = Modifier.padding(horizontal = 20.dp),
+                    modifier = Modifier.padding(horizontal = horizontalPadding),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
@@ -95,7 +104,7 @@ fun HomeScreen(
 
             item("hero") {
                 HomeHero(
-                    modifier = Modifier.padding(horizontal = 20.dp),
+                    modifier = Modifier.padding(horizontal = horizontalPadding),
                     onCreateNewSuit = onCreateNewSuit,
                 )
             }
@@ -111,7 +120,7 @@ fun HomeScreen(
 
             item("metrics") {
                 LazyRow(
-                    contentPadding = PaddingValues(horizontal = 20.dp),
+                    contentPadding = PaddingValues(horizontal = horizontalPadding),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     item {
@@ -150,13 +159,13 @@ fun HomeScreen(
                         description = "Escolha uma base e personalize cada detalhe.",
                         actionLabel = "Ver catálogo",
                         onAction = onCreateNewSuit,
-                        modifier = Modifier.padding(horizontal = 20.dp),
+                        modifier = Modifier.padding(horizontal = horizontalPadding),
                     )
                 }
 
                 item("catalog-models") {
                     LazyRow(
-                        contentPadding = PaddingValues(horizontal = 20.dp),
+                        contentPadding = PaddingValues(horizontal = horizontalPadding),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(featuredModels.take(3), key = { it.id }) { model ->
@@ -179,7 +188,7 @@ fun HomeScreen(
                     description = "Acompanhe produção, pagamento e entrega.",
                     actionLabel = "Ver todos",
                     onAction = onSeeAllOrders,
-                    modifier = Modifier.padding(horizontal = 20.dp),
+                    modifier = Modifier.padding(horizontal = horizontalPadding),
                 )
             }
 
@@ -190,7 +199,7 @@ fun HomeScreen(
                         description = "Personalize o seu primeiro fato e acompanhe tudo por aqui.",
                         actionLabel = "Ver catálogo",
                         onAction = onCreateNewSuit,
-                        modifier = Modifier.padding(horizontal = 20.dp),
+                        modifier = Modifier.padding(horizontal = horizontalPadding),
                     )
                 }
             } else {
@@ -198,7 +207,7 @@ fun HomeScreen(
                     RecentOrderCard(
                         order = order,
                         onClick = { onOrderClick(order) },
-                        modifier = Modifier.padding(horizontal = 20.dp),
+                        modifier = Modifier.padding(horizontal = horizontalPadding),
                     )
                 }
             }
@@ -220,7 +229,7 @@ private fun HomeQuickActions(
         "Perfil" to onProfile,
     )
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 20.dp),
+        contentPadding = PaddingValues(horizontal = SuitTheme.responsive.horizontalContentPadding),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         items(actions, key = { it.first }) { (label, action) ->
@@ -283,7 +292,7 @@ private fun HomeHero(
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
-                    painter = painterResource(suitImageResource("suit_navy_business")),
+                    painter = painterResource(suitImageResource("suit_navy_executive")),
                     contentDescription = "Fato azul executivo",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -326,22 +335,12 @@ private fun RecentOrderCard(
                     style = SuitTextStyles.titleMedium,
                     color = SuitColors.GoldChampagne,
                 )
-                StatusChip(
-                    status = order.estado.toStatusChipType(),
-                    label = order.estado.shortLabel(),
+                SuitStatusBadge(
+                    text = order.estado.shortLabel(),
+                    kind = order.estado.toBadgeKind(),
                 )
             }
             ForwardChevronIcon(tint = SuitColors.GoldChampagne, size = 20.dp)
         }
     }
-}
-
-private fun EstadoPedido.toStatusChipType(): StatusChipType = when (this) {
-    EstadoPedido.AguardandoPagamento -> StatusChipType.Pending
-    EstadoPedido.PagamentoValidado -> StatusChipType.Confirmed
-    EstadoPedido.PagamentoRejeitado -> StatusChipType.Rejected
-    EstadoPedido.EmProducao -> StatusChipType.Production
-    EstadoPedido.ProntoParaEntrega -> StatusChipType.Ready
-    EstadoPedido.Entregue -> StatusChipType.Delivered
-    EstadoPedido.Cancelado -> StatusChipType.Rejected
 }

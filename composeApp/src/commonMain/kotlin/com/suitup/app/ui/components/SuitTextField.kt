@@ -33,6 +33,10 @@ import com.suitup.app.ui.theme.SuitTheme
  *
  * Princípio: label acima do input, helper abaixo, error state inline.
  * Bordas hairline, focus altera para Ink.
+ *
+ * States: DEFAULT, FOCUSED (gold border), ERROR (red border + message),
+ * DISABLED (muted surface, non-interactive), READ_ONLY (full-contrast text,
+ * never focus-highlighted, caret/edits blocked).
  */
 @Composable
 fun SuitTextField(
@@ -49,22 +53,28 @@ fun SuitTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     isPassword: Boolean = false,
     enabled: Boolean = true,
+    readOnly: Boolean = false,
     singleLine: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
 
     val borderColor = when {
+        !enabled -> SuitColors.Mist.copy(alpha = 0.5f)
         error != null -> SuitColors.PaleRedInk
+        readOnly -> SuitColors.Mist
         isFocused -> SuitColors.GoldChampagne
         else -> SuitColors.Mist
     }
+    val backgroundColor = if (enabled) SuitColors.WarmBlack else SuitColors.SurfaceHigh
+    val textColor = if (enabled) SuitColors.Ink else SuitColors.Smoke
+    val labelColor = if (enabled) SuitTheme.colors.slate else SuitColors.Smoke
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = label,
             style = SuitTextStyles.labelMedium,
-            color = SuitTheme.colors.slate,
+            color = labelColor,
         )
 
         Row(
@@ -73,7 +83,7 @@ fun SuitTextField(
                 .fillMaxWidth()
                 .height(52.dp)
                 .clip(SuitTheme.shapes.input)
-                .background(SuitColors.WarmBlack)
+                .background(backgroundColor)
                 .border(1.dp, borderColor, SuitTheme.shapes.input)
                 .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -85,10 +95,11 @@ fun SuitTextField(
                     value = value,
                     onValueChange = onValueChange,
                     enabled = enabled,
+                    readOnly = readOnly,
                     singleLine = singleLine,
                     cursorBrush = SolidColor(SuitColors.Gold),
                     interactionSource = interactionSource,
-                    textStyle = SuitTextStyles.bodyMedium.copy(color = SuitColors.Ink),
+                    textStyle = SuitTextStyles.bodyMedium.copy(color = textColor),
                     keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
                     visualTransformation = if (isPassword) PasswordVisualTransformation() else visualTransformation,
                     decorationBox = { inner ->

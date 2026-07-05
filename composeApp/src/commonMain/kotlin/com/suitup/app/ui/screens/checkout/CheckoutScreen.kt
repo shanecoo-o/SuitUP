@@ -3,7 +3,6 @@ package com.suitup.app.ui.screens.checkout
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -15,12 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.suitup.app.ui.components.CheckoutStepIndicator
-import com.suitup.app.ui.components.PremiumCard
-import com.suitup.app.ui.components.PremiumTextField
-import com.suitup.app.ui.components.PremiumTopBar
-import com.suitup.app.ui.components.PrimaryGoldButton
-import com.suitup.app.ui.components.SectionHeader
+import com.suitup.app.ui.components.SuitButton
+import com.suitup.app.ui.components.SuitCard
+import com.suitup.app.ui.components.SuitDetailTopBar
+import com.suitup.app.ui.components.SuitEyebrow
+import com.suitup.app.ui.components.SuitFixedCtaBar
+import com.suitup.app.ui.components.SuitFormFlowScaffold
 import com.suitup.app.ui.components.SuitSwitch
+import com.suitup.app.ui.components.SuitTextField
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
 
@@ -42,31 +43,44 @@ fun CheckoutScreen(
     onToggleMeasurements: (Boolean) -> Unit = {},
     onContinue: () -> Unit = {},
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        PremiumTopBar(title = "Checkout", onBack = onBack, onCart = onCartClick, cartBadgeCount = cartItemCount)
+    SuitFormFlowScaffold(
+        topBar = {
+            SuitDetailTopBar(onBack = onBack, title = "Checkout", onCart = onCartClick, cartBadgeCount = cartItemCount)
+        },
+        fixedCta = {
+            SuitFixedCtaBar {
+                SuitButton(
+                    text = "Continuar para medidas",
+                    onClick = onContinue,
+                    enabled = fullName.isNotBlank() && telefone.isNotBlank() && email.isNotBlank(),
+                )
+            }
+        },
+    ) {
         Column(
             modifier = Modifier
-                .weight(1f)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             CheckoutStepIndicator(currentStep = 1)
-            SectionHeader(
-                eyebrow = "DADOS DO CLIENTE",
-                title = "Como podemos contactá-lo?",
-                description = "Confirme os dados associados à sua encomenda.",
+            SuitEyebrow(text = "Dados do cliente")
+            Text("Como podemos contactá-lo?", style = SuitTextStyles.titleLarge, color = SuitColors.Ink)
+            Text(
+                "Confirme os dados associados à sua encomenda.",
+                style = SuitTextStyles.bodySmall,
+                color = SuitColors.Slate,
             )
-            PremiumCard {
+            SuitCard(modifier = Modifier.fillMaxWidth()) {
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    PremiumTextField(
+                    SuitTextField(
                         value = fullName,
                         onValueChange = onFullNameChange,
                         label = "Nome completo",
                         placeholder = "João da Silva",
                         error = nameError,
                     )
-                    PremiumTextField(
+                    SuitTextField(
                         value = telefone,
                         onValueChange = onPhoneChange,
                         label = "Telefone",
@@ -74,7 +88,7 @@ fun CheckoutScreen(
                         keyboardType = KeyboardType.Phone,
                         error = phoneError,
                     )
-                    PremiumTextField(
+                    SuitTextField(
                         value = email,
                         onValueChange = onEmailChange,
                         label = "Email",
@@ -84,14 +98,14 @@ fun CheckoutScreen(
                     )
                 }
             }
-            PremiumCard {
+            SuitCard(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text("Usar medidas guardadas", style = SuitTextStyles.titleMedium, color = SuitColors.Pearl)
+                        Text("Usar medidas guardadas", style = SuitTextStyles.titleMedium, color = SuitColors.Ink)
                         Text(
                             "Preenche automaticamente os valores do seu perfil.",
                             style = SuitTextStyles.bodySmall,
@@ -102,11 +116,5 @@ fun CheckoutScreen(
                 }
             }
         }
-        PrimaryGoldButton(
-            text = "Continuar para medidas",
-            onClick = onContinue,
-            enabled = fullName.isNotBlank() && telefone.isNotBlank() && email.isNotBlank(),
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
-        )
     }
 }

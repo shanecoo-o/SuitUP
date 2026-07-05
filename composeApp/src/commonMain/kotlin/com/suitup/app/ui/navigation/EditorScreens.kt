@@ -7,8 +7,9 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.suitup.app.ui.screens.editor.Editor2DColorsScreen
-import com.suitup.app.ui.screens.editor.Editor2DPartsScreen
+import com.suitup.app.ui.screens.editor.Editor2DStageScreen
+import com.suitup.app.ui.screens.editor.EditorAccessoriesScreenModel
+import com.suitup.app.ui.screens.editor.EditorAccessoriesUiEvent
 import com.suitup.app.ui.screens.editor.EditorCoresScreenModel
 import com.suitup.app.ui.screens.editor.EditorCoresUiEvent
 import com.suitup.app.ui.screens.editor.EditorPartesScreenModel
@@ -16,55 +17,51 @@ import com.suitup.app.ui.screens.editor.EditorPartesUiEvent
 import com.suitup.app.ui.screens.editor.Preview3DScreen
 import com.suitup.app.ui.screens.editor.Preview3DScreenModel
 import com.suitup.app.ui.screens.editor.Preview3DUiEvent
+import com.suitup.app.ui.screens.editor.TieStyle
 
-class Editor2DPartsVoyagerScreen(private val modeloId: String) : Screen {
+class Editor2DStageVoyagerScreen(private val modeloId: String) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = rememberScreenModel { EditorPartesScreenModel(modeloId) }
-        val state by screenModel.state.collectAsState()
+        val partesModel = rememberScreenModel { EditorPartesScreenModel(modeloId) }
+        val coresModel = rememberScreenModel { EditorCoresScreenModel(modeloId) }
+        val accessoriesModel = rememberScreenModel { EditorAccessoriesScreenModel() }
+        val partesState by partesModel.state.collectAsState()
+        val coresState by coresModel.state.collectAsState()
+        val accessoriesState by accessoriesModel.state.collectAsState()
 
-        Editor2DPartsScreen(
-            partes = state.partes,
-            selectedPart = state.parteSeleccionada,
-            garmentColor = state.corFato,
-            modelName = state.nomeModelo,
-            basePriceMzn = state.precoBase,
-            cartItemCount = state.contadorCarrinho,
+        Editor2DStageScreen(
+            imageKey = partesState.imagemKey,
+            modelName = partesState.nomeModelo,
+            basePriceMzn = partesState.precoBase,
+            partes = partesState.partes,
+            corFato = coresState.corActual,
+            tecido = coresState.tecidoActual,
+            coresFato = coresState.coresFato,
+            tecidos = coresState.tecidos,
+            vestIncluded = accessoriesState.vestIncluded,
+            tieStyle = accessoriesState.tieStyle,
+            cartItemCount = partesState.contadorCarrinho,
             onBack = { navigator.pop() },
             onCartClick = { navigator.push(CartVoyagerScreen()) },
-            onPartSelect = { screenModel.onEvent(EditorPartesUiEvent.ParteSeleccionada(it)) },
-            onLapelChange = { screenModel.onEvent(EditorPartesUiEvent.LapelaAlterada(it)) },
-            onWidthChange = { screenModel.onEvent(EditorPartesUiEvent.LarguraAlterada(it)) },
-            onNext = { navigator.push(Editor2DColorsVoyagerScreen(modeloId)) }
-        )
-    }
-}
-
-class Editor2DColorsVoyagerScreen(private val modeloId: String) : Screen {
-    @Composable
-    override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
-        val screenModel = rememberScreenModel { EditorCoresScreenModel(modeloId) }
-        val state by screenModel.state.collectAsState()
-
-        Editor2DColorsScreen(
-            selectedPart = state.parteSeleccionada,
-            coresFato = state.coresFato,
-            tecidos = state.tecidos,
-            selectedColor = state.corActual,
-            selectedFabric = state.tecidoActual,
-            modelName = state.nomeModelo,
-            basePriceMzn = state.precoBase,
-            cartItemCount = state.contadorCarrinho,
-            onBack = { navigator.pop() },
-            onCartClick = { navigator.push(CartVoyagerScreen()) },
-            onPartSelect = { screenModel.onEvent(EditorCoresUiEvent.ParteSeleccionada(it)) },
-            onColorSelect = { screenModel.onEvent(EditorCoresUiEvent.CorSeleccionada(it)) },
-            onFabricSelect = { screenModel.onEvent(EditorCoresUiEvent.TecidoSeleccionado(it)) },
+            onLapelChange = { partesModel.onEvent(EditorPartesUiEvent.LapelaAlterada(it)) },
+            onColorSelect = { coresModel.onEvent(EditorCoresUiEvent.CorSeleccionada(it)) },
+            onFabricSelect = { coresModel.onEvent(EditorCoresUiEvent.TecidoSeleccionado(it)) },
+            onButtonsChange = { partesModel.onEvent(EditorPartesUiEvent.BotoesAlterados(it)) },
+            onPocketChange = { partesModel.onEvent(EditorPartesUiEvent.BolsoAlterado(it)) },
+            onSleevesChange = { partesModel.onEvent(EditorPartesUiEvent.MangasAlteradas(it)) },
+            onLiningChange = { partesModel.onEvent(EditorPartesUiEvent.ForroAlterado(it)) },
+            onFitChange = { partesModel.onEvent(EditorPartesUiEvent.LarguraAlterada(it)) },
+            onVestToggle = { accessoriesModel.onEvent(EditorAccessoriesUiEvent.VestToggled(it)) },
+            onTieStyleChange = { accessoriesModel.onEvent(EditorAccessoriesUiEvent.TieStyleChanged(it)) },
             onNext = {
                 navigator.push(
-                    Preview3DVoyagerScreen(modeloId, state.corActual.hex)
+                    Preview3DVoyagerScreen(
+                        modeloId = modeloId,
+                        colorHex = coresState.corActual.hex,
+                        vestIncluded = accessoriesState.vestIncluded,
+                        tieStyle = accessoriesState.tieStyle,
+                    )
                 )
             }
         )
@@ -74,16 +71,21 @@ class Editor2DColorsVoyagerScreen(private val modeloId: String) : Screen {
 class Preview3DVoyagerScreen(
     private val modeloId: String,
     private val colorHex: String,
+    private val vestIncluded: Boolean = false,
+    private val tieStyle: TieStyle = TieStyle.None,
 ) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = rememberScreenModel { Preview3DScreenModel(modeloId, colorHex) }
+        val screenModel = rememberScreenModel {
+            Preview3DScreenModel(modeloId, colorHex, vestIncluded, tieStyle)
+        }
         val state by screenModel.state.collectAsState()
 
         Preview3DScreen(
             state = state.estadoVisor,
             garmentColor = state.corFato,
+            imageKey = state.imagemKey,
             modelName = state.nomeModelo,
             estimatedPriceMzn = state.precoEstimado,
             configurationDetails = state.detalhesConfiguracao,
@@ -94,7 +96,9 @@ class Preview3DVoyagerScreen(
             onCartClick = { navigator.push(CartVoyagerScreen()) },
             onStateChange = { screenModel.onEvent(Preview3DUiEvent.EstadoAlterado(it)) },
             onRotate = { screenModel.onEvent(Preview3DUiEvent.GirarClicado) },
-            onZoom = { screenModel.onEvent(Preview3DUiEvent.ZoomClicado) },
+            onZoomIn = { screenModel.onEvent(Preview3DUiEvent.ZoomInClicado) },
+            onZoomOut = { screenModel.onEvent(Preview3DUiEvent.ZoomOutClicado) },
+            onReset = { screenModel.onEvent(Preview3DUiEvent.ResetClicado) },
             onToggleLight = { screenModel.onEvent(Preview3DUiEvent.AlternarLuz) },
             onToggleBackground = { screenModel.onEvent(Preview3DUiEvent.AlternarFundo) },
             onEditAgain = { navigator.pop() },

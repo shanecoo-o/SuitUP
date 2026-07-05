@@ -1,9 +1,7 @@
 package com.suitup.app.ui.screens.checkout
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -16,15 +14,20 @@ import com.suitup.app.domain.model.EnderecoEntrega
 import com.suitup.app.domain.model.TipoEntrega
 import com.suitup.app.domain.model.PontoLevantamento
 import com.suitup.app.ui.components.CheckoutStepIndicator
-import com.suitup.app.ui.components.PremiumCard
-import com.suitup.app.ui.components.PremiumDropdown
-import com.suitup.app.ui.components.PremiumTextField
-import com.suitup.app.ui.components.PremiumTopBar
-import com.suitup.app.ui.components.SectionHeader
-import com.suitup.app.ui.components.SecondaryDarkButton
+import com.suitup.app.ui.components.SuitAlertBanner
+import com.suitup.app.ui.components.SuitAlertVariant
+import com.suitup.app.ui.components.SuitButton
+import com.suitup.app.ui.components.SuitButtonSize
+import com.suitup.app.ui.components.SuitButtonVariant
+import com.suitup.app.ui.components.SuitCard
+import com.suitup.app.ui.components.SuitDetailTopBar
+import com.suitup.app.ui.components.SuitDropdown
 import com.suitup.app.ui.components.SuitDualBottomBar
+import com.suitup.app.ui.components.SuitEyebrow
+import com.suitup.app.ui.components.SuitFormFlowScaffold
 import com.suitup.app.ui.components.SuitSegmentedToggle
 import com.suitup.app.ui.components.SuitSelectableCard
+import com.suitup.app.ui.components.SuitTextField
 import com.suitup.app.ui.icons.PinIcon
 import com.suitup.app.ui.theme.SuitColors
 import com.suitup.app.ui.theme.SuitTextStyles
@@ -61,32 +64,42 @@ fun AddressScreen(
     onContinue: () -> Unit = {},
     onContinueDemo: () -> Unit = {},
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(SuitColors.Bone),
-    ) {
-        PremiumTopBar(
-            title = "Checkout",
-            onBack = onBack,
-            onCart = onCartClick,
-            cartBadgeCount = cartItemCount,
-        )
+    val canContinue = when (mode) {
+        TipoEntrega.Entrega -> endereco.cidade.isNotBlank() && endereco.bairro.isNotBlank() && endereco.rua.isNotBlank()
+        TipoEntrega.Levantamento -> selectedPickupPoint != null
+    }
 
+    SuitFormFlowScaffold(
+        topBar = {
+            SuitDetailTopBar(onBack = onBack, title = "Checkout", onCart = onCartClick, cartBadgeCount = cartItemCount)
+        },
+        fixedCta = {
+            SuitDualBottomBar(
+                primaryText = if (isSubmitting) "A criar pedido..." else "Continuar",
+                onPrimaryClick = onContinue,
+                onSecondaryClick = onBack,
+                primaryEnabled = canContinue && !isSubmitting,
+            )
+        },
+    ) {
         Column(
             modifier = Modifier
-                .weight(1f)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             CheckoutStepIndicator(currentStep = 3)
-            SectionHeader(
-                eyebrow = "LOCAL",
-                title = if (mode == TipoEntrega.Entrega) "Endereço de entrega" else "Ponto de levantamento",
-                description = "Confirme onde a encomenda deverá ser entregue.",
+            SuitEyebrow(text = "Local")
+            Text(
+                if (mode == TipoEntrega.Entrega) "Endereço de entrega" else "Ponto de levantamento",
+                style = SuitTextStyles.titleLarge,
+                color = SuitColors.Ink,
             )
-            // Toggle Entregar / Levantar
+            Text(
+                "Confirme onde a encomenda deverá ser entregue.",
+                style = SuitTextStyles.bodySmall,
+                color = SuitColors.Slate,
+            )
             SuitSegmentedToggle(
                 options = listOf(TipoEntrega.Entrega, TipoEntrega.Levantamento),
                 selectedOption = mode,
@@ -117,41 +130,23 @@ fun AddressScreen(
             }
 
             if (errorMessage != null) {
-                PremiumCard(modifier = Modifier.fillMaxWidth(), padding = 14.dp) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            text = errorMessage,
-                            style = SuitTextStyles.bodySmall,
-                            color = SuitColors.Error,
-                        )
-                        if (showDemoFallback) {
-                            Text(
-                                "Pode continuar localmente; este pedido ficará marcado como demonstração.",
-                                style = SuitTextStyles.bodySmall,
-                                color = SuitColors.Slate,
-                            )
-                            SecondaryDarkButton(
-                                text = "Continuar em modo demo",
-                                onClick = onContinueDemo,
-                                fullWidth = false,
-                            )
-                        }
-                    }
+                SuitAlertBanner(variant = SuitAlertVariant.Error, message = errorMessage)
+                if (showDemoFallback) {
+                    Text(
+                        "Pode continuar localmente; este pedido ficará marcado como demonstração.",
+                        style = SuitTextStyles.bodySmall,
+                        color = SuitColors.Slate,
+                    )
+                    SuitButton(
+                        text = "Continuar em modo demo",
+                        onClick = onContinueDemo,
+                        variant = SuitButtonVariant.Secondary,
+                        size = SuitButtonSize.Small,
+                        fullWidth = false,
+                    )
                 }
             }
         }
-
-        val canContinue = when (mode) {
-            TipoEntrega.Entrega -> endereco.cidade.isNotBlank() && endereco.bairro.isNotBlank() && endereco.rua.isNotBlank()
-            TipoEntrega.Levantamento -> selectedPickupPoint != null
-        }
-
-        SuitDualBottomBar(
-            primaryText = if (isSubmitting) "A criar pedido..." else "Continuar",
-            onPrimaryClick = onContinue,
-            onSecondaryClick = onBack,
-            primaryEnabled = canContinue && !isSubmitting,
-        )
     }
 }
 
@@ -173,14 +168,13 @@ private fun DeliveryForm(
             modifier = Modifier.padding(top = 4.dp),
         )
 
-        // Cidade
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
                 text = "Cidade",
                 style = SuitTextStyles.labelMedium,
                 color = SuitColors.Slate,
             )
-            PremiumDropdown(
+            SuitDropdown(
                 options = cities,
                 selectedOption = endereco.cidade.ifBlank { cities.first() },
                 onSelect = onCityChange,
@@ -189,14 +183,13 @@ private fun DeliveryForm(
             )
         }
 
-        // Bairro
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
                 text = "Bairro",
                 style = SuitTextStyles.labelMedium,
                 color = SuitColors.Slate,
             )
-            PremiumDropdown(
+            SuitDropdown(
                 options = neighborhoods,
                 selectedOption = endereco.bairro.ifBlank { neighborhoods.first() },
                 onSelect = onNeighborhoodChange,
@@ -205,16 +198,14 @@ private fun DeliveryForm(
             )
         }
 
-        // Rua / Av.
-        PremiumTextField(
+        SuitTextField(
             value = endereco.rua,
             onValueChange = onStreetChange,
             label = "Rua / Av.",
             placeholder = "Av. Julius Nyerere, 123",
         )
 
-        // Referência (opcional)
-        PremiumTextField(
+        SuitTextField(
             value = endereco.referencia.orEmpty(),
             onValueChange = onReferenceChange,
             label = "Referência (opcional)",
@@ -238,7 +229,7 @@ private fun PickupForm(
         )
 
         if (points.isEmpty()) {
-            PremiumCard(modifier = Modifier.fillMaxWidth(), padding = 16.dp) {
+            SuitCard(modifier = Modifier.fillMaxWidth(), padding = 16.dp) {
                 Text(
                     text = "Sem pontos disponíveis na sua área.",
                     style = SuitTextStyles.bodyMedium,

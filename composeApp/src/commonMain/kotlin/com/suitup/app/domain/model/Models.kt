@@ -232,6 +232,7 @@ data class ItemCarrinho(
     val quantidade: Int = 1,
     val hexCor: String,         // para o thumbnail
     val detalhes: List<String> = emptyList(),  // ex: "Tecido: Lã Premium"
+    val imagemKey: String = "",
 ) {
     val totalLinhaMt: Int get() = precoUnitarioMt * quantidade
 }

@@ -451,3 +451,63 @@ fun PictureIcon(modifier: Modifier = Modifier, size: Dp = 22.dp, tint: Color = S
         drawPath(mountain, tint, style = Stroke(s, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
+
+@Composable
+fun InfoIcon(modifier: Modifier = Modifier, size: Dp = 22.dp, tint: Color = SuitColors.Ink) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val s = DefaultStroke * (w / 22f)
+        drawCircle(tint, radius = w * 0.36f, center = Offset(w * 0.5f, h * 0.5f), style = Stroke(s))
+        drawCircle(tint, radius = s * 0.9f, center = Offset(w * 0.5f, h * 0.32f))
+        drawLine(tint, Offset(w * 0.5f, h * 0.46f), Offset(w * 0.5f, h * 0.70f), s, StrokeCap.Round)
+    }
+}
+
+@Composable
+fun WarningIcon(modifier: Modifier = Modifier, size: Dp = 22.dp, tint: Color = SuitColors.Ink) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val s = DefaultStroke * (w / 22f)
+        val triangle = Path().apply {
+            moveTo(w * 0.5f, h * 0.16f)
+            lineTo(w * 0.88f, h * 0.80f)
+            lineTo(w * 0.12f, h * 0.80f)
+            close()
+        }
+        drawPath(triangle, tint, style = Stroke(s, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawLine(tint, Offset(w * 0.5f, h * 0.40f), Offset(w * 0.5f, h * 0.60f), s, StrokeCap.Round)
+        drawCircle(tint, radius = s * 0.9f, center = Offset(w * 0.5f, h * 0.70f))
+    }
+}
+
+@Composable
+fun ErrorIcon(modifier: Modifier = Modifier, size: Dp = 22.dp, tint: Color = SuitColors.Ink) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val s = DefaultStroke * (w / 22f)
+        drawCircle(tint, radius = w * 0.36f, center = Offset(w * 0.5f, h * 0.5f), style = Stroke(s))
+        drawLine(tint, Offset(w * 0.38f, h * 0.38f), Offset(w * 0.62f, h * 0.62f), s, StrokeCap.Round)
+        drawLine(tint, Offset(w * 0.62f, h * 0.38f), Offset(w * 0.38f, h * 0.62f), s, StrokeCap.Round)
+    }
+}
+
+@Composable
+fun OfflineIcon(modifier: Modifier = Modifier, size: Dp = 22.dp, tint: Color = SuitColors.Ink) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val s = DefaultStroke * (w / 22f)
+        val cloud = Path().apply {
+            moveTo(w * 0.30f, h * 0.62f)
+            cubicTo(w * 0.16f, h * 0.62f, w * 0.16f, h * 0.42f, w * 0.32f, h * 0.40f)
+            cubicTo(w * 0.34f, h * 0.24f, w * 0.62f, h * 0.22f, w * 0.68f, h * 0.38f)
+            cubicTo(w * 0.84f, h * 0.36f, w * 0.86f, h * 0.62f, w * 0.70f, h * 0.62f)
+            close()
+        }
+        drawPath(cloud, tint, style = Stroke(s, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawLine(tint, Offset(w * 0.18f, h * 0.20f), Offset(w * 0.82f, h * 0.84f), s, StrokeCap.Round)
+    }
+}

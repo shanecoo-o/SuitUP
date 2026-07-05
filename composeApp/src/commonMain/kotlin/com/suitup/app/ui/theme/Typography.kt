@@ -179,6 +179,54 @@ object SuitTextStyles {
         lineHeight = 36.sp,
         letterSpacing = 0.sp,
     )
+
+    // --- Phase 6C.1: Stitch semantic roles (additive) ---
+    // Sourced from Prompt 9 DESIGN.md's concrete type scale, which is the only
+    // handoff document giving sizes (blueprint.md names only the two font families).
+    // Added as new fields rather than retuning displayLarge/headlineLarge/etc. in
+    // place, since those are already consumed across live screens and this phase
+    // must not visually migrate screens yet.
+
+    /** Stitch "display-hero": 40/700/48, -0.02em, Playfair — hero/editorial moments only. */
+    val display = TextStyle(
+        fontFamily = DisplayFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 40.sp,
+        lineHeight = 48.sp,
+        letterSpacing = (-0.8).sp,
+    )
+
+    /** Stitch "headline-lg": 32/600/40, Playfair — primary destination page titles (Início, Catálogo). */
+    val pageTitle = TextStyle(
+        fontFamily = DisplayFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+    )
+
+    /** No distinct Stitch value; mapped to existing titleLarge (Inter, dense/operational screens). */
+    val sectionTitle = titleLarge
+
+    /** No distinct Stitch value; mapped to existing titleMedium. */
+    val cardTitle = titleMedium
+
+    /** Stitch "body-lg": 16/400/24 (Inter) — matches existing bodyLarge closely. */
+    val body = bodyLarge
+
+    /** Low-emphasis metadata/timestamps; no Stitch value defined — mapped to existing bodySmall. */
+    val meta = bodySmall
+
+    /**
+     * Status badge text: 10px bold uppercase tight-tracking, observed inline in Stitch's
+     * admin payment HTML samples (not a formally named token in any handoff doc).
+     */
+    val status = TextStyle(
+        fontFamily = BodyFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 10.sp,
+        lineHeight = 14.sp,
+        letterSpacing = 0.5.sp,
+    )
 }
 
 @Composable

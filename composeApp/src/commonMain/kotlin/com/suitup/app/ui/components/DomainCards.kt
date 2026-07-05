@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.suitup.app.domain.model.PaymentStatus
 import com.suitup.app.ui.theme.SuitColors
@@ -67,9 +68,21 @@ fun SuitImageCard(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(3.dp),
                 ) {
-                    Text(title, style = SuitTextStyles.titleMedium, color = SuitColors.Pearl)
+                    Text(
+                        title,
+                        style = SuitTextStyles.titleMedium,
+                        color = SuitColors.Pearl,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                     if (subtitle != null) {
-                        Text(subtitle, style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+                        Text(
+                            subtitle,
+                            style = SuitTextStyles.bodySmall,
+                            color = SuitColors.Slate,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                 }
                 if (status != null) StatusChip(status)
@@ -130,11 +143,19 @@ fun CheckoutSummaryCard(
     }
 }
 
+/**
+ * Payment card foundation (Task 13). Purely visual — never performs a remote
+ * action itself; callers own confirm/reject/retry behavior.
+ */
 @Composable
 fun PaymentStatusCard(
     status: PaymentStatus,
     modifier: Modifier = Modifier,
     description: String? = null,
+    paymentReference: String? = null,
+    orderReference: String? = null,
+    dateLabel: String? = null,
+    hasProof: Boolean? = null,
 ) {
     val chip = when (status) {
         PaymentStatus.PENDING -> StatusChipType.Pending
@@ -156,7 +177,34 @@ fun PaymentStatusCard(
                 Text("Pagamento", style = SuitTextStyles.titleLarge, color = SuitColors.Pearl)
                 StatusChip(chip)
             }
+            if (paymentReference != null || orderReference != null) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    if (paymentReference != null) {
+                        Text("Ref. pagamento: $paymentReference", style = SuitTextStyles.bodySmall, color = SuitColors.Smoke)
+                    }
+                    if (orderReference != null) {
+                        Text("Pedido: $orderReference", style = SuitTextStyles.bodySmall, color = SuitColors.Smoke)
+                    }
+                }
+            }
             Text(resolvedDescription, style = SuitTextStyles.bodySmall, color = SuitColors.Slate)
+            if (dateLabel != null || hasProof != null) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (dateLabel != null) {
+                        Text(dateLabel, style = SuitTextStyles.bodySmall, color = SuitColors.Smoke)
+                    }
+                    if (hasProof != null) {
+                        SuitStatusBadge(
+                            text = if (hasProof) "Comprovativo anexado" else "Sem comprovativo",
+                            kind = if (hasProof) SuitStatusKind.Success else SuitStatusKind.Neutral,
+                        )
+                    }
+                }
+            }
         }
     }
 }
